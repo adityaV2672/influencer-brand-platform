@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-08-18 18:53:39",
+  "elapsed_seconds": 1681.1,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.15",
+  "seed": 20260904,
+  "slow_sample": 400,
+  "fast_sample": 3000,
+  "n_results": 29,
+  "n_ok": 22,
+  "n_skipped": 0,
+  "n_failed": 7
+}

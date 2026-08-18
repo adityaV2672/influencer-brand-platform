@@ -1,0 +1,15 @@
+{
+  "files": {
+    "influencers.parquet": 2000,
+    "brands.parquet": 120,
+    "brand_fit.parquet": 7200,
+    "edges.parquet": 6000,
+    "topics.parquet": 18,
+    "benchmark_results.parquet": 29,
+    "feature_importance.parquet": 79,
+    "feature_shap.parquet": 79,
+    "posts_sample.parquet": 16000
+  },
+  "total_size_mb": 2.44,
+  "note": "All heavy inference is precomputed. The dashboard loads no ML models."
+}

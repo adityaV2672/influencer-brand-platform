@@ -1,0 +1,23 @@
+{
+  "n_topics": 18,
+  "outlier_fraction": 0.1866,
+  "top_n_words": 10,
+  "min_topic_size": 40,
+  "n_documents": 52089,
+  "bertopic": {
+    "npmi": 0.4718,
+    "c_v": 0.8887,
+    "diversity": 0.8889
+  },
+  "lda": {
+    "npmi": 0.2985,
+    "c_v": 0.7504,
+    "diversity": 0.9278
+  },
+  "citations": {
+    "bertopic": "Grootendorst, M. (2022). BERTopic. arXiv:2203.05794",
+    "lda": "Blei, D., Ng, A., Jordan, M. (2003). Latent Dirichlet Allocation. JMLR 3.",
+    "npmi": "Bouma, G. (2009). Normalized (Pointwise) Mutual Information in Collocation Extraction.",
+    "c_v": "R\u00f6der, M., Both, A., Hinneburg, A. (2015). Exploring the Space of Topic Coherence Measures. WSDM."
+  }
+}

@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+.DS_Store
+
+# Large intermediates - rebuildable with `python run_pipeline.py`
+data/raw/
+data/processed/
+data/benchmarks/
+artifacts/embeddings/
+artifacts/nlp/post_embeddings.npy
+*.gexf
+
+# app_data/ is INTENTIONALLY committed - it is the deployment payload.

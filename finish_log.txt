@@ -1,0 +1,118 @@
+﻿==============================================================================
+INFLUENCER-BRAND COLLABORATION PLATFORM - pipeline
+stages: brandfit, export, figures, report, verify
+==============================================================================
+
+[1/5] BRANDFIT - Build the brand-fit matrix (semantic similarity + safety gates)
+------------------------------------------------------------------------------
+    competitor activity: 6,367 creator-brand relationships within 180 days (2,433 paid)
+  building brand-fit matrix ...
+    embedding 2,000 creator profiles and 120 brand profiles
+    7,200 scored pairs, 2,624 blocked by competitor conflict
+    mean fit 0.453, top-decile threshold 0.809
+-- brandfit completed in 6.8s
+
+[2/5] EXPORT - Export slim artifacts for the hosted dashboard
+------------------------------------------------------------------------------
+  scoring creators with the trained models ...
+    exported 17 files, 2.4 MB total
+      influencers.parquet          2000
+      brands.parquet               120
+      brand_fit.parquet            7200
+      edges.parquet                6000
+      topics.parquet               18
+      benchmark_results.parquet    29
+      feature_importance.parquet   79
+      feature_shap.parquet         79
+      posts_sample.parquet         16000
+-- export completed in 5.6s
+
+[3/5] FIGURES - Render the publication figures
+------------------------------------------------------------------------------
+python.exe : findfont: Failed to find font weight semibold, now using 700.
+At line:1 char:137
++ ... -platform'; & 'C:\Users\adity\anaconda3\envs\influencer\python.exe' - ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (findfont: Faile... now using 700.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    calibration
+    engagement_decay
+    nlp_sentiment
+    nlp_irony
+    nlp_sarcasm_headlines
+    nlp_emotion
+    irony_crossdomain
+findfont: Failed to find font weight semibold, now using 700.
+    model_baselines
+    ablation
+    importance
+    pred_vs_actual
+    topic_coherence
+    network
+-- figures completed in 8.6s
+
+[4/5] REPORT - Build the Word report and the slide-deck data
+------------------------------------------------------------------------------
+  deck data -> C:\Users\adity\influencer-platform\reports\deck\deck_data.json
+  figures   -> 13 copied
+    report -> C:\Users\adity\influencer-platform\reports\Influencer_Platform_Report.docx
+-- report completed in 1.9s
+
+[5/5] VERIFY - Run the integrity checks
+------------------------------------------------------------------------------
+==========================================================================
+INTEGRITY CHECKS
+==========================================================================
+  PASS  app_data/influencers.parquet exists
+  PASS  app_data/brands.parquet exists
+  PASS  app_data/manifest.json exists
+  PASS  app influencers has 'influencer_id'
+  PASS  app influencers has 'handle'
+  PASS  app influencers has 'performance_score'
+  PASS  app influencers has 'price_estimate_inr'
+  PASS  no null creator ids
+  PASS  creator ids unique
+  PASS  deployment payload under 100 MB
+  PASS  benchmark results exist
+  PASS  a majority-class baseline is present for every task/corpus
+  PASS  all corpora used are real labelled sets, not synthetic
+  PASS  accuracy values are valid probabilities
+  PASS  non-subsampled methods scored on identical rows [emotion/tweeteval_emotion]
+  PASS  non-subsampled methods scored on identical rows [irony/sarcasm_headlines]
+  PASS  non-subsampled methods scored on identical rows [irony/tweeteval_irony]
+  PASS  non-subsampled methods scored on identical rows [sentiment/tweeteval_sentiment]
+  PASS  'torch' absent from the hosted runtime requirements
+  PASS  'transformers' absent from the hosted runtime requirements
+  PASS  'sentence-transformers' absent from the hosted runtime requirements
+  PASS  'bertopic' absent from the hosted runtime requirements
+  PASS  'umap' absent from the hosted runtime requirements
+  PASS  'hdbscan' absent from the hosted runtime requirements
+  PASS  engagement median in published band [Nano]
+  PASS  engagement median in published band [Micro]
+  PASS  engagement median in published band [Mid]
+  PASS  engagement median in published band [Macro]
+  PASS  engagement decreases monotonically with follower tier
+  PASS  GroupKFold puts each creator in exactly one fold
+  PASS  no latent traits in modelling_table.parquet
+  PASS  no latent traits in influencer_features.parquet
+  PASS  no latent traits in influencers.parquet
+  PASS  report claim holds: no lexicon method beats the majority baseline on irony
+  PASS  R2(log) is in a plausible range
+  PASS  Spearman is in [-1, 1]
+  PASS  model does not exceed its own theoretical ceiling
+  PASS  fold variance is not suspiciously low
+  PASS  reported mean fold R2 matches the fold list
+  PASS  no banned column reached the model matrix
+  PASS  target is not a feature
+  PASS  fee median in published band [Nano]
+  PASS  fee median in published band [Micro]
+  PASS  fee median in published band [Mid]
+  PASS  fee median in published band [Macro]
+--------------------------------------------------------------------------
+45 passed ├é┬╖ 0 skipped ├é┬╖ 0 FAILED
+
+-- verify completed in 3.3s
+
+==============================================================================
+pipeline finished in 26.2s (5/5 stages ok)

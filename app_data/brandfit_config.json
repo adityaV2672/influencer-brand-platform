@@ -1,0 +1,19 @@
+{
+  "component_weights": {
+    "semantic_similarity": 0.34,
+    "category_match": 0.28,
+    "audience_match": 0.18,
+    "content_safety": 0.12,
+    "consistency": 0.08
+  },
+  "top_k_per_brand": 60,
+  "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+  "gates": [
+    "recent PAID or repeated (>=2) competitor collaboration within 180 days -> hard block (multiplier 0)",
+    "single unpaid competitor mention in window -> x0.80 (warning, not a veto)",
+    "promo rate > 55% -> x0.65",
+    "promo rate > 38% -> x0.85"
+  ],
+  "conflict_window_days": 180,
+  "conflict_min_repeat": 2
+}

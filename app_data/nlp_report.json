@@ -1,0 +1,41 @@
+{
+  "rules": {
+    "status": "ok",
+    "n": 52089
+  },
+  "lexicon": {
+    "status": "ok",
+    "seconds": 12.6
+  },
+  "embeddings": {
+    "status": "ok",
+    "seconds": 0.2
+  },
+  "transformers": {
+    "status": "ok",
+    "seconds": 5741.9,
+    "posts_scored": 20000,
+    "posts_total": 52089,
+    "per_creator_sample": 10
+  },
+  "topics": {
+    "status": "ok",
+    "seconds": 285.6,
+    "n_topics": 18,
+    "outlier_fraction": 0.1866,
+    "bertopic": {
+      "npmi": 0.4718,
+      "c_v": 0.8887,
+      "diversity": 0.8889
+    },
+    "lda": {
+      "npmi": 0.2985,
+      "c_v": 0.7504,
+      "diversity": 0.9278
+    }
+  },
+  "llm": {
+    "status": "disabled",
+    "reason": "cost - see module docstring"
+  }
+}

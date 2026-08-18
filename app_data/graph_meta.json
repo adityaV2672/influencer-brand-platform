@@ -1,0 +1,16 @@
+{
+  "construction": "mutual-kNN over TF-IDF co-hashtag and co-brand similarity",
+  "k_hashtag": 12,
+  "k_brand": 8,
+  "min_sim": 0.08,
+  "hashtag_vocab": 119,
+  "brand_vocab": 73,
+  "caveat": "Topical co-behaviour graph, NOT a follower graph. Centrality = topical centrality, not social influence.",
+  "n_nodes": 2000,
+  "n_edges": 7415,
+  "density": 0.0037093546773386693,
+  "n_communities": 89,
+  "largest_community": 180,
+  "betweenness_exact": false,
+  "betweenness_pivots": 400
+}

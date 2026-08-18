@@ -1,0 +1,10 @@
+# Dashboard runtime ONLY. Deliberately excludes torch, transformers,
+# sentence-transformers, bertopic, umap and hdbscan: the hosted app performs no
+# ML inference, it reads precomputed parquet from app_data/. Keeping those out
+# is what lets the deployment fit inside a ~1 GB free tier.
+streamlit>=1.44,<2
+pandas>=2.1
+numpy>=1.26
+pyarrow>=15.0
+plotly>=5.20
+networkx>=3.2

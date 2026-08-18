@@ -1,0 +1,241 @@
+﻿sleep prevention enabled
+=== pipeline started 08/18/2026 16:37:17 ===
+==============================================================================
+INFLUENCER-BRAND COLLABORATION PLATFORM - pipeline
+stages: generate, benchmarks, sna, campaigns, nlp, features, models, brandfit, evaluate, export
+==============================================================================
+
+[1/10] GENERATE - Generate the synthetic influencer universe (profiles, posts, brands)
+------------------------------------------------------------------------------
+-- generate completed in 31.7s
+
+[2/10] BENCHMARKS - Download real labelled NLP corpora (TweetEval, sarcasm headlines)
+------------------------------------------------------------------------------
+Fetching real labelled benchmark corpora
+------------------------------------------------------------
+TweetEval (Barbieri et al., EMNLP Findings 2020):
+  [github (authors' repo)]   saved tweeteval_sentiment     59,899 rows -> tweeteval_sentiment.parquet
+  [github (authors' repo)]   saved tweeteval_emotion        5,052 rows -> tweeteval_emotion.parquet
+  [github (authors' repo)]   saved tweeteval_irony          4,601 rows -> tweeteval_irony.parquet
+News headlines sarcasm (Misra & Arora):
+    train: 28,619 rows
+    test: 26,709 rows
+  saved sarcasm_headlines       28,503 rows -> sarcasm_headlines.parquet
+------------------------------------------------------------
+4 corpora available in C:\Users\adity\influencer-platform\data\benchmarks
+-- benchmarks completed in 23.1s
+
+[3/10] SNA - Build the influencer graph and compute centrality features
+------------------------------------------------------------------------------
+Building influencer co-behaviour graph
+  graph: 2,000 nodes, 7,415 edges, density=0.00371
+  pagerank ...
+  eigenvector ...
+  betweenness (approx, k=400 pivots) ...
+  closeness ...
+  louvain communities ...
+  clustering ...
+  saved to C:\Users\adity\influencer-platform\artifacts\network
+-- sna completed in 18.3s
+
+[4/10] CAMPAIGNS - Simulate sponsored campaigns (the supervised target)
+------------------------------------------------------------------------------
+-- campaigns completed in 7.2s
+
+[5/10] NLP - Run the NLP pipeline over all posts (sentiment, emotion, topics, sarcasm)
+------------------------------------------------------------------------------
+  52,089 posts
+  [1/6] rule-based extraction
+  [2/6] lexicon sentiment and emotion
+    lexicon ok (12.6s)
+  [3/6] SBERT embeddings
+    sbert ok (0.2s)
+  [4/6] transformer sentiment and irony on 20,000 posts (10/creator, 38% of corpus)
+python.exe : Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher 
+rate limits and faster downloads.
+At C:\Users\adity\influencer-platform\run_all.ps1:42 char:1
++ & $py -u run_pipeline.py --continue-on-error 2>&1 |
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Warning: You ar...ster downloads.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[transformers] [1mRobertaForSequenceClassification LOAD REPORT[0m from: 
+cardiffnlp/twitter-roberta-base-sentiment-latest
+Key                         | Status     |  | 
+----------------------------+------------+--+-
+roberta.pooler.dense.bias   | UNEXPECTED |  | 
+roberta.pooler.dense.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+C:\Users\adity\anaconda3\envs\influencer\Lib\site-packages\torch\ao\nn\quantized\modules\utils.py:72: UserWarning: 
+torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce 
+tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch 
+release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at 
+C:\actions-runner\_work\pytorch\pytorch\aten\src\ATen\quantized\Quantizer.cpp:116.)
+  qweight = torch.quantize_per_tensor(
+    chunk 1/20 [0-1,000]  2 posts/s  ~133 min left
+    chunk 2/20 [1,000-2,000]  3 posts/s  ~109 min left
+    chunk 3/20 [2,000-3,000]  3 posts/s  ~92 min left
+    chunk 4/20 [3,000-4,000]  3 posts/s  ~84 min left
+    chunk 5/20 [4,000-5,000]  3 posts/s  ~84 min left
+    chunk 6/20 [5,000-6,000]  3 posts/s  ~84 min left
+    chunk 7/20 [6,000-7,000]  3 posts/s  ~76 min left
+    chunk 8/20 [7,000-8,000]  3 posts/s  ~68 min left
+    chunk 9/20 [8,000-9,000]  3 posts/s  ~59 min left
+    chunk 10/20 [9,000-10,000]  3 posts/s  ~51 min left
+    chunk 11/20 [10,000-11,000]  3 posts/s  ~44 min left
+    chunk 12/20 [11,000-12,000]  3 posts/s  ~39 min left
+    chunk 13/20 [12,000-13,000]  4 posts/s  ~33 min left
+    chunk 14/20 [13,000-14,000]  4 posts/s  ~28 min left
+    chunk 15/20 [14,000-15,000]  4 posts/s  ~23 min left
+    chunk 16/20 [15,000-16,000]  3 posts/s  ~20 min left
+    chunk 17/20 [16,000-17,000]  3 posts/s  ~15 min left
+    chunk 18/20 [17,000-18,000]  3 posts/s  ~10 min left
+    chunk 19/20 [18,000-19,000]  3 posts/s  ~5 min left
+    chunk 20/20 [19,000-20,000]  3 posts/s  ~0 min left
+    roberta ok (5741.9s)
+  [5/6] BERTopic vs LDA
+  fitting BERTopic ...
+2026-08-18 18:15:46,824 - BERTopic - Dimensionality - Fitting the dimensionality reduction algorithm
+2026-08-18 18:17:37,018 - BERTopic - Dimensionality - Completed Γ£ô
+2026-08-18 18:17:37,020 - BERTopic - Cluster - Start clustering the reduced embeddings
+2026-08-18 18:17:46,335 - BERTopic - Cluster - Completed Γ£ô
+2026-08-18 18:17:46,337 - BERTopic - Representation - Extracting topics using c-TF-IDF for topic reduction.
+2026-08-18 18:17:48,485 - BERTopic - Representation - Completed Γ£ô
+2026-08-18 18:17:48,485 - BERTopic - Topic reduction - Reducing number of topics
+2026-08-18 18:17:48,617 - BERTopic - Representation - Fine-tuning topics using representation models.
+2026-08-18 18:17:50,443 - BERTopic - Representation - Completed Γ£ô
+2026-08-18 18:17:50,451 - BERTopic - Topic reduction - Reduced number of topics from 289 to 19
+    18 topics, 18.7% outliers
+  fitting LDA baseline with n_topics=18 ...
+  scoring coherence ...
+    bertopic ok (285.6s)
+  wrote C:\Users\adity\influencer-platform\artifacts\nlp
+-- nlp completed in 6077.8s
+
+[6/10] FEATURES - Merge every track into the influencer-level feature table
+------------------------------------------------------------------------------
+  building influencer feature table ...
+    2,000 influencers x 77 columns
+  building campaign modelling table ...
+    2,199 campaign rows
+    72 numeric + 7 categorical features, leakage check passed
+-- features completed in 7.3s
+
+[7/10] MODELS - Train the performance and price models
+------------------------------------------------------------------------------
+  training performance model ...
+    2,199 rows, 72 numeric + 7 categorical features
+    GroupKFold(5) on influencer_id (1,100 unique creators)
+      fold 1: R2(log)=0.6837  best_iter=847
+      fold 2: R2(log)=0.6899  best_iter=261
+      fold 3: R2(log)=0.6882  best_iter=138
+      fold 4: R2(log)=0.7237  best_iter=266
+      fold 5: R2(log)=0.6734  best_iter=206
+C:\Users\adity\influencer-platform\src\models\train.py:154: RuntimeWarning: All-NaN slice encountered
+  v = np.nan_to_num(v, nan=np.nanmedian(v) if np.isfinite(np.nanmedian(v)) else 0.0)
+      ablation reach       drop=+0.0155  alone=0.3691
+      ablation engagement  drop=+0.0558  alone=0.4433
+      ablation content     drop=+0.0084  alone=0.1106
+      ablation network     drop=+0.0496  alone=0.0949
+      ablation brandfit    drop=+0.1083  alone=0.1626
+  training price model ...
+
+  ---- performance ----
+    R2(log)        0.6939   (ceiling 0.8191, 84.7% of achievable)
+    Spearman       0.8259
+    NDCG@10        0.8106
+    vs benchmark curve   R2(log)=-0.0200
+    vs composite index   R2(log)=0.2248
+  ---- price ----
+    R2(log)=0.9753   MAPE=0.201   band coverage=80.0%
+-- models completed in 260.3s
+
+[8/10] BRANDFIT - Build the brand-fit matrix (semantic similarity + safety gates)
+------------------------------------------------------------------------------
+  building brand-fit matrix ...
+    embedding 2,000 creator profiles and 120 brand profiles
+    7,200 scored pairs, 6,125 blocked by competitor conflict
+    mean fit 0.115, top-decile threshold 0.772
+-- brandfit completed in 75.1s
+
+[9/10] EVALUATE - Evaluate NLP methods on the real labelled corpora
+------------------------------------------------------------------------------
+
+==============================================================================
+SENTIMENT on tweeteval_sentiment
+  train=47,615  test=3,000  labels=['negative', 'neutral', 'positive']
+  slow-method subsample=400
+==============================================================================
+  Majority-class baseline ('neutral')            acc=0.483  macroF1=0.217
+  Bing (Hu & Liu opinion lexicon)                acc=0.524  macroF1=0.512   21179.1 txt/s
+  VADER                                          acc=0.528  macroF1=0.527   12436.1 txt/s
+  NRC EmoLex (polarity)                          acc=0.453  macroF1=0.446   78280.8 txt/s
+  SBERT + LogisticRegression (sentiment)         acc=0.614  macroF1=0.618      52.7 txt/s
+  RoBERTa (twitter-sentiment)                    acc=0.671  macroF1=0.643      14.1 txt/s
+  llm                                            FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+
+==============================================================================
+EMOTION on tweeteval_emotion
+  train=3,631  test=1,421  labels=['anger', 'joy', 'optimism', 'sadness']
+  slow-method subsample=400
+==============================================================================
+  Majority-class baseline ('anger')              acc=0.393  macroF1=0.141
+  NRC EmoLex (8-emotion)                         acc=0.470  macroF1=0.375   52323.4 txt/s
+  SBERT + LogisticRegression (emotion)           acc=0.724  macroF1=0.682      71.5 txt/s
+  RoBERTa (twitter-emotion)                      acc=0.248  macroF1=0.237       8.6 txt/s
+
+==============================================================================
+IRONY on tweeteval_irony
+  train=3,817  test=784  labels=['irony', 'non_irony']
+  slow-method subsample=400
+==============================================================================
+  Majority-class baseline ('non_irony')          acc=0.603  macroF1=0.376
+  Bing -> irony heuristic                        acc=0.496  macroF1=0.416  129208.8 txt/s
+  VADER -> irony heuristic                       acc=0.550  macroF1=0.490   11615.5 txt/s
+  NRC -> irony heuristic                         acc=0.487  macroF1=0.428   23381.8 txt/s
+  SBERT + LogisticRegression (irony)             acc=0.668  macroF1=0.664     104.8 txt/s
+  RoBERTa (twitter-irony)                        acc=0.679  macroF1=0.580      21.5 txt/s
+  llm_zero_shot                                  FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+  llm_few_shot                                   FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+  llm_cot                                        FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+
+==============================================================================
+IRONY on sarcasm_headlines
+  train=21,377  test=3,000  labels=['irony', 'non_irony']
+  slow-method subsample=400
+==============================================================================
+  Majority-class baseline ('non_irony')          acc=0.525  macroF1=0.344
+  Bing -> irony heuristic                        acc=0.500  macroF1=0.448   74676.8 txt/s
+  VADER -> irony heuristic                       acc=0.516  macroF1=0.415    7800.3 txt/s
+  NRC -> irony heuristic                         acc=0.515  macroF1=0.492   66477.6 txt/s
+  SBERT + LogisticRegression (irony)             acc=0.779  macroF1=0.778      41.3 txt/s
+  RoBERTa (twitter-irony)                        acc=0.545  macroF1=0.538      21.1 txt/s
+  llm_zero_shot                                  FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+  llm_few_shot                                   FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+  llm_cot                                        FAIL (RuntimeError: Ollama generation failed after retries: <urlopen error [WinE)
+
+==============================================================================
+22 ok / 0 skipped / 7 failed in 1681.1s
+written to C:\Users\adity\influencer-platform\artifacts\benchmarks
+-- evaluate completed in 1681.2s
+
+[10/10] EXPORT - Export slim artifacts for the hosted dashboard
+------------------------------------------------------------------------------
+  scoring creators with the trained models ...
+    exported 17 files, 2.4 MB total
+      influencers.parquet          2000
+      brands.parquet               120
+      brand_fit.parquet            7200
+      edges.parquet                6000
+      topics.parquet               18
+      benchmark_results.parquet    29
+      feature_importance.parquet   79
+      feature_shap.parquet         79
+      posts_sample.parquet         16000
+-- export completed in 1.1s
+
+==============================================================================
+pipeline finished in 8183.2s (10/10 stages ok)
+=== pipeline finished 08/18/2026 18:53:48 ===

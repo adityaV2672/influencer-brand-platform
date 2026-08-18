@@ -1,0 +1,42 @@
+{
+  "author": "Aditya Verma",
+  "date": "18 August 2026",
+  "problem": {
+    "nano_er": "3.9%",
+    "macro_er": "1.1%",
+    "ratio": "3.7\u00d7"
+  },
+  "data": {
+    "n_influencers": "2,000",
+    "n_posts": "52,089",
+    "n_campaigns": "2,199"
+  },
+  "sentiment": {
+    "finding": "Best method: RoBERTa (twitter-sentiment) at macro-F1 0.643. NRC scores 0.446 against VADER's 0.527 \u2014 the richer lexicon is the weaker polarity method. NRC's value is its eight emotion categories, not its positive/negative split.",
+    "n_eval": "3,000"
+  },
+  "irony": {
+    "best_lexicon_acc": "0.550",
+    "baseline_acc": "0.603",
+    "best_acc": "0.668",
+    "best_name": "SBERT + LogisticRegression (irony)",
+    "n_eval": "784"
+  },
+  "topics": {
+    "summary": "18 topics over 52,089 captions, 19% outliers. On NPMI coherence, BERTopic wins: 0.472 vs 0.298."
+  },
+  "model": {
+    "r2": "0.694",
+    "ceiling_frac": "85%",
+    "spearman": "0.826",
+    "ndcg": "0.811",
+    "baseline_index": "0.225",
+    "note": "The Phase-1 weighted index is flattered here \u2014 isotonically calibrated on the full dataset, an advantage the learned model does not get. It still loses by 0.469 R\u00b2."
+  },
+  "ablation": {
+    "negative": "Every pillar contributes. The largest single contributor is brandfit (+0.108 R\u00b2 when removed)."
+  },
+  "price": {
+    "negative": "The learned price model reaches R\u00b2 0.975 against 0.966 for a published rate card with no learning at all \u2014 a gap of 0.010. That does not justify the maintenance cost. Ship the rule; revisit once real negotiated-deal data exists."
+  }
+}

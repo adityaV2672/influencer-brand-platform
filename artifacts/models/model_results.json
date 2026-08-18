@@ -1,0 +1,263 @@
+{
+  "performance": {
+    "model": "LightGBM (GroupKFold OOF)",
+    "target": "campaign_engagement_rate",
+    "n_rows": 2199,
+    "n_features": 79,
+    "fold_r2_log": [
+      0.6837,
+      0.6899,
+      0.6882,
+      0.7237,
+      0.6734
+    ],
+    "fold_r2_log_mean": 0.6918,
+    "fold_r2_log_std": 0.017,
+    "mean_best_iteration": 343,
+    "r2_log": 0.6939,
+    "rmse_log": 0.4163,
+    "mae_log": 0.3334,
+    "r2_raw": 0.6097,
+    "mae_raw": 0.005787,
+    "mape": 0.3586,
+    "spearman": 0.8259,
+    "ndcg@10": 0.8106,
+    "ndcg@50": 0.7867,
+    "baseline_benchmark_curve": {
+      "r2_log": -0.02,
+      "rmse_log": 0.7598,
+      "mae_log": 0.6072,
+      "r2_raw": -0.0111,
+      "mae_raw": 0.011127,
+      "mape": 1.0364,
+      "spearman": 0.5943,
+      "ndcg@10": 0.4561,
+      "ndcg@50": 0.4601
+    },
+    "baseline_composite_index": {
+      "r2_log": 0.2248,
+      "rmse_log": 0.6624,
+      "mae_log": 0.5257,
+      "r2_raw": 0.3075,
+      "mae_raw": 0.008658,
+      "mape": 0.7444,
+      "spearman": 0.509,
+      "ndcg@10": 0.6866,
+      "ndcg@50": 0.6625,
+      "note": "Isotonically calibrated to the target scale, and fitted on the full set - this FLATTERS the baseline, so beating it is a conservative claim."
+    },
+    "theoretical_r2_log_ceiling": 0.8191,
+    "fraction_of_ceiling": 0.8471,
+    "ceiling_note": "Target carries lognormal(0, 0.32) irreducible noise by construction; no model can exceed this R^2 in log space.",
+    "top_features": [
+      {
+        "feature": "engagement_rate",
+        "gain_pct": 26.03
+      },
+      {
+        "feature": "follower_growth_rate",
+        "gain_pct": 8.57
+      },
+      {
+        "feature": "following",
+        "gain_pct": 8.3
+      },
+      {
+        "feature": "brand_category",
+        "gain_pct": 5.32
+      },
+      {
+        "feature": "comments_to_likes",
+        "gain_pct": 4.08
+      },
+      {
+        "feature": "followers",
+        "gain_pct": 3.37
+      },
+      {
+        "feature": "pagerank",
+        "gain_pct": 3.27
+      },
+      {
+        "feature": "match_primary_niche",
+        "gain_pct": 2.62
+      },
+      {
+        "feature": "degree_weighted",
+        "gain_pct": 2.52
+      },
+      {
+        "feature": "match_geo",
+        "gain_pct": 1.82
+      },
+      {
+        "feature": "reach_efficiency",
+        "gain_pct": 1.71
+      },
+      {
+        "feature": "match_age",
+        "gain_pct": 1.48
+      },
+      {
+        "feature": "views_to_followers",
+        "gain_pct": 1.38
+      },
+      {
+        "feature": "degree_weighted_pct",
+        "gain_pct": 1.24
+      },
+      {
+        "feature": "pagerank_pct",
+        "gain_pct": 1.17
+      },
+      {
+        "feature": "content_promo_rate",
+        "gain_pct": 1.15
+      },
+      {
+        "feature": "er_vs_benchmark",
+        "gain_pct": 1.13
+      },
+      {
+        "feature": "content_topic_entropy",
+        "gain_pct": 1.07
+      },
+      {
+        "feature": "content_nrc_anger",
+        "gain_pct": 0.9
+      },
+      {
+        "feature": "content_caps_ratio",
+        "gain_pct": 0.87
+      }
+    ],
+    "top_features_shap": [
+      {
+        "feature": "engagement_rate",
+        "mean_abs_shap": 0.20759818658998824
+      },
+      {
+        "feature": "brand_category",
+        "mean_abs_shap": 0.1302611735896071
+      },
+      {
+        "feature": "follower_growth_rate",
+        "mean_abs_shap": 0.11624451166759535
+      },
+      {
+        "feature": "match_primary_niche",
+        "mean_abs_shap": 0.07738408161464835
+      },
+      {
+        "feature": "comments_to_likes",
+        "mean_abs_shap": 0.07649462418671012
+      },
+      {
+        "feature": "following",
+        "mean_abs_shap": 0.07637432417935706
+      },
+      {
+        "feature": "match_age",
+        "mean_abs_shap": 0.0718249160071346
+      },
+      {
+        "feature": "match_geo",
+        "mean_abs_shap": 0.05721844765592808
+      },
+      {
+        "feature": "pagerank",
+        "mean_abs_shap": 0.05641639894041586
+      },
+      {
+        "feature": "degree_weighted",
+        "mean_abs_shap": 0.04913032966448903
+      },
+      {
+        "feature": "followers",
+        "mean_abs_shap": 0.04344963617093647
+      },
+      {
+        "feature": "reach_efficiency",
+        "mean_abs_shap": 0.02783330573028693
+      },
+      {
+        "feature": "views_to_followers",
+        "mean_abs_shap": 0.024894421806105925
+      },
+      {
+        "feature": "content_promo_rate",
+        "mean_abs_shap": 0.02246540217870356
+      },
+      {
+        "feature": "content_nrc_anger",
+        "mean_abs_shap": 0.020360427127016443
+      }
+    ],
+    "ablation": {
+      "all_features_r2_log": 0.6915,
+      "drops": {
+        "reach": {
+          "r2_without": 0.676,
+          "delta": 0.0155,
+          "n_features": 9
+        },
+        "engagement": {
+          "r2_without": 0.6357,
+          "delta": 0.0558,
+          "n_features": 7
+        },
+        "content": {
+          "r2_without": 0.6831,
+          "delta": 0.0084,
+          "n_features": 34
+        },
+        "network": {
+          "r2_without": 0.6419,
+          "delta": 0.0496,
+          "n_features": 15
+        },
+        "brandfit": {
+          "r2_without": 0.5832,
+          "delta": 0.1083,
+          "n_features": 6
+        }
+      },
+      "only": {
+        "reach": 0.3691,
+        "engagement": 0.4433,
+        "content": 0.1106,
+        "network": 0.0949,
+        "brandfit": 0.1626
+      }
+    }
+  },
+  "price": {
+    "model": "LightGBM price regressor",
+    "target": "fee_inr",
+    "r2_log": 0.9753,
+    "rmse_log": 0.2489,
+    "mae_log": 0.1969,
+    "r2_raw": 0.8339,
+    "mae_raw": 11762.52639,
+    "mape": 0.2012,
+    "spearman": 0.9874,
+    "ndcg@10": 0.6152,
+    "ndcg@50": 0.8659,
+    "baseline_rate_card": {
+      "r2_log": 0.9656,
+      "rmse_log": 0.2937,
+      "mae_log": 0.2346,
+      "r2_raw": 0.9295,
+      "mae_raw": 10416.573291,
+      "mape": 0.2501,
+      "spearman": 0.9815,
+      "ndcg@10": 0.9283,
+      "ndcg@50": 0.9467
+    },
+    "band_multipliers": {
+      "low": 0.731,
+      "high": 1.369
+    },
+    "band_coverage_p10_p90": 0.7999
+  }
+}
