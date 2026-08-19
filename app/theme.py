@@ -122,23 +122,45 @@ def fmt_pct(x: float, dp: int = 2) -> str:
 # --------------------------------------------------------------------------
 
 
+def _signature(p: Path) -> tuple[int, int]:
+    """(mtime_ns, size) - the cache key ingredient that makes data changes visible.
+
+    Caching on the filename alone looks correct and is a trap: when the pipeline
+    regenerates a parquet, the filename is unchanged, so Streamlit happily serves
+    the previous DataFrame. That produced a genuinely confusing deployment where
+    new code and new data were both live but the app still showed the old
+    rankings. Including the file's mtime and size in the key means any data
+    change invalidates the entry automatically.
+    """
+    stat = p.stat()
+    return (stat.st_mtime_ns, stat.st_size)
+
+
 @st.cache_data(show_spinner=False)
+def _read_parquet_cached(name: str, signature: tuple[int, int]) -> pd.DataFrame:
+    return pd.read_parquet(APP_DATA / name)
+
+
+@st.cache_data(show_spinner=False)
+def _read_json_cached(name: str, signature: tuple[int, int]) -> dict | None:
+    try:
+        return json.loads((APP_DATA / name).read_text())
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def load(name: str) -> pd.DataFrame | None:
     p = APP_DATA / name
     if not p.exists():
         return None
-    return pd.read_parquet(p)
+    return _read_parquet_cached(name, _signature(p))
 
 
-@st.cache_data(show_spinner=False)
 def load_json(name: str) -> dict | None:
     p = APP_DATA / name
     if not p.exists():
         return None
-    try:
-        return json.loads(p.read_text())
-    except Exception:  # noqa: BLE001
-        return None
+    return _read_json_cached(name, _signature(p))
 
 
 def require(name: str, label: str) -> pd.DataFrame:
