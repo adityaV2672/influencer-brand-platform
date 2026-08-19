@@ -92,11 +92,43 @@ def _predict_generic_performance(inf: pd.DataFrame) -> pd.DataFrame:
     pred = np.exp(pred_log)
 
     out = pd.DataFrame({"influencer_id": inf["influencer_id"], "predicted_campaign_er": pred})
-    out["performance_score"] = (out["predicted_campaign_er"].rank(pct=True) * 100).round(1)
-    out["performance_band"] = pd.cut(
-        out["performance_score"], bins=[0, 40, 75, 100.01],
-        labels=["Low", "Medium", "High"], right=False,
-    ).astype(str)
+
+    # THREE RANKING MODES, and the reason there are three.
+    #
+    # Ranking by predicted engagement RATE alone is mathematically guaranteed to
+    # put the smallest accounts on top, because engagement rate falls with
+    # audience size. A brand with a large budget then opens the product and sees
+    # nothing but 800-follower creators - technically the correct answer to
+    # "who gets the highest engagement rate", and useless as a shortlist.
+    #
+    # Ranking by predicted TOTAL engagements has the opposite bias: it collapses
+    # to "who has the most followers", which is the vanity metric this whole
+    # project exists to argue against.
+    #
+    # Neither is correct in isolation, because the right answer depends on the
+    # campaign objective - and that is a business decision, not a technical one.
+    # So all three are computed here and the choice is exposed in the UI rather
+    # than hidden inside a default sort.
+    out["predicted_total_engagements"] = pred * inf["followers"].to_numpy()
+
+    out["score_rate"] = (out["predicted_campaign_er"].rank(pct=True) * 100).round(1)
+    out["score_reach"] = (out["predicted_total_engagements"].rank(pct=True) * 100).round(1)
+    # Balanced: mean of the two percentile ranks, re-ranked so the result is
+    # itself a percentile. Averaging percentiles rather than raw values keeps
+    # the blend from being dominated by the heavier-tailed of the two.
+    out["score_balanced"] = (
+        ((out["score_rate"] + out["score_reach"]) / 2).rank(pct=True) * 100
+    ).round(1)
+
+    # `performance_score` stays as the rate-based score for backwards
+    # compatibility with the profile pages and the price model.
+    out["performance_score"] = out["score_rate"]
+    for col in ("score_rate", "score_reach", "score_balanced"):
+        out[f"band_{col.split('_')[1]}"] = pd.cut(
+            out[col], bins=[0, 40, 75, 100.01],
+            labels=["Low", "Medium", "High"], right=False,
+        ).astype(str)
+    out["performance_band"] = out["band_rate"]
     return out
 
 

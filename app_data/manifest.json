@@ -10,6 +10,6 @@
     "feature_shap.parquet": 79,
     "posts_sample.parquet": 16000
   },
-  "total_size_mb": 2.44,
+  "total_size_mb": 2.47,
   "note": "All heavy inference is precomputed. The dashboard loads no ML models."
 }

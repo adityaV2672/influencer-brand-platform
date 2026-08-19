@@ -29,6 +29,44 @@ page_header(
 )
 
 # ==========================================================================
+# Ranking objective
+# ==========================================================================
+# Which creator is "best" is not a technical question. Ranking purely by
+# predicted engagement RATE puts the smallest accounts on top every time,
+# because engagement rate falls with audience size; ranking by predicted TOTAL
+# engagements collapses back to follower count. The objective belongs to the
+# campaign, so it is surfaced here instead of being buried in a default sort.
+RANK_MODES = {
+    "Engagement rate": {
+        "col": "score_rate", "band": "band_rate",
+        "help": "Highest predicted engagement rate. Favours smaller creators — best for "
+                "authenticity-led campaigns and cost-efficient niche targeting.",
+    },
+    "Total reach": {
+        "col": "score_reach", "band": "band_reach",
+        "help": "Highest predicted total engagements (rate × audience). Favours larger "
+                "creators — best for awareness campaigns with volume targets.",
+    },
+    "Balanced": {
+        "col": "score_balanced", "band": "band_balanced",
+        "help": "Blends both percentile ranks equally. Surfaces creators who are strong "
+                "on engagement quality without being tiny.",
+    },
+}
+
+_rc1, _rc2 = st.columns([1.15, 2])
+with _rc1:
+    rank_mode = st.radio(
+        "Rank by", list(RANK_MODES), horizontal=True,
+        index=2, help="What the campaign is optimising for.",
+    )
+_mode = RANK_MODES[rank_mode]
+SCORE_COL = _mode["col"] if _mode["col"] in inf.columns else "performance_score"
+BAND_COL = _mode["band"] if _mode["band"] in inf.columns else "performance_band"
+with _rc2:
+    st.caption(f"**{rank_mode}** — {_mode['help']}")
+
+# ==========================================================================
 # Filters
 # ==========================================================================
 with st.sidebar:
@@ -77,7 +115,7 @@ if ages:
 if max_promo < 1.0 and "content_promo_rate" in d:
     d = d[d["content_promo_rate"].fillna(0) <= max_promo]
 
-d = d.sort_values("performance_score", ascending=False)
+d = d.sort_values(SCORE_COL, ascending=False)
 n_total = len(d)
 capped = n_total > cfg["max_results"]
 shown = d.head(cfg["max_results"])
@@ -114,9 +152,9 @@ with left:
         "Engagement": shown["engagement_rate"],
     })
     if cfg["numeric_score"]:
-        table["Score"] = shown["performance_score"]
+        table["Score"] = shown[SCORE_COL]
     else:
-        table["Score"] = shown["performance_band"]
+        table["Score"] = shown[BAND_COL]
     if cfg["network"] and "network_tier" in shown:
         table["Network"] = shown["network_tier"]
     if cfg["price_band"]:
@@ -131,7 +169,7 @@ with left:
     if cfg["numeric_score"]:
         col_cfg["Score"] = st.column_config.ProgressColumn(
             "Score", min_value=0, max_value=100, format="%.0f",
-            help="Percentile rank of predicted sponsored-campaign engagement.",
+            help=f"Percentile rank under the '{rank_mode}' objective.",
         )
     st.dataframe(table, width="stretch", hide_index=True,
                  column_config=col_cfg, height=430)
@@ -166,14 +204,14 @@ with right:
     st.markdown("**Score distribution**")
     if cfg["numeric_score"]:
         h = go.Figure(go.Histogram(
-            x=d["performance_score"], nbinsx=28,
+            x=d[SCORE_COL], nbinsx=28,
             marker=dict(color=SERIES[0], line=dict(width=1, color="#fcfcfb")),
         ))
         plotly_layout(h, height=210, showlegend=False,
-                      ytitle="Creators", xtitle="Performance score (percentile)")
+                      ytitle="Creators", xtitle="Score percentile")
         st.plotly_chart(h, width="stretch", config={"displayModeBar": False})
     else:
-        counts = d["performance_band"].value_counts().reindex(["High", "Medium", "Low"]).fillna(0)
+        counts = d[BAND_COL].value_counts().reindex(["High", "Medium", "Low"]).fillna(0)
         b = go.Figure(go.Bar(
             x=counts.index, y=counts.values,
             marker=dict(color=[BAND_COLOR[i] for i in counts.index]),
