@@ -1,6 +1,9 @@
+# No server.port here on purpose. Streamlit Community Cloud assigns the app
+# its own port and proxies to it; pinning one in config.toml makes the app
+# bind a port the platform is not watching, and the deployment reports
+# "Error running app". Local launchers pass --server.port on the command line.
 [server]
 headless = true
-port = 8502
 fileWatcherType = "none"
 
 [browser]
