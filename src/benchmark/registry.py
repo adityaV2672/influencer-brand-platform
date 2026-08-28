@@ -161,7 +161,15 @@ REGISTRY: dict[str, dict[str, Factory]] = {
 SLOW_METHODS = {"llm", "llm_zero_shot", "llm_few_shot", "llm_cot"}
 
 # Methods that need a train split fitted first.
-NEEDS_FIT = {"sbert_lr"}
+# Methods given access to the training split before being scored.
+#
+# The lexicon irony heuristics are in here on purpose. They have exactly one
+# free parameter (a threshold) plus a sign, and leaving those hard-coded while
+# their competitor fitted a decision boundary made the comparison unfair - and
+# produced a headline claim ("lexicons score below a majority baseline on irony")
+# that a fair tuning overturns. They are still marked unsupervised in the
+# results, because one threshold is not supervision in the sense SBERT uses it.
+NEEDS_FIT = {"sbert_lr", "bing", "vader", "nrc"}
 
 # Corpora each task is evaluated on. Multiple entries = cross-domain evaluation.
 TASK_CORPORA = {

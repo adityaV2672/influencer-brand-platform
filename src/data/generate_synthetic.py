@@ -42,6 +42,7 @@ from src.config import (
     N_INFLUENCERS,
     NICHES,
     POSTS_PER_INFLUENCER,
+    AMPLIFICATION_OBSERVED_SHARE,
     PROCESSED_DIR,
     SEED,
     tier_of,
@@ -401,26 +402,46 @@ def generate_campaigns(
     network - a creator embedded in a dense category cluster gets more
     within-category amplification than an isolated one.
 
-    Ordering matters: if we faked the amplification term with a proxy (as an
-    earlier version did, using niche frequency), the network features would be
-    statistically independent of the target and the whole SNA pillar would be
-    decorative. Feeding measured PageRank in makes the pillar earn its place -
-    and makes it a fair test, because the model still has to discover that
-    relationship from data.
+    Amplification, and why it is only PARTLY observable
+    ---------------------------------------------------
+    An earlier version set the amplification term to a deterministic linear
+    function of measured PageRank percentile. That was circular in the worst
+    way: PageRank percentile is itself a model feature, so "the network pillar
+    earns its place" reduced to "the model can learn a straight line through a
+    column it was handed". An audit measured it - a five-term regression on the
+    generator's own observable inputs recovered R^2 0.505 of the 0.694 the full
+    model reached, i.e. 73% of the headline number was arithmetic.
 
-    The target is NOT a deterministic function of any single feature, so there
-    is no leakage: the model must combine reach, engagement quality, content
-    and network signals to predict well.
+    The fix is to say what is actually true of the real world: a creator has an
+    underlying propensity to be amplified, and topical centrality *measures part
+    of it*. AMPLIFICATION_OBSERVED_SHARE of the term comes from measured
+    PageRank; the rest comes from a latent the feature table cannot see. The
+    model can still recover the observable part - it should, that part is real -
+    but it now has to treat the remainder as signal it cannot reach, which is
+    exactly the situation a real deployment is in.
+
+    The latent is drawn here rather than in pass 1 on purpose: pass 1 produces
+    the posts, and touching it would invalidate every NLP artifact downstream.
+    It is appended to latents.parquet, which is never joined into any feature
+    table.
     """
     rng = np.random.default_rng(seed + 7)
     n = len(profiles)
     labelled_idx = rng.choice(n, size=int(n * label_fraction), replace=False)
 
-    # Measured topical centrality, aligned to profile order and scaled to a
-    # mean-1 multiplier so it redistributes rather than inflates.
+    # Measured topical centrality, aligned to profile order.
     net = network.set_index("influencer_id").reindex(profiles["influencer_id"])
     amp_pct = net["pagerank_pct"].fillna(0.5).to_numpy()
-    amplification = 0.72 + 0.56 * amp_pct          # ranges ~0.72 .. 1.28
+
+    # The unobservable half of amplification. Uniform on [0, 1] to match the
+    # marginal of a percentile, and drawn from its own stream so adding it does
+    # not disturb any other random draw in this function.
+    pull_rng = np.random.default_rng(seed + 991)
+    network_pull = pull_rng.uniform(0.0, 1.0, size=n)
+
+    amp_driver = (AMPLIFICATION_OBSERVED_SHARE * amp_pct
+                  + (1.0 - AMPLIFICATION_OBSERVED_SHARE) * network_pull)
+    amplification = 0.72 + 0.56 * amp_driver       # ranges ~0.72 .. 1.28
 
     rows = []
     for i in labelled_idx:
@@ -487,6 +508,14 @@ def generate_campaigns(
             )
 
     df = pd.DataFrame(rows)
+
+    # Record the latent alongside the others. Written to disk for ceiling
+    # reporting and audit; never joined into a feature table.
+    lat_path = PROCESSED_DIR / "latents.parquet"
+    if lat_path.exists():
+        stored = pd.read_parquet(lat_path)
+        stored["network_pull"] = network_pull[: len(stored)]
+        stored.to_parquet(lat_path, index=False)
 
     # Mean-normalise the multiplier chain so that, across the population,
     # campaign engagement sits at SPONSORED_DISCOUNT of the published benchmark

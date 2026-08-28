@@ -89,7 +89,11 @@ def _predict_generic_performance(inf: pd.DataFrame) -> pd.DataFrame:
             X[c] = X[c].astype("category")
 
     pred_log = model.predict(X[num + cat])
-    pred = np.exp(pred_log)
+    # Back-transforming with exp() alone predicts the median, not the mean, and
+    # biases every campaign forecast low by about 10%. The smearing factor was
+    # measured out-of-fold at training time and is carried in the bundle so
+    # serving and evaluation cannot drift apart.
+    pred = np.exp(pred_log) * float(bundle.get("smearing", 1.0))
 
     out = pd.DataFrame({"influencer_id": inf["influencer_id"], "predicted_campaign_er": pred})
 
@@ -159,7 +163,7 @@ def _predict_price(inf: pd.DataFrame) -> pd.DataFrame:
         if not isinstance(X[c].dtype, pd.CategoricalDtype):
             X[c] = X[c].astype("category")
 
-    fee = np.exp(model.predict(X[num + cat]))
+    fee = np.exp(model.predict(X[num + cat])) * float(bundle.get("smearing", 1.0))
     return pd.DataFrame(
         {
             "influencer_id": inf["influencer_id"],

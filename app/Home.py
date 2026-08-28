@@ -1,230 +1,118 @@
-"""Discover - the brand-side creator search. Entry point of the dashboard."""
+"""
+Nectar — influencer-brand collaboration platform.
+
+Entry point. Sets up routing, injects the design system, draws the shell, and
+hands off to the page. Streamlit's own multipage navigation is switched off
+(`position="hidden"`) and replaced with the dark sidebar in nectar/shell.py,
+because the product this replicates has a two-sided nav with a role switch and
+Streamlit's default page list cannot express that.
+"""
 from __future__ import annotations
 
-import numpy as np
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+import sys
+from pathlib import Path
+
 import streamlit as st
 
-from theme import (
-    BAND_COLOR, GRID, INK, SERIES, STATUS, TIER_COLOR,
-    fmt_count, fmt_inr, fmt_pct, locked, metric_row, page_header,
-    plotly_layout, require, sidebar_tier,
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 st.set_page_config(
-    page_title="Influencer-Brand Platform",
-    page_icon="◎",
+    page_title="Nectar",
+    page_icon="🍯",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-cfg = sidebar_tier()
-inf = require("influencers.parquet", "Creator database")
+from nectar import shell, state  # noqa: E402
 
-page_header(
-    "Discover creators",
-    "Ranked by a model trained on sponsored-campaign outcomes — not by follower count.",
-)
+shell.inject_css()
 
-# ==========================================================================
-# Ranking objective
-# ==========================================================================
-# Which creator is "best" is not a technical question. Ranking purely by
-# predicted engagement RATE puts the smallest accounts on top every time,
-# because engagement rate falls with audience size; ranking by predicted TOTAL
-# engagements collapses back to follower count. The objective belongs to the
-# campaign, so it is surfaced here instead of being buried in a default sort.
-RANK_MODES = {
-    "Engagement rate": {
-        "col": "score_rate", "band": "band_rate",
-        "help": "Highest predicted engagement rate. Favours smaller creators — best for "
-                "authenticity-led campaigns and cost-efficient niche targeting.",
-    },
-    "Total reach": {
-        "col": "score_reach", "band": "band_reach",
-        "help": "Highest predicted total engagements (rate × audience). Favours larger "
-                "creators — best for awareness campaigns with volume targets.",
-    },
-    "Balanced": {
-        "col": "score_balanced", "band": "band_balanced",
-        "help": "Blends both percentile ranks equally. Surfaces creators who are strong "
-                "on engagement quality without being tiny.",
-    },
-}
+V = "views"
 
-_rc1, _rc2 = st.columns([1.15, 2])
-with _rc1:
-    rank_mode = st.radio(
-        "Rank by", list(RANK_MODES), horizontal=True,
-        index=2, help="What the campaign is optimising for.",
-    )
-_mode = RANK_MODES[rank_mode]
-SCORE_COL = _mode["col"] if _mode["col"] in inf.columns else "performance_score"
-BAND_COL = _mode["band"] if _mode["band"] in inf.columns else "performance_band"
-with _rc2:
-    st.caption(f"**{rank_mode}** — {_mode['help']}")
 
-# ==========================================================================
-# Filters
-# ==========================================================================
-with st.sidebar:
-    st.markdown("### Filters")
-    niches = st.multiselect("Niche", sorted(inf["primary_niche"].unique()))
-    tiers = st.multiselect(
-        "Follower tier", ["Nano", "Micro", "Mid", "Macro", "Mega"],
-        help="Nano <10K · Micro 10-100K · Mid 100-500K · Macro 0.5-2M · Mega 2M+",
-    )
+def _page(script: str, title: str, url: str = "", icon: str = "") -> st.Page:
+    """url="" marks the default page.
 
-    if cfg["advanced_filters"]:
-        st.markdown("**Advanced**")
-        er_min = st.slider("Min engagement rate", 0.0, 15.0, 0.0, 0.25, format="%.2f%%") / 100
-        vs_bench = st.slider(
-            "Min engagement vs benchmark", 0.0, 3.0, 0.0, 0.1,
-            help="1.0 = exactly the published average for this size and niche.",
-        )
-        net_tiers = st.multiselect("Network position", ["Hub", "Influential", "Connected", "Peripheral"])
-        geos = st.multiselect("Audience geography", sorted(inf["audience_geo"].dropna().unique()))
-        ages = st.multiselect("Audience age band", sorted(inf["audience_age_band"].dropna().unique()))
-        max_promo = st.slider(
-            "Max ad load", 0.0, 1.0, 1.0, 0.05,
-            help="Share of the creator's recent posts that are promotional.",
-        )
-    else:
-        er_min, vs_bench, max_promo = 0.0, 0.0, 1.0
-        net_tiers, geos, ages = [], [], []
-        st.caption("🔒 Advanced filters (engagement quality, network position, audience geo/demo, ad load) are a paid feature.")
+    Streamlit serves the FIRST page in the navigation list at the root URL and
+    ignores any url_path given to it. Setting one anyway meant /brand-overview
+    matched nothing, so every deep link opened Streamlit's "Page not found"
+    dialog before falling back to the root page. Brand Overview is therefore
+    the root, which is also correct: the root is the sign-in screen until a
+    role is chosen, and the brand dashboard immediately after.
+    """
+    return st.Page(f"{V}/{script}.py", title=title,
+                   url_path=url or None, icon=icon or None, default=not url)
 
-# ---- apply -----------------------------------------------------------------
-d = inf.copy()
-if niches:
-    d = d[d["primary_niche"].isin(niches)]
-if tiers:
-    d = d[d["follower_tier"].isin(tiers)]
-if er_min:
-    d = d[d["engagement_rate"] >= er_min]
-if vs_bench and "er_vs_benchmark" in d:
-    d = d[d["er_vs_benchmark"] >= vs_bench]
-if net_tiers and "network_tier" in d:
-    d = d[d["network_tier"].isin(net_tiers)]
-if geos:
-    d = d[d["audience_geo"].isin(geos)]
-if ages:
-    d = d[d["audience_age_band"].isin(ages)]
-if max_promo < 1.0 and "content_promo_rate" in d:
-    d = d[d["content_promo_rate"].fillna(0) <= max_promo]
 
-d = d.sort_values(SCORE_COL, ascending=False)
-n_total = len(d)
-capped = n_total > cfg["max_results"]
-shown = d.head(cfg["max_results"])
+# Icons are drawn from a single geometric family so the rail reads as one set.
+BRAND_PAGES = [
+    (_page("brand_overview", "Overview"), "Overview", ":material/dashboard:"),
+    (_page("brand_campaigns", "Campaigns", "brand-campaigns"), "Campaigns", ":material/work:"),
+    (_page("brand_discover", "Discover", "brand-discover"), "Discover", ":material/search:"),
+    (_page("brand_shortlist", "Shortlist", "brand-shortlist"), "Shortlist", ":material/bookmark:"),
+    (_page("brand_requests", "Requests", "brand-requests"), "Requests", ":material/inbox:"),
+    (_page("brand_deals", "Deals", "brand-deals"), "Deals", ":material/handshake:"),
+    (_page("brand_reporting", "Reporting", "brand-reporting"), "Reporting", ":material/trending_up:"),
+]
+BRAND_HIDDEN = [_page("brand_builder", "Campaign builder", "brand-builder")]
 
-# ==========================================================================
-# Summary
-# ==========================================================================
-metric_row([
-    ("Creators matched", f"{n_total:,}", f"of {len(inf):,} in database"),
-    ("Median engagement", fmt_pct(d["engagement_rate"].median()) if n_total else "—",
-     "organic, recent posts"),
-    ("Median reach", fmt_count(d["followers"].median()) if n_total else "—", "followers"),
-    ("Median est. fee", fmt_inr(d["price_estimate_inr"].median()) if (n_total and cfg["price_band"]) else "🔒",
-     "per deliverable" if cfg["price_band"] else "paid feature"),
-])
-st.divider()
+CREATOR_PAGES = [
+    (_page("creator_overview", "Overview", "creator-overview"), "Overview", ":material/dashboard:"),
+    (_page("creator_discover", "Discover", "creator-discover"), "Discover", ":material/search:"),
+    (_page("creator_requests", "Requests", "creator-requests"), "Requests", ":material/inbox:"),
+    (_page("creator_deals", "Deals", "creator-deals"), "Deals", ":material/handshake:"),
+    (_page("creator_analytics", "Analytics", "creator-analytics"), "Analytics", ":material/trending_up:"),
+    (_page("creator_earnings", "Earnings", "creator-earnings"), "Earnings", ":material/payments:"),
+    (_page("creator_profile", "Profile", "creator-profile"), "Profile", ":material/person:"),
+]
 
-if n_total == 0:
-    st.warning("No creators match these filters. Try widening the niche or tier selection.")
+METHOD_PAGES = [
+    (_page("methods_model", "Model", "methods-model"), "Model", ":material/insights:"),
+    (_page("methods_nlp", "NLP methods", "methods-nlp"), "NLP methods", ":material/psychology:"),
+    (_page("methods_network", "Network", "methods-network"), "Network", ":material/hub:"),
+    (_page("methods_data", "Data", "methods-data"), "Data", ":material/database:"),
+]
+
+FOOTER_PAGES = [
+    (_page("settings", "Settings", "settings"), "Settings", ":material/settings:"),
+    (_page("help", "Help", "help"), "Help", ":material/help:"),
+]
+
+ALL = ([p for p, _, _ in BRAND_PAGES] + BRAND_HIDDEN
+       + [p for p, _, _ in CREATOR_PAGES]
+       + [p for p, _, _ in METHOD_PAGES]
+       + [p for p, _, _ in FOOTER_PAGES])
+
+state.init()
+
+# A role can be set from the URL (?role=brand). This is what makes a deep link
+# to /brand-discover work when it is opened in a fresh session - without it the
+# link lands on the sign-in screen and loses the route.
+_qp_role = st.query_params.get("role")
+if _qp_role in ("brand", "creator") and state.role() != _qp_role:
+    state.set_role(_qp_role)
+
+# Routes are registered BEFORE the role is checked. Registering them only for
+# signed-in sessions meant a deep link opened in a fresh browser hit
+# st.navigation-less code, and Streamlit answered with its "Page not found"
+# dialog before the sign-in screen had a chance to appear.
+nav = st.navigation(ALL, position="hidden")
+
+# The sign-in screen is not a route: it is what the app shows before a role is
+# chosen. Routing exists either way, so a deep link still lands correctly once
+# a role is picked.
+if state.role() is None:
+    shell.render_signin()
     st.stop()
 
-# ==========================================================================
-# Results
-# ==========================================================================
-left, right = st.columns([1.55, 1])
-
-with left:
-    st.markdown(f"**Ranked results** · showing {len(shown):,} of {n_total:,}")
-
-    table = pd.DataFrame({
-        "Creator": shown["handle"],
-        "Niche": shown["primary_niche"],
-        "Followers": shown["followers"],
-        "Engagement": shown["engagement_rate"],
-    })
-    if cfg["numeric_score"]:
-        table["Score"] = shown[SCORE_COL]
-    else:
-        table["Score"] = shown[BAND_COL]
-    if cfg["network"] and "network_tier" in shown:
-        table["Network"] = shown["network_tier"]
-    if cfg["price_band"]:
-        table["Est. fee"] = shown.apply(
-            lambda r: f"{fmt_inr(r['price_low_inr'])} – {fmt_inr(r['price_high_inr'])}", axis=1
-        )
-
-    col_cfg = {
-        "Followers": st.column_config.NumberColumn(format="compact"),
-        "Engagement": st.column_config.NumberColumn(format="percent", help="Organic engagement rate"),
-    }
-    if cfg["numeric_score"]:
-        col_cfg["Score"] = st.column_config.ProgressColumn(
-            "Score", min_value=0, max_value=100, format="%.0f",
-            help=f"Percentile rank under the '{rank_mode}' objective.",
-        )
-    st.dataframe(table, width="stretch", hide_index=True,
-                 column_config=col_cfg, height=430)
-
-    if capped:
-        locked(
-            f"{n_total - cfg['max_results']:,} further matching creators are hidden on the Free plan.",
-            "Unlimited results",
-        )
-
-with right:
-    st.markdown("**Where the matches sit**")
-
-    # Engagement vs reach. Colour encodes tier (identity), fixed slot order.
-    plot_d = d.sample(n=min(700, len(d)), random_state=1)
-    fig = px.scatter(
-        plot_d, x="followers", y="engagement_rate",
-        color="follower_tier",
-        color_discrete_map=TIER_COLOR,
-        category_orders={"follower_tier": ["Nano", "Micro", "Mid", "Macro", "Mega"]},
-        log_x=True, hover_data={"handle": True, "followers": ":,", "engagement_rate": ":.2%"},
-    )
-    fig.update_traces(marker=dict(size=7, opacity=0.72, line=dict(width=1, color="#fcfcfb")))
-    fig.update_yaxes(tickformat=".1%")
-    plotly_layout(fig, height=300, ytitle="Engagement rate", xtitle="Followers (log)")
-    st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
-    st.caption(
-        "Engagement declines with audience size — the reason follower count alone "
-        "is a poor ranking signal."
-    )
-
-    st.markdown("**Score distribution**")
-    if cfg["numeric_score"]:
-        h = go.Figure(go.Histogram(
-            x=d[SCORE_COL], nbinsx=28,
-            marker=dict(color=SERIES[0], line=dict(width=1, color="#fcfcfb")),
-        ))
-        plotly_layout(h, height=210, showlegend=False,
-                      ytitle="Creators", xtitle="Score percentile")
-        st.plotly_chart(h, width="stretch", config={"displayModeBar": False})
-    else:
-        counts = d[BAND_COL].value_counts().reindex(["High", "Medium", "Low"]).fillna(0)
-        b = go.Figure(go.Bar(
-            x=counts.index, y=counts.values,
-            marker=dict(color=[BAND_COLOR[i] for i in counts.index]),
-            text=[f"{int(v):,}" for v in counts.values], textposition="outside",
-        ))
-        plotly_layout(b, height=210, showlegend=False, ytitle="Creators")
-        st.plotly_chart(b, width="stretch", config={"displayModeBar": False})
-        st.caption("🔒 Numeric scores and the feature-level breakdown are a paid feature.")
-
-st.divider()
-st.caption(
-    "Data note — the creator universe is **synthetic**, calibrated so that engagement "
-    "rates and fee bands reproduce published 2026 benchmarks by follower tier. "
-    "The NLP methods behind the content signals are validated on **real, human-labelled** "
-    "corpora; see the *Model & Methods* page."
+st.session_state["_home_page"] = (
+    "views/brand_overview.py" if state.role() == "brand" else "views/creator_overview.py"
 )
+
+shell.render_sidebar({
+    "main": BRAND_PAGES if state.role() == "brand" else CREATOR_PAGES,
+    "methods": METHOD_PAGES,
+    "footer": FOOTER_PAGES,
+})
+nav.run()

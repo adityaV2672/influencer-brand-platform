@@ -1,0 +1,48 @@
+{
+  "default_creator_id": "INF01822",
+  "n_creators": 2000,
+  "n_campaigns": 6,
+  "n_requests": 194,
+  "files": {
+    "nectar_creators.parquet": 2000,
+    "nectar_campaigns.parquet": 6,
+    "nectar_fit.parquet": 12000,
+    "nectar_requests.parquet": 194,
+    "nectar_messages.parquet": 313,
+    "nectar_funnel.parquet": 45,
+    "nectar_campaign_summary.parquet": 6,
+    "nectar_creator_performance.parquet": 71,
+    "nectar_calibration.parquet": 12,
+    "nectar_monthly.parquet": 5,
+    "nectar_earnings.parquet": 2124,
+    "nectar_category_fit.parquet": 24000,
+    "nectar_creator_history.parquet": 1417,
+    "nectar_weight_sensitivity.parquet": 20
+  },
+  "semantic_extension": {
+    "method": "per-brand cosine floor for pairs SBERT did not score",
+    "n_pairs": 12000,
+    "n_sbert_scored": 360,
+    "n_bounded": 11640,
+    "semantic_weight": 0.34,
+    "exact_component_weight": 0.66,
+    "rejected_alternative": {
+      "fitted_rmse": 0.05166,
+      "predict_the_mean_rmse": 0.05385,
+      "improvement": 0.00219,
+      "verdict": "no improvement over the mean; rejected in favour of a per-brand bound",
+      "cause": "labelled pairs are the top-60 per brand by cosine, so the sample is range-restricted at the high end"
+    }
+  },
+  "provenance": {
+    "campaign_fit": "brand_fit_ungated from src/models/brandfit.py (SBERT semantic similarity, category affinity, audience overlap, content safety, consistency)",
+    "org_fit": "0.45*content_safety + 0.35*consistency + 0.20*audience_match",
+    "fees": "price_model.joblib (LightGBM), Reel = point estimate, Story = 0.35x, Carousel = 0.70x",
+    "predicted_vs_actual": "performance_oof.npy (GroupKFold out-of-fold predictions) vs campaign_engagement_rate in modelling_table.parquet",
+    "simulated_here": "request funnel stages, negotiation messages, payment status, creator names, cities, bios, avatars, availability windows"
+  },
+  "csv_export": {
+    "tables": 22,
+    "columns_documented": 573
+  }
+}

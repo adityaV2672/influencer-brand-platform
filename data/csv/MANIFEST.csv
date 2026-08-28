@@ -1,0 +1,23 @@
+file,rows,columns,size_kb,source_parquet,description
+creators.csv,2000,102,4076.8,app_data/nectar_creators.parquet,"One row per creator: the full feature table plus the presentation fields the product shows (name, city, platforms, rate card)."
+campaigns.csv,6,24,2.7,app_data/nectar_campaigns.parquet,"The six showcase campaigns, their budgets, briefs and eligibility policy."
+campaign_fit.csv,12000,81,21737.7,app_data/nectar_fit.parquet,"Every (campaign, creator) pair with its fit composite, components, safety gates and ranking under each objective."
+requests.csv,194,25,40.7,app_data/nectar_requests.parquet,"The request funnel: who was approached for which campaign, at what fee, and how far they got."
+messages.csv,313,8,49.4,app_data/nectar_messages.parquet,Negotiation threads attached to requests.
+funnel.csv,45,4,0.9,app_data/nectar_funnel.parquet,"Cumulative count of requests reaching each funnel stage, per campaign."
+campaign_summary.csv,6,18,1.1,app_data/nectar_campaign_summary.parquet,Campaign-level results including predicted-vs-actual calibration.
+creator_performance.csv,71,33,19.8,app_data/nectar_creator_performance.parquet,"Per-creator delivered reach, engagement, cost, CPE and CPR."
+creator_history.csv,1417,22,257.4,app_data/nectar_creator_history.parquet,"Past brand approaches per creator, outside the six showcase campaigns."
+earnings.csv,2124,3,37.7,app_data/nectar_earnings.parquet,Monthly realised earnings per creator.
+category_fit.csv,24000,5,757.3,app_data/nectar_category_fit.parquet,Each creator's brand-fit score against a representative brand in every category.
+model_calibration.csv,12,4,0.7,app_data/nectar_calibration.parquet,"Out-of-fold predicted vs actual campaign engagement rate, by brand category."
+brands.csv,120,8,12.0,app_data/brands.parquet,"The synthetic brand universe: category, budget, target audience, competitors."
+brand_fit_sbert.csv,7200,12,929.8,app_data/brand_fit.parquet,The pipeline's SBERT-scored brand-fit matrix (top 60 creators per brand).
+posts_sample.csv,16000,21,4964.2,app_data/posts_sample.parquet,A sample of posts with captions and their per-post NLP labels.
+modelling_table.csv,2199,93,2760.8,artifacts/features/modelling_table.parquet,"The table the performance model is trained on: one row per campaign, with the creator's features and the realised campaign outcome."
+influencer_features.csv,2000,77,2291.6,artifacts/features/influencer_features.parquet,"The full engineered feature table, before the product layer is applied."
+nlp_benchmarks.csv,29,21,34.5,app_data/benchmark_results.parquet,Accuracy and macro-F1 for every NLP method on every human-labelled corpus.
+feature_importance.csv,79,3,3.1,app_data/feature_importance.parquet,LightGBM split gain per feature.
+feature_shap.csv,79,2,2.9,app_data/feature_shap.parquet,Mean absolute SHAP contribution per feature.
+graph_edges.csv,6000,3,157.5,app_data/edges.parquet,The strongest co-behaviour edges between creators.
+topics.csv,18,4,2.6,app_data/topics.parquet,BERTopic topics with their top words.

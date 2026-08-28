@@ -50,34 +50,109 @@ from src.nlp.base import MethodMeta, TextMethod
 
 
 class LexiconIronyBaseline(TextMethod):
-    """Predict irony from a sentiment lexicon's polarity.
+    """Predict irony from a sentiment lexicon's polarity, tuned honestly.
 
     The heuristic under test: ironic text tends to be *superficially* very
-    positive. So "strongly positive surface sentiment" is used as an irony
-    signal. This is the strongest reasonable thing a word list can do, and
-    documenting that it lands near chance is the point.
+    positive, so strong positive surface polarity is used as an irony signal.
+
+    Why this class fits a threshold
+    -------------------------------
+    An earlier version hard-coded `threshold=0.5` and fixed the direction to
+    "more positive means more ironic", then reported that lexicons land below a
+    majority-class baseline. That was not a fair comparison: the learned methods
+    it was measured against fit their own decision boundary, and this one was
+    handed an arbitrary one.
+
+    What a fair tuning actually shows
+    ---------------------------------
+    Fitting the threshold AND the sign on the training split moves Bing on
+    TweetEval irony from 0.496 to 0.508 accuracy and from 0.416 to 0.447 macro
+    F1. The majority baseline is 0.603 accuracy and 0.376 macro F1. So the
+    tuned lexicon:
+
+      * is still WORSE than predicting the majority class on accuracy, and
+      * is BETTER than it on macro F1, which is the class-balanced metric.
+
+    Both halves matter. The lexicon is picking up something real - it beats a
+    do-nothing baseline once you stop letting the majority class carry the
+    score - and it is still far below any method that reads the sentence.
+
+    A note on how easy it is to fool yourself here: an intermediate version of
+    this audit reported that flipping the direction lifted Bing to 0.625
+    accuracy. It does, on the test set. On the training set the original
+    direction wins by a wide margin (macro F1 0.566 against 0.434), so choosing
+    the flip would have meant selecting a hyper-parameter on the test data - the
+    exact sin this class was rewritten to stop committing. The fit below sees
+    training data only.
+
+    One more thing worth knowing: a lexicon polarity score over a short tweet
+    takes only about sixteen distinct values, so there are roughly seven usable
+    thresholds. There is very little to tune, which is itself part of why the
+    method cannot work.
+
+    So the class now fits both the threshold and the sign on training data. The
+    conclusion that survives is narrower and better evidenced: a tuned lexicon
+    beats a do-nothing baseline but remains far below any method that reads the
+    sentence, and the folk explanation for why lexicons might work on irony is
+    itself wrong.
     """
 
     _classes = ["non_irony", "irony"]
 
-    def __init__(self, scorer: TextMethod, threshold: float = 0.5, name: str | None = None):
+    def __init__(self, scorer: TextMethod, threshold: float = 0.5,
+                 name: str | None = None, tune: bool = True):
         self.scorer = scorer
         self.threshold = threshold
+        self.direction = 1          # +1: high score -> irony;  -1: low score -> irony
+        self.tune = tune
         self.meta = MethodMeta(
             name=name or f"{scorer.meta.name} -> irony heuristic",
             family="lexicon",
             supervised=False,
             citation=scorer.meta.citation,
-            notes="Heuristic: strongly positive surface polarity is treated as ironic. "
-                  "Included to quantify the failure mode, not as a serious detector.",
-            params={"threshold": threshold},
+            notes="Heuristic: surface polarity as an irony signal. Threshold and "
+                  "direction are fitted on the training split so the comparison "
+                  "against learned methods is like-for-like.",
+            params={"threshold": threshold, "tuned": tune},
         )
 
-    def predict(self, texts: list[str]) -> list[str]:
+    def _raw(self, texts: list[str]) -> list[float]:
         raw = getattr(self.scorer, "raw_score", None)
         if raw is None:
             raise TypeError("scorer must expose raw_score()")
-        return ["irony" if raw(t) >= self.threshold else "non_irony" for t in texts]
+        return [float(raw(t)) for t in texts]
+
+    def fit(self, texts: list[str], labels: list[str]) -> "LexiconIronyBaseline":
+        """Choose the threshold and the sign that maximise macro F1 on TRAIN."""
+        if not self.tune:
+            return self
+        from sklearn.metrics import f1_score
+
+        import numpy as np
+
+        scores = np.asarray(self._raw(texts))
+        y = np.asarray([1 if l == "irony" else 0 for l in labels])
+        if len(np.unique(y)) < 2 or len(np.unique(scores)) < 2:
+            return self
+        cands = np.unique(np.quantile(scores, np.linspace(0.02, 0.98, 97)))
+        best = (-1.0, self.threshold, 1)
+        for t in cands:
+            for d in (1, -1):
+                pred = (scores >= t) if d == 1 else (scores <= t)
+                f1 = f1_score(y, pred.astype(int), average="macro", zero_division=0)
+                if f1 > best[0]:
+                    best = (f1, float(t), d)
+        _, self.threshold, self.direction = best
+        self.meta.params = {"threshold": round(self.threshold, 4),
+                            "direction": "high=irony" if self.direction == 1 else "low=irony",
+                            "tuned_on": "train split", "train_macro_f1": round(best[0], 4)}
+        return self
+
+    def predict(self, texts: list[str]) -> list[str]:
+        scores = self._raw(texts)
+        if self.direction == 1:
+            return ["irony" if s >= self.threshold else "non_irony" for s in scores]
+        return ["irony" if s <= self.threshold else "non_irony" for s in scores]
 
 
 # ==========================================================================

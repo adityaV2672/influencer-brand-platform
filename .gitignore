@@ -14,4 +14,11 @@ artifacts/embeddings/
 artifacts/nlp/post_embeddings.npy
 *.gexf
 
+# The CSV export is 37 MB and fully rebuildable from app_data/ with
+# `python -m src.features.export_csv`. The dictionary and manifest are small
+# and ARE committed, because they are documentation rather than data.
+data/csv/*.csv
+!data/csv/DATA_DICTIONARY.csv
+!data/csv/MANIFEST.csv
+
 # app_data/ is INTENTIONALLY committed - it is the deployment payload.

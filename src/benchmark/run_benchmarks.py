@@ -71,6 +71,8 @@ class Result:
     per_class: dict = field(default_factory=dict)
     confusion: list = field(default_factory=list)
     labels: list = field(default_factory=list)
+    # Label-permutation diagnostic - see _label_alignment().
+    alignment: dict = field(default_factory=dict)
 
 
 # ==========================================================================
@@ -112,6 +114,57 @@ def _stratified_sample(df: pd.DataFrame, n: int, seed: int = SEED) -> pd.DataFra
     return keep.reset_index(drop=True)
 
 
+def alignment_from_confusion(confusion, labels: list[str]) -> dict:
+    """Detect a permuted label space, which looks exactly like a bad model.
+
+    A zero-shot classifier whose output indices are mapped to the wrong class
+    names scores near zero while its confusion matrix stays highly structured -
+    every "anger" lands in the same wrong column. That is indistinguishable from
+    incompetence if you only read the accuracy.
+
+    Works on the confusion matrix rather than the raw predictions, so it can be
+    applied to results that were recorded before this check existed. Permuting
+    the columns of a confusion matrix is exactly equivalent to relabelling the
+    predictions, so the numbers it reports are exact, not approximate.
+
+    If some permutation beats the identity mapping by a wide margin, the model
+    is discriminating well and the LABELS are misaligned - a wiring fault, not a
+    modelling result. It is flagged rather than silently corrected, because
+    deciding which side is wrong needs the checkpoint in hand.
+
+    Found by an audit: RoBERTa scored 0.248 on TweetEval emotion, below a 0.393
+    majority baseline, while getting sadness right 81% of the time. The
+    permutation search puts it at 0.828.
+    """
+    from itertools import permutations
+
+    C = np.asarray([np.asarray(r) for r in confusion], dtype=float)
+    if C.ndim != 2 or C.shape[0] != C.shape[1] or C.shape[0] < 2 or len(labels) > 6:
+        return {}
+    total = C.sum()
+    if total <= 0:
+        return {}
+
+    identity = float(np.trace(C) / total)
+    n = C.shape[0]
+    best_acc, best_perm = identity, tuple(range(n))
+    for perm in permutations(range(n)):
+        # perm[j] = the row that predicted-column j is being relabelled onto
+        acc = float(sum(C[perm[j], j] for j in range(n)) / total)
+        if acc > best_acc:
+            best_acc, best_perm = acc, perm
+    gap = best_acc - identity
+    return {
+        "identity_accuracy": round(identity, 4),
+        "best_permutation_accuracy": round(best_acc, 4),
+        "best_permutation": {labels[j]: labels[best_perm[j]] for j in range(n)},
+        "alignment_gap": round(gap, 4),
+        # 0.15 is deliberately generous: a genuinely weak model does not gain
+        # fifteen accuracy points from being renamed.
+        "label_alignment_suspect": bool(gap >= 0.15),
+    }
+
+
 def _score(y_true: list[str], y_pred: list[str], labels: list[str]) -> dict:
     rep = classification_report(
         y_true, y_pred, labels=labels, output_dict=True, zero_division=0
@@ -126,6 +179,8 @@ def _score(y_true: list[str], y_pred: list[str], labels: list[str]) -> dict:
             if k in labels
         },
         "confusion": confusion_matrix(y_true, y_pred, labels=labels).tolist(),
+        "alignment": alignment_from_confusion(
+            confusion_matrix(y_true, y_pred, labels=labels), labels),
     }
 
 
@@ -201,7 +256,10 @@ def run_task(
             continue
 
         try:
-            if key in NEEDS_FIT:
+            # The same key ("bing", "vader", "nrc") names a plain lexicon on the
+            # sentiment task and a fittable irony heuristic on the irony task,
+            # so membership alone is not enough - check the method can be fitted.
+            if key in NEEDS_FIT and callable(getattr(method, "fit", None)):
                 method.fit(list(fit_train["text"]), list(fit_train["label"]))
             preds, secs = method.timed_predict(list(eval_df["text"]))
             s = _score(list(eval_df["label"]), preds, labels)
@@ -214,6 +272,7 @@ def run_task(
                 texts_per_sec=round(len(eval_df) / secs, 2) if secs > 0 else float("inf"),
                 subsampled=is_slow, labels=labels,
                 **{k: s[k] for k in ("accuracy", "macro_f1", "weighted_f1", "per_class", "confusion")},
+                alignment=s.get("alignment") or {},
             )
             results.append(res)
             if verbose:

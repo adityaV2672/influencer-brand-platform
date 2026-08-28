@@ -38,7 +38,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, GroupShuffleSplit
 
 from src.config import ARTIFACT_DIR, PILLAR_WEIGHTS, SEED
 from src.features.build_features import (
@@ -87,6 +87,34 @@ def apply_categories(X: pd.DataFrame, categories: dict[str, list]) -> pd.DataFra
 # ==========================================================================
 
 
+def grouped_ndcg(y_true: np.ndarray, y_score: np.ndarray, groups: np.ndarray,
+                 k: int = 10, min_group: int = 8) -> dict:
+    """NDCG@k computed WITHIN each brief and averaged across briefs.
+
+    The global version of this metric asks whether the model's top ten rows out
+    of 2,199 are the true top ten. That is decided by about ten observations, so
+    it swings wildly for reasons that have nothing to do with model quality - a
+    change that moved Spearman by 0.03 moved global NDCG@10 by 0.30.
+
+    It is also not what the product does. Discover ranks creators *within one
+    brief*, so the metric that matters is whether the ordering inside a brief is
+    right. Averaging over briefs gives a number that is both stable and
+    answerable to the interface.
+    """
+    scores = []
+    for g in np.unique(groups):
+        m = groups == g
+        if m.sum() < min_group:
+            continue
+        v = ndcg_at_k(y_true[m], y_score[m], k)
+        if v == v:
+            scores.append(v)
+    return {
+        f"ndcg@{k}_within_brief": round(float(np.mean(scores)), 4) if scores else float("nan"),
+        f"ndcg@{k}_n_briefs": len(scores),
+    }
+
+
 def ndcg_at_k(y_true: np.ndarray, y_score: np.ndarray, k: int = 10) -> float:
     """NDCG using the true value as the relevance grade."""
     order = np.argsort(-y_score)[:k]
@@ -110,8 +138,60 @@ def regression_metrics(y_true: np.ndarray, y_pred: np.ndarray, prefix: str = "")
         f"{prefix}mae_raw": round(float(mean_absolute_error(y_true, y_pred)), 6),
         f"{prefix}mape": round(float(np.mean(np.abs((y_true - y_pred) / np.clip(y_true, 1e-9, None)))), 4),
         f"{prefix}spearman": round(float(spearmanr(y_true, y_pred).statistic), 4),
-        f"{prefix}ndcg@10": round(ndcg_at_k(y_true, y_pred, 10), 4),
-        f"{prefix}ndcg@50": round(ndcg_at_k(y_true, y_pred, 50), 4),
+        # Global NDCG: kept for continuity, but it is decided by k rows out of
+        # thousands and should not be read as a headline. Use the within-brief
+        # figures reported alongside it.
+        f"{prefix}ndcg@10_global": round(ndcg_at_k(y_true, y_pred, 10), 4),
+        f"{prefix}ndcg@50_global": round(ndcg_at_k(y_true, y_pred, 50), 4),
+    }
+
+
+def structural_baseline(df: pd.DataFrame, y_log: np.ndarray,
+                        groups: np.ndarray) -> dict:
+    """The baseline the model must actually beat.
+
+    The generator computes the campaign outcome as a product of terms. Several
+    of those terms are things a reader can look up: the published engagement
+    curve for the creator's size and category, whether the geography matches,
+    whether the age band matches, whether the brief's category is the creator's
+    own, and the measured share of topical amplification. All five are
+    reconstructible from columns the model already receives.
+
+    A ridge on just those five, scored under the same GroupKFold, is therefore
+    the fair reference point. Comparing the model against "predict from follower
+    count alone" instead makes it look far better than it is: an audit found
+    that 73% of the model's R^2 was recoverable this way. This function exists
+    so that number is reported rather than discovered by an examiner.
+    """
+    from sklearn.linear_model import Ridge
+
+    from src.data import benchmarks as bm
+
+    base = np.array([bm.expected_er(f, c)
+                     for f, c in zip(df["followers"], df["brand_category"])])
+    fit = np.where(df["match_primary_niche"] == 1, 1.0,
+                   np.where(df["match_secondary_niche"] == 1, 0.62, 0.30))
+    geo = np.where(df["match_geo"] == 1, 1.0, 0.72)
+    age = np.where(df["match_age"] == 1, 1.0, 0.80)
+    amp = 0.72 + 0.56 * df["pagerank_pct"].to_numpy()
+
+    X = np.column_stack([np.log(base), np.log(geo), np.log(age), np.log(amp), fit])
+    oof = np.zeros(len(y_log))
+    for tr, va in GroupKFold(n_splits=N_SPLITS).split(X, y_log, groups):
+        oof[va] = Ridge(alpha=1.0).fit(X[tr], y_log[tr]).predict(X[va])
+
+    from scipy.stats import spearmanr
+
+    return {
+        "r2_log": round(float(r2_score(y_log, oof)), 4),
+        "spearman": round(float(spearmanr(oof, y_log).statistic), 4),
+        "n_terms": 5,
+        "note": (
+            "Ridge on the generator's own observable terms - published engagement "
+            "curve, category match, geo match, age match, measured amplification - "
+            "scored under the same GroupKFold. This is arithmetic, not learning, "
+            "and it is the reference the model's lift should be quoted against."
+        ),
     }
 
 
@@ -203,11 +283,21 @@ def train_performance(df: pd.DataFrame, target: str = "campaign_engagement_rate"
     oof = np.zeros(len(df))
     fold_scores, models, best_iters = [], [], []
     gkf = GroupKFold(n_splits=N_SPLITS)
+    inner = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=SEED)
     for fold, (tr, va) in enumerate(gkf.split(X, y_log, groups)):
+        # Early stopping needs a validation set, and it must NOT be the fold we
+        # are about to score. An earlier version passed the outer test fold as
+        # eval_set and then scored on it, which chooses the number of boosting
+        # rounds using the answer. Measured, that was worth +0.0085 R^2 of
+        # optimism - small, but it meant the headline number was not strictly
+        # out-of-fold. The stopping set is now carved out of the training rows,
+        # split by creator so the same creator cannot straddle it.
+        i_fit, i_stop = next(inner.split(X.iloc[tr], y_log[tr], groups[tr]))
+        fit_idx, stop_idx = tr[i_fit], tr[i_stop]
         m = lgb.LGBMRegressor(**params)
         m.fit(
-            X.iloc[tr], y_log[tr],
-            eval_set=[(X.iloc[va], y_log[va])],
+            X.iloc[fit_idx], y_log[fit_idx],
+            eval_set=[(X.iloc[stop_idx], y_log[stop_idx])],
             eval_metric="l2",
             callbacks=[lgb.early_stopping(120, verbose=False), lgb.log_evaluation(0)],
         )
@@ -217,9 +307,23 @@ def train_performance(df: pd.DataFrame, target: str = "campaign_engagement_rate"
         fold_scores.append(round(float(r2_score(y_log[va], oof[va])), 4))
         print(f"      fold {fold + 1}: R2(log)={fold_scores[-1]:.4f}  best_iter={best_iters[-1]}")
 
-    pred = np.exp(oof)
+    # Duan's smearing estimator. exp() of a prediction made in log space is a
+    # prediction of the MEDIAN, not the mean, so back-transforming systematically
+    # under-states the average outcome - measured here at -9.7% before the
+    # correction. The factor is the mean of exp(out-of-fold residuals) and is
+    # persisted so serving applies exactly the same correction training measured.
+    #   Duan, N. (1983). Smearing Estimate: A Nonparametric Retransformation
+    #   Method. Journal of the American Statistical Association 78(383).
+    smearing = float(np.mean(np.exp(y_log - oof)))
+    pred = np.exp(oof) * smearing
+
     results = {
-        "model": "LightGBM (GroupKFold OOF)",
+        "model": "LightGBM (GroupKFold OOF, nested early stopping)",
+        "smearing_factor": round(smearing, 5),
+        "smearing_note": (
+            "Duan (1983) smearing estimator applied when back-transforming from log "
+            "space. Without it the mean prediction is biased low by roughly 10%."
+        ),
         "target": target,
         "n_rows": len(df),
         "n_features": len(num) + len(cat),
@@ -246,6 +350,13 @@ def train_performance(df: pd.DataFrame, target: str = "campaign_engagement_rate"
         "this FLATTERS the baseline, so beating it is a conservative claim."
     )
 
+    # Ranking quality where the product actually ranks: inside one brief.
+    results.update(grouped_ndcg(y, pred, df["brand_id"].to_numpy(), k=10))
+    results.update(grouped_ndcg(y, pred, df["brand_id"].to_numpy(), k=5))
+
+    # --- the baseline that actually matters --------------------------------
+    results["baseline_structural"] = structural_baseline(df, y_log, groups)
+
     # --- ceiling -----------------------------------------------------------
     from src.data.generate_synthetic import CAMPAIGN_NOISE_SIGMA
 
@@ -256,7 +367,22 @@ def train_performance(df: pd.DataFrame, target: str = "campaign_engagement_rate"
     )
     results["ceiling_note"] = (
         f"Target carries lognormal(0, {CAMPAIGN_NOISE_SIGMA}) irreducible noise by "
-        "construction; no model can exceed this R^2 in log space."
+        "construction; no model can exceed this R^2 in log space. NOTE: this is an "
+        "ORACLE ceiling - it assumes the latent creator traits are known. The model "
+        "cannot see them, so compare against baseline_structural instead."
+    )
+
+    # The honest headline. `fraction_of_ceiling` flatters, because the ceiling
+    # belongs to an oracle that knows the latents. What the model actually adds
+    # is its lift over the arithmetic a reader could do with a ruler.
+    struct = results["baseline_structural"]["r2_log"]
+    headroom = ceiling - struct
+    results["learned_lift_over_structure"] = round(results["r2_log"] - struct, 4)
+    results["share_of_learnable_signal"] = (
+        round((results["r2_log"] - struct) / headroom, 4) if headroom > 0 else float("nan")
+    )
+    results["structural_share_of_r2"] = (
+        round(struct / results["r2_log"], 4) if results["r2_log"] > 0 else float("nan")
     )
 
     # --- feature importance + SHAP ----------------------------------------
@@ -295,6 +421,10 @@ def train_performance(df: pd.DataFrame, target: str = "campaign_engagement_rate"
             "numeric": num,
             "categorical": cat,
             "log_target": True,
+            # Duan smearing factor, measured out-of-fold. Serving must apply the
+            # same correction the evaluation did, or the numbers on the Reporting
+            # page will not match the numbers on the Model page.
+            "smearing": smearing,
             # Exact training categories, in order. See apply_categories().
             "categories": {c: list(X[c].cat.categories) for c in cat},
         },
@@ -364,6 +494,9 @@ def train_price(df: pd.DataFrame) -> dict:
     import lightgbm as lgb
     import joblib
 
+    from src.data.benchmarks import expected_er as bm_expected_er
+    from src.data.benchmarks import expected_fee as bm_expected_fee
+
     num, cat = feature_columns(df)
     # The fee is agreed before the campaign runs, so campaign outcome features
     # must not be used. feature_columns already excludes them.
@@ -383,15 +516,45 @@ def train_price(df: pd.DataFrame) -> dict:
 
     oof = np.zeros(len(df))
     iters = []
+    inner = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=SEED)
     for tr, va in GroupKFold(n_splits=N_SPLITS).split(X, y_log, groups):
+        # Stopping set carved out of training rows - see train_performance.
+        i_fit, i_stop = next(inner.split(X.iloc[tr], y_log[tr], groups[tr]))
+        fit_idx, stop_idx = tr[i_fit], tr[i_stop]
         m = lgb.LGBMRegressor(**params)
-        m.fit(X.iloc[tr], y_log[tr], eval_set=[(X.iloc[va], y_log[va])],
+        m.fit(X.iloc[fit_idx], y_log[fit_idx],
+              eval_set=[(X.iloc[stop_idx], y_log[stop_idx])],
               callbacks=[lgb.early_stopping(100, verbose=False), lgb.log_evaluation(0)])
         oof[va] = m.predict(X.iloc[va])
         iters.append(m.best_iteration_ or params["n_estimators"])
 
-    pred = np.exp(oof)
-    res = {"model": "LightGBM price regressor", "target": "fee_inr", **regression_metrics(y, pred)}
+    smearing = float(np.mean(np.exp(y_log - oof)))
+    pred = np.exp(oof) * smearing
+    res = {"model": "LightGBM price regressor", "target": "fee_inr",
+           "smearing_factor": round(smearing, 5), **regression_metrics(y, pred)}
+
+    # How much of this model is a recovered identity, and how much is learning.
+    #
+    # The generator prices a campaign as
+    #     fee = expected_fee(followers, category) * er_premium**0.55 * lognormal(0, 0.22)
+    # and all three inputs are model features. Evaluating that closed form with
+    # the noise removed explains almost all the variance on its own, which means
+    # a high R^2 here says LightGBM can fit a log-linear function - not that the
+    # model can price a real creator. The band coverage and MAPE below are the
+    # only numbers from this model worth quoting.
+    bench_er = np.array([bm_expected_er(f, c)
+                         for f, c in zip(df["followers"], df["primary_niche"])])
+    premium = np.clip(df["engagement_rate"].to_numpy() / bench_er, 0.4, 2.5)
+    rate_card = np.array([bm_expected_fee(f, c)
+                          for f, c in zip(df["followers"], df["brand_category"])])
+    closed_form = np.log(rate_card) + 0.55 * np.log(premium)
+    res["closed_form_r2_log"] = round(float(r2_score(y_log, closed_form)), 4)
+    res["tautology_note"] = (
+        "The generator's own fee formula, with its noise term removed, explains "
+        f"R^2 {res['closed_form_r2_log']:.4f} of log fee by itself. This model is "
+        "recovering an algebraic identity, so its R^2 is not evidence about pricing "
+        "real creators. Quote band coverage and MAPE instead."
+    )
 
     # Rule-based Phase-1 baseline: the published rate card.
     from src.data import benchmarks as bm
@@ -408,12 +571,14 @@ def train_price(df: pd.DataFrame) -> dict:
     res["band_coverage_p10_p90"] = round(
         float(np.mean((y >= pred * np.exp(lo_q)) & (y <= pred * np.exp(hi_q)))), 4
     )
+    res["theoretical_r2_log_ceiling"] = r2_ceiling(y, 0.22)
 
     final = lgb.LGBMRegressor(**{**params, "n_estimators": int(np.mean(iters))})
     final.fit(X, y_log)
     joblib.dump(
         {"model": final, "numeric": num, "categorical": cat,
          "categories": {c: list(X[c].cat.categories) for c in cat},
+         "smearing": smearing,
          "band": {"low": float(np.exp(lo_q)), "high": float(np.exp(hi_q))}},
         MODEL_DIR / "price_model.joblib",
     )
@@ -438,7 +603,11 @@ def run() -> dict:
     print(f"    R2(log)        {perf['r2_log']:.4f}   (ceiling {perf['theoretical_r2_log_ceiling']}, "
           f"{perf['fraction_of_ceiling']:.1%} of achievable)")
     print(f"    Spearman       {perf['spearman']:.4f}")
-    print(f"    NDCG@10        {perf['ndcg@10']:.4f}")
+    print(f"    NDCG@10        {perf['ndcg@10_within_brief']:.4f}  (within brief, "
+          f"{perf['ndcg@10_n_briefs']} briefs)")
+    print(f"    structural     {perf['baseline_structural']['r2_log']:.4f}  "
+          f"-> learned lift {perf['learned_lift_over_structure']:+.4f} "
+          f"({perf['share_of_learnable_signal']:.1%} of learnable signal)")
     print(f"    vs benchmark curve   R2(log)={perf['baseline_benchmark_curve']['r2_log']:.4f}")
     print(f"    vs composite index   R2(log)={perf['baseline_composite_index']['r2_log']:.4f}")
     print("  ---- price ----")

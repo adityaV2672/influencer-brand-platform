@@ -33,6 +33,13 @@ SEED = 20260904  # project deadline as the seed, because why not
 # Synthetic universe size
 # --------------------------------------------------------------------------
 N_INFLUENCERS = 2_000
+
+# How much of a creator's campaign amplification is captured by MEASURED topical
+# centrality, with the remainder coming from a latent the feature table cannot
+# see. Setting this to 1.0 makes the amplification term an exact function of a
+# model feature, which is what made the network pillar's ablation score
+# circular; 0.45 says centrality measures a real thing, partially.
+AMPLIFICATION_OBSERVED_SHARE = 0.45
 POSTS_PER_INFLUENCER = (12, 40)   # uniform range
 N_BRANDS = 120
 

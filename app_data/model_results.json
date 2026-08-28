@@ -1,248 +1,266 @@
 {
   "performance": {
-    "model": "LightGBM (GroupKFold OOF)",
+    "model": "LightGBM (GroupKFold OOF, nested early stopping)",
+    "smearing_factor": 1.09058,
+    "smearing_note": "Duan (1983) smearing estimator applied when back-transforming from log space. Without it the mean prediction is biased low by roughly 10%.",
     "target": "campaign_engagement_rate",
     "n_rows": 2199,
     "n_features": 79,
     "fold_r2_log": [
-      0.6837,
-      0.6899,
-      0.6882,
-      0.7237,
-      0.6734
+      0.6388,
+      0.6132,
+      0.6193,
+      0.6719,
+      0.7061
     ],
-    "fold_r2_log_mean": 0.6918,
-    "fold_r2_log_std": 0.017,
-    "mean_best_iteration": 343,
-    "r2_log": 0.6939,
-    "rmse_log": 0.4163,
-    "mae_log": 0.3334,
-    "r2_raw": 0.6097,
-    "mae_raw": 0.005787,
-    "mape": 0.3586,
-    "spearman": 0.8259,
-    "ndcg@10": 0.8106,
-    "ndcg@50": 0.7867,
+    "fold_r2_log_mean": 0.6499,
+    "fold_r2_log_std": 0.0348,
+    "mean_best_iteration": 325,
+    "r2_log": 0.6381,
+    "rmse_log": 0.4444,
+    "mae_log": 0.3562,
+    "r2_raw": 0.5744,
+    "mae_raw": 0.006191,
+    "mape": 0.4185,
+    "spearman": 0.7997,
+    "ndcg@10_global": 0.5113,
+    "ndcg@50_global": 0.676,
     "baseline_benchmark_curve": {
-      "r2_log": -0.02,
-      "rmse_log": 0.7598,
-      "mae_log": 0.6072,
-      "r2_raw": -0.0111,
-      "mae_raw": 0.011127,
-      "mape": 1.0364,
-      "spearman": 0.5943,
-      "ndcg@10": 0.4561,
-      "ndcg@50": 0.4601
+      "r2_log": 0.0079,
+      "rmse_log": 0.7358,
+      "mae_log": 0.5873,
+      "r2_raw": 0.0065,
+      "mae_raw": 0.010791,
+      "mape": 0.9811,
+      "spearman": 0.613,
+      "ndcg@10_global": 0.4791,
+      "ndcg@50_global": 0.4866
     },
     "baseline_composite_index": {
-      "r2_log": 0.2248,
-      "rmse_log": 0.6624,
-      "mae_log": 0.5257,
-      "r2_raw": 0.3075,
-      "mae_raw": 0.008658,
-      "mape": 0.7444,
-      "spearman": 0.509,
-      "ndcg@10": 0.6866,
-      "ndcg@50": 0.6625,
+      "r2_log": 0.1726,
+      "rmse_log": 0.6719,
+      "mae_log": 0.5333,
+      "r2_raw": 0.2617,
+      "mae_raw": 0.008793,
+      "mape": 0.7597,
+      "spearman": 0.4652,
+      "ndcg@10_global": 0.6018,
+      "ndcg@50_global": 0.6423,
       "note": "Isotonically calibrated to the target scale, and fitted on the full set - this FLATTERS the baseline, so beating it is a conservative claim."
     },
-    "theoretical_r2_log_ceiling": 0.8191,
-    "fraction_of_ceiling": 0.8471,
-    "ceiling_note": "Target carries lognormal(0, 0.32) irreducible noise by construction; no model can exceed this R^2 in log space.",
+    "ndcg@10_within_brief": 0.9013,
+    "ndcg@10_n_briefs": 118,
+    "ndcg@5_within_brief": 0.8626,
+    "ndcg@5_n_briefs": 118,
+    "baseline_structural": {
+      "r2_log": 0.4731,
+      "spearman": 0.6781,
+      "n_terms": 5,
+      "note": "Ridge on the generator's own observable terms - published engagement curve, category match, geo match, age match, measured amplification - scored under the same GroupKFold. This is arithmetic, not learning, and it is the reference the model's lift should be quoted against."
+    },
+    "theoretical_r2_log_ceiling": 0.8123,
+    "fraction_of_ceiling": 0.7855,
+    "ceiling_note": "Target carries lognormal(0, 0.32) irreducible noise by construction; no model can exceed this R^2 in log space. NOTE: this is an ORACLE ceiling - it assumes the latent creator traits are known. The model cannot see them, so compare against baseline_structural instead.",
+    "learned_lift_over_structure": 0.165,
+    "share_of_learnable_signal": 0.4864,
+    "structural_share_of_r2": 0.7414,
     "top_features": [
       {
         "feature": "engagement_rate",
-        "gain_pct": 26.03
+        "gain_pct": 31.3
       },
       {
         "feature": "follower_growth_rate",
-        "gain_pct": 8.57
+        "gain_pct": 7.62
       },
       {
         "feature": "following",
-        "gain_pct": 8.3
-      },
-      {
-        "feature": "brand_category",
-        "gain_pct": 5.32
+        "gain_pct": 5.91
       },
       {
         "feature": "comments_to_likes",
-        "gain_pct": 4.08
+        "gain_pct": 4.83
+      },
+      {
+        "feature": "brand_category",
+        "gain_pct": 4.71
       },
       {
         "feature": "followers",
-        "gain_pct": 3.37
-      },
-      {
-        "feature": "pagerank",
-        "gain_pct": 3.27
+        "gain_pct": 3.35
       },
       {
         "feature": "match_primary_niche",
-        "gain_pct": 2.62
-      },
-      {
-        "feature": "degree_weighted",
-        "gain_pct": 2.52
+        "gain_pct": 2.59
       },
       {
         "feature": "match_geo",
-        "gain_pct": 1.82
+        "gain_pct": 1.8
       },
       {
         "feature": "reach_efficiency",
-        "gain_pct": 1.71
-      },
-      {
-        "feature": "match_age",
-        "gain_pct": 1.48
+        "gain_pct": 1.58
       },
       {
         "feature": "views_to_followers",
-        "gain_pct": 1.38
-      },
-      {
-        "feature": "degree_weighted_pct",
-        "gain_pct": 1.24
-      },
-      {
-        "feature": "pagerank_pct",
-        "gain_pct": 1.17
-      },
-      {
-        "feature": "content_promo_rate",
-        "gain_pct": 1.15
+        "gain_pct": 1.46
       },
       {
         "feature": "er_vs_benchmark",
-        "gain_pct": 1.13
+        "gain_pct": 1.38
+      },
+      {
+        "feature": "degree_weighted",
+        "gain_pct": 1.36
       },
       {
         "feature": "content_topic_entropy",
-        "gain_pct": 1.07
+        "gain_pct": 1.34
+      },
+      {
+        "feature": "pagerank",
+        "gain_pct": 1.29
+      },
+      {
+        "feature": "match_age",
+        "gain_pct": 1.27
+      },
+      {
+        "feature": "log_followers",
+        "gain_pct": 1.1
+      },
+      {
+        "feature": "content_promo_rate",
+        "gain_pct": 1.08
       },
       {
         "feature": "content_nrc_anger",
-        "gain_pct": 0.9
+        "gain_pct": 0.88
       },
       {
-        "feature": "content_caps_ratio",
-        "gain_pct": 0.87
+        "feature": "content_cta_rate",
+        "gain_pct": 0.81
+      },
+      {
+        "feature": "content_disclosure_rate",
+        "gain_pct": 0.8
       }
     ],
     "top_features_shap": [
       {
         "feature": "engagement_rate",
-        "mean_abs_shap": 0.20759818658998824
+        "mean_abs_shap": 0.23735020327444203
       },
       {
         "feature": "brand_category",
-        "mean_abs_shap": 0.1302611735896071
+        "mean_abs_shap": 0.11147585590813783
       },
       {
         "feature": "follower_growth_rate",
-        "mean_abs_shap": 0.11624451166759535
-      },
-      {
-        "feature": "match_primary_niche",
-        "mean_abs_shap": 0.07738408161464835
-      },
-      {
-        "feature": "comments_to_likes",
-        "mean_abs_shap": 0.07649462418671012
+        "mean_abs_shap": 0.10942172699962455
       },
       {
         "feature": "following",
-        "mean_abs_shap": 0.07637432417935706
+        "mean_abs_shap": 0.07194806846001446
       },
       {
-        "feature": "match_age",
-        "mean_abs_shap": 0.0718249160071346
+        "feature": "comments_to_likes",
+        "mean_abs_shap": 0.07189878463245399
+      },
+      {
+        "feature": "match_primary_niche",
+        "mean_abs_shap": 0.06625422466689274
       },
       {
         "feature": "match_geo",
-        "mean_abs_shap": 0.05721844765592808
+        "mean_abs_shap": 0.05393587245205056
       },
       {
-        "feature": "pagerank",
-        "mean_abs_shap": 0.05641639894041586
-      },
-      {
-        "feature": "degree_weighted",
-        "mean_abs_shap": 0.04913032966448903
+        "feature": "match_age",
+        "mean_abs_shap": 0.04972186388695854
       },
       {
         "feature": "followers",
-        "mean_abs_shap": 0.04344963617093647
+        "mean_abs_shap": 0.04312814736880434
       },
       {
         "feature": "reach_efficiency",
-        "mean_abs_shap": 0.02783330573028693
+        "mean_abs_shap": 0.030835084626565812
+      },
+      {
+        "feature": "pagerank",
+        "mean_abs_shap": 0.02449945941143292
       },
       {
         "feature": "views_to_followers",
-        "mean_abs_shap": 0.024894421806105925
+        "mean_abs_shap": 0.02301671791724834
       },
       {
-        "feature": "content_promo_rate",
-        "mean_abs_shap": 0.02246540217870356
+        "feature": "degree_weighted",
+        "mean_abs_shap": 0.020671916161122014
       },
       {
-        "feature": "content_nrc_anger",
-        "mean_abs_shap": 0.020360427127016443
+        "feature": "content_topic_entropy",
+        "mean_abs_shap": 0.020553469055219976
+      },
+      {
+        "feature": "content_disclosure_rate",
+        "mean_abs_shap": 0.020018807595791006
       }
     ],
     "ablation": {
-      "all_features_r2_log": 0.6915,
+      "all_features_r2_log": 0.6681,
       "drops": {
         "reach": {
-          "r2_without": 0.676,
-          "delta": 0.0155,
+          "r2_without": 0.6489,
+          "delta": 0.0192,
           "n_features": 9
         },
         "engagement": {
-          "r2_without": 0.6357,
-          "delta": 0.0558,
+          "r2_without": 0.6048,
+          "delta": 0.0633,
           "n_features": 7
         },
         "content": {
-          "r2_without": 0.6831,
-          "delta": 0.0084,
+          "r2_without": 0.6604,
+          "delta": 0.0077,
           "n_features": 34
         },
         "network": {
-          "r2_without": 0.6419,
-          "delta": 0.0496,
+          "r2_without": 0.6478,
+          "delta": 0.0203,
           "n_features": 15
         },
         "brandfit": {
-          "r2_without": 0.5832,
-          "delta": 0.1083,
+          "r2_without": 0.5621,
+          "delta": 0.106,
           "n_features": 6
         }
       },
       "only": {
-        "reach": 0.3691,
-        "engagement": 0.4433,
-        "content": 0.1106,
-        "network": 0.0949,
-        "brandfit": 0.1626
+        "reach": 0.3904,
+        "engagement": 0.4762,
+        "content": 0.0754,
+        "network": 0.0395,
+        "brandfit": 0.1663
       }
     }
   },
   "price": {
     "model": "LightGBM price regressor",
     "target": "fee_inr",
-    "r2_log": 0.9753,
-    "rmse_log": 0.2489,
-    "mae_log": 0.1969,
-    "r2_raw": 0.8339,
-    "mae_raw": 11762.52639,
-    "mape": 0.2012,
-    "spearman": 0.9874,
-    "ndcg@10": 0.6152,
-    "ndcg@50": 0.8659,
+    "smearing_factor": 1.0319,
+    "r2_log": 0.9742,
+    "rmse_log": 0.2542,
+    "mae_log": 0.2025,
+    "r2_raw": 0.82,
+    "mae_raw": 12500.574259,
+    "mape": 0.2138,
+    "spearman": 0.9872,
+    "ndcg@10_global": 0.6153,
+    "ndcg@50_global": 0.8619,
+    "closed_form_r2_log": 0.9804,
+    "tautology_note": "The generator's own fee formula, with its noise term removed, explains R^2 0.9804 of log fee by itself. This model is recovering an algebraic identity, so its R^2 is not evidence about pricing real creators. Quote band coverage and MAPE instead.",
     "baseline_rate_card": {
       "r2_log": 0.9656,
       "rmse_log": 0.2937,
@@ -251,13 +269,14 @@
       "mae_raw": 10416.573291,
       "mape": 0.2501,
       "spearman": 0.9815,
-      "ndcg@10": 0.9283,
-      "ndcg@50": 0.9467
+      "ndcg@10_global": 0.9279,
+      "ndcg@50_global": 0.9466
     },
     "band_multipliers": {
-      "low": 0.731,
-      "high": 1.369
+      "low": 0.714,
+      "high": 1.377
     },
-    "band_coverage_p10_p90": 0.7999
+    "band_coverage_p10_p90": 0.8095,
+    "theoretical_r2_log_ceiling": 0.9807
   }
 }
