@@ -1,6 +1,9 @@
 file,rows,columns,size_kb,source_parquet,description
 creators.csv,2000,102,4076.8,app_data/nectar_creators.parquet,"One row per creator: the full feature table plus the presentation fields the product shows (name, city, platforms, rate card)."
 campaigns.csv,6,24,2.7,app_data/nectar_campaigns.parquet,"The six showcase campaigns, their budgets, briefs and eligibility policy."
+creator_terms.csv,80000,3,2889.4,app_data/nectar_creator_terms.parquet,"The lexical profile behind the typed-brief matcher: the forty heaviest TF-IDF terms for each creator, L2-normalised."
+vocabulary.csv,780,3,23.1,app_data/nectar_vocab.parquet,"Every term the typed-brief matcher can recognise, with its document frequency and inverse document frequency."
+brand_mentions.csv,12117,5,297.8,app_data/nectar_brand_mentions.parquet,"Which creator mentioned which brand, how often, and whether any of it was a disclosed paid post - the evidence the competitor-conflict veto reads."
 campaign_fit.csv,12000,81,21737.7,app_data/nectar_fit.parquet,"Every (campaign, creator) pair with its fit composite, components, safety gates and ranking under each objective."
 requests.csv,194,25,40.7,app_data/nectar_requests.parquet,"The request funnel: who was approached for which campaign, at what fee, and how far they got."
 messages.csv,313,8,49.4,app_data/nectar_messages.parquet,Negotiation threads attached to requests.

@@ -29,10 +29,14 @@ def render_sidebar(nav: dict) -> None:
         for page, label, icon in nav["main"]:
             st.page_link(page, label=label, icon=icon)
 
-        st.markdown("<div class='nectar-navgroup'>Model &amp; methods</div>",
-                    unsafe_allow_html=True)
-        for page, label, icon in nav["methods"]:
-            st.page_link(page, label=label, icon=icon)
+        # The group renders only if it has pages. Drawing the heading over an
+        # empty list left a floating label above the divider once the Model &
+        # methods section was switched off.
+        if nav.get("methods"):
+            st.markdown("<div class='nectar-navgroup'>Model &amp; methods</div>",
+                        unsafe_allow_html=True)
+            for page, label, icon in nav["methods"]:
+                st.page_link(page, label=label, icon=icon)
 
         st.markdown("<div class='nectar-sidebar-rule'></div>", unsafe_allow_html=True)
         for page, label, icon in nav["footer"]:

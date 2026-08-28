@@ -50,7 +50,7 @@ with rail:
     # own per-creator fee cap and audience floor would reject - so the top of
     # the list could be an 800-follower account on a 7.5 lakh campaign that the
     # request pipeline would never actually approach. It now applies the same
-    # two gates the campaign builder shows live and the shortlist enforces.
+    # two gates the Find creators page shows live and the shortlist enforces.
     ignore_gates = st.checkbox("Ignore fee cap and audience floor",
                                key="ignore_gates",
                                help="Show creators this brief cannot afford or "

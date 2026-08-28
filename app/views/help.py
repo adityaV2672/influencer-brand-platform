@@ -50,7 +50,7 @@ FAQ = [
      "calibrated so that engagement rates and fee bands reproduce published 2026 "
      "benchmarks by follower tier. No real account was scraped."),
     ("Then what is real?",
-     "The NLP evidence. Every accuracy figure on the NLP methods page is measured on "
+     "The NLP evidence. Every accuracy figure reported for this project is measured on "
      "human-labelled corpora — TweetEval and the Misra sarcasm headlines. The methods "
      "are validated on real text and then applied to the synthetic captions."),
     ("Why not measure the NLP on the platform's own captions?",
@@ -67,7 +67,7 @@ FAQ = [
      "the gap. It is a property of the target transform, not a lucky quarter."),
     ("Why is the shortlist so small on some briefs?",
      "Two gates run before fit is considered: the brief's per-creator fee cap and its "
-     "minimum audience size. The campaign builder shows the eligible pool updating "
+     "minimum audience size. Find creators shows the eligible pool updating "
      "live as those are set, so the consequence is visible before you commit."),
 ]
 st.markdown("<div class='n-h2'>Questions</div><div style='height:8px'></div>",

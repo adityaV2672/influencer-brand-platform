@@ -125,6 +125,17 @@ campaigns,max_per_creator,float64,6,6,160000.0,derived
 campaigns,min_followers,int64,6,5,3000,derived
 campaigns,payment_type,object,6,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
 campaigns,creators_count,int64,6,6,12,derived
+creator_terms,influencer_id,object,80000,2000,INF00000,identifier
+creator_terms,term,object,80000,774,tax,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
+creator_terms,weight,float32,80000,68561,0.22313334047794342,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
+vocabulary,term,object,780,780,academy,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
+vocabulary,df,int64,780,270,166,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
+vocabulary,idf,float64,780,270,3.4834085221669784,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
+brand_mentions,influencer_id,object,12117,2000,INF00000,identifier
+brand_mentions,brand,object,12117,73,groww,derived
+brand_mentions,n_mentions,int64,12117,10,3,generated - brand mentions in the synthetic post corpus
+brand_mentions,n_paid,int64,12117,10,3,generated - brand mentions in the synthetic post corpus
+brand_mentions,days_ago_min,int64,12117,364,135,generated - brand mentions in the synthetic post corpus
 campaign_fit,brand_fit,float64,12000,3154,0.8825,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,brand_fit_ungated,float64,12000,2460,0.8825,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,gate_multiplier,float64,12000,3,1.0,derived
@@ -550,7 +561,7 @@ nlp_benchmarks,notes,object,29,11,Predicts the most frequent training label for 
 nlp_benchmarks,n_eval,int64,29,4,3000,"measured — evaluation on a real, human-labelled corpus"
 nlp_benchmarks,accuracy,float64,22,21,0.48333333333333334,"measured — evaluation on a real, human-labelled corpus"
 nlp_benchmarks,macro_f1,float64,22,22,0.21722846441947566,"measured — evaluation on a real, human-labelled corpus"
-nlp_benchmarks,weighted_f1,float64,22,22,0.3149812734082397,"measured — evaluation on a real, human-labelled corpus"
+nlp_benchmarks,weighted_f1,float64,22,22,0.3149812734082397,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
 nlp_benchmarks,seconds,float64,22,16,0.0,derived
 nlp_benchmarks,texts_per_sec,float64,22,19,Infinity,"measured — evaluation on a real, human-labelled corpus"
 nlp_benchmarks,subsampled,bool,29,1,false,derived
@@ -567,7 +578,7 @@ feature_shap,feature,object,79,79,engagement_rate,derived
 feature_shap,mean_abs_shap,float64,79,71,0.23735020327444203,derived
 graph_edges,source,object,6000,1475,INF01047,derived
 graph_edges,target,object,6000,1449,INF01724,derived
-graph_edges,weight,float64,6000,5736,0.983575,derived
+graph_edges,weight,float64,6000,5736,0.983575,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
 topics,topic_id,int64,18,18,0,derived
 topics,size,int64,18,18,3992,derived
 topics,top_words,object,18,18,travel|solotravel|travelphotography|backpacking|wanderlust|h,derived

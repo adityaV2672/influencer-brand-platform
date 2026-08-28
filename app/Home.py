@@ -49,13 +49,14 @@ def _page(script: str, title: str, url: str = "", icon: str = "") -> st.Page:
 BRAND_PAGES = [
     (_page("brand_overview", "Overview"), "Overview", ":material/dashboard:"),
     (_page("brand_campaigns", "Campaigns", "brand-campaigns"), "Campaigns", ":material/work:"),
+    (_page("brand_builder", "Find creators", "brand-builder"), "Find creators", ":material/auto_awesome:"),
     (_page("brand_discover", "Discover", "brand-discover"), "Discover", ":material/search:"),
     (_page("brand_shortlist", "Shortlist", "brand-shortlist"), "Shortlist", ":material/bookmark:"),
     (_page("brand_requests", "Requests", "brand-requests"), "Requests", ":material/inbox:"),
     (_page("brand_deals", "Deals", "brand-deals"), "Deals", ":material/handshake:"),
     (_page("brand_reporting", "Reporting", "brand-reporting"), "Reporting", ":material/trending_up:"),
 ]
-BRAND_HIDDEN = [_page("brand_builder", "Campaign builder", "brand-builder")]
+BRAND_HIDDEN: list = []
 
 CREATOR_PAGES = [
     (_page("creator_overview", "Overview", "creator-overview"), "Overview", ":material/dashboard:"),
@@ -67,12 +68,17 @@ CREATOR_PAGES = [
     (_page("creator_profile", "Profile", "creator-profile"), "Profile", ":material/person:"),
 ]
 
-METHOD_PAGES = [
-    (_page("methods_model", "Model", "methods-model"), "Model", ":material/insights:"),
-    (_page("methods_nlp", "NLP methods", "methods-nlp"), "NLP methods", ":material/psychology:"),
-    (_page("methods_network", "Network", "methods-network"), "Network", ":material/hub:"),
-    (_page("methods_data", "Data", "methods-data"), "Data", ":material/database:"),
-]
+# The Model & methods section is switched off in the product. The four page
+# files remain in views/ and the block below restores them in one line if the
+# validation evidence has to be shown again; they are simply not registered as
+# routes, so there is no URL that reaches them either.
+METHOD_PAGES: list = []
+# METHOD_PAGES = [
+#     (_page("methods_model", "Model", "methods-model"), "Model", ":material/insights:"),
+#     (_page("methods_nlp", "NLP methods", "methods-nlp"), "NLP methods", ":material/psychology:"),
+#     (_page("methods_network", "Network", "methods-network"), "Network", ":material/hub:"),
+#     (_page("methods_data", "Data", "methods-data"), "Data", ":material/database:"),
+# ]
 
 FOOTER_PAGES = [
     (_page("settings", "Settings", "settings"), "Settings", ":material/settings:"),

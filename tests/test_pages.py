@@ -25,8 +25,13 @@ CREATOR_PAGES = [
     "creator_overview", "creator_discover", "creator_requests", "creator_deals",
     "creator_analytics", "creator_earnings", "creator_profile",
 ]
-SHARED_PAGES = ["methods_model", "methods_nlp", "methods_network", "methods_data",
-                "settings", "help"]
+# The four methods_* pages are no longer registered as routes, so they are no
+# longer part of the product surface. Their files stay in views/ and are
+# still smoke-tested below, because switching them back on is a one-line
+# change in Home.py and a page that has rotted in the meantime is worse than
+# no page at all.
+SHARED_PAGES = ["settings", "help"]
+RETIRED_PAGES = ["methods_model", "methods_nlp", "methods_network", "methods_data"]
 
 CASES = ([("brand", p) for p in BRAND_PAGES + SHARED_PAGES]
          + [("creator", p) for p in CREATOR_PAGES + SHARED_PAGES])
@@ -46,6 +51,21 @@ def test_page_renders(role, page):
         f"{role}/{page} raised: "
         + "\n".join(str(e.message) for e in at.exception)
     )
+
+
+@pytest.mark.parametrize("page", RETIRED_PAGES)
+def test_retired_page_still_renders(page):
+    """Off the navigation, but not rotting."""
+    at = _run("brand", page)
+    assert not at.exception
+
+
+def test_methods_are_not_routed():
+    """The pages must be unreachable, not merely unlinked."""
+    src = (APP / "Home.py").read_text(encoding="utf-8")
+    active = [ln for ln in src.splitlines()
+              if "methods_" in ln and not ln.strip().startswith("#")]
+    assert not active, f"methods pages are still registered: {active}"
 
 
 def test_signin_renders():

@@ -22,6 +22,7 @@ from src.nectar.build_campaigns import (
     add_reasons, build_campaigns, build_fit, weight_sensitivity,
 )
 from src.nectar.build_creators import build as build_creators
+from src.nectar.build_terms import build as build_terms, build_brand_mentions
 from src.nectar.build_pipeline import (
     build_creator_history, build_funnel, build_messages, build_monthly,
     build_reporting, build_requests,
@@ -127,6 +128,20 @@ def run() -> dict:
     default_creator = total.index[0] if len(total) else creators.influencer_id.iloc[0]
 
     # ---- write ------------------------------------------------------------
+    # Lexical layer for the brand intake page. A brand typing a fresh brief has
+    # no precomputed SBERT row, and the hosted app carries no model, so the
+    # typed text is matched against TF-IDF profiles instead. See
+    # src/nectar/build_terms.py for what that costs.
+    posts_path = ROOT / "data" / "processed" / "posts.parquet"
+    posts = pd.read_parquet(
+        posts_path,
+        columns=["influencer_id", "caption", "gen_brand", "gen_has_promo", "days_ago"],
+    )
+    creator_terms, vocab = build_terms(creators, posts)
+    brand_mentions = build_brand_mentions(posts)
+    print(f"    lexical profiles: {len(vocab):,} vocabulary terms, "
+          f"{len(creator_terms):,} creator-term weights")
+
     tables = {
         "nectar_creators.parquet": creators,
         "nectar_campaigns.parquet": campaigns,
@@ -142,6 +157,9 @@ def run() -> dict:
         "nectar_category_fit.parquet": cat_fit,
         "nectar_creator_history.parquet": history,
         "nectar_weight_sensitivity.parquet": sensitivity,
+        "nectar_creator_terms.parquet": creator_terms,
+        "nectar_vocab.parquet": vocab,
+        "nectar_brand_mentions.parquet": brand_mentions,
     }
     written = {}
     for fname, df in tables.items():
@@ -159,6 +177,7 @@ def run() -> dict:
             "campaign_fit": "brand_fit_ungated from src/models/brandfit.py (SBERT semantic "
                             "similarity, category affinity, audience overlap, content safety, "
                             "consistency)",
+            "typed_brief_fit": "same components and weights as campaign_fit, except the semantic term, which is TF-IDF cosine over creator captions and keywords rather than SBERT - the hosted app loads no model, so a brief typed at request time cannot be embedded",
             "org_fit": "0.45*content_safety + 0.35*consistency + 0.20*audience_match",
             "fees": "price_model.joblib (LightGBM), Reel = point estimate, "
                     "Story = 0.35x, Carousel = 0.70x",

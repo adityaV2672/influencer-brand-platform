@@ -32,6 +32,15 @@ TABLES = [
      "the product shows (name, city, platforms, rate card)."),
     ("campaigns", APP_DATA / "nectar_campaigns.parquet",
      "The six showcase campaigns, their budgets, briefs and eligibility policy."),
+    ("creator_terms", APP_DATA / "nectar_creator_terms.parquet",
+     "The lexical profile behind the typed-brief matcher: the forty heaviest "
+     "TF-IDF terms for each creator, L2-normalised."),
+    ("vocabulary", APP_DATA / "nectar_vocab.parquet",
+     "Every term the typed-brief matcher can recognise, with its document "
+     "frequency and inverse document frequency."),
+    ("brand_mentions", APP_DATA / "nectar_brand_mentions.parquet",
+     "Which creator mentioned which brand, how often, and whether any of it was "
+     "a disclosed paid post - the evidence the competitor-conflict veto reads."),
     ("campaign_fit", APP_DATA / "nectar_fit.parquet",
      "Every (campaign, creator) pair with its fit composite, components, safety "
      "gates and ranking under each objective."),
@@ -102,6 +111,10 @@ PROVENANCE = [
       "comments_to_likes", "views_to_followers", "follower_", "posting_frequency",
       "audience_"),
      "generated — the synthetic creator universe (src/data/generate_synthetic.py)"),
+    (("term", "idf", "df", "weight"),
+     "derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)"),
+    (("n_mentions", "n_paid", "days_ago_min"),
+     "generated - brand mentions in the synthetic post corpus"),
     (("accuracy", "macro_f1", "weighted_f1", "n_eval", "texts_per_sec"),
      "measured — evaluation on a real, human-labelled corpus"),
 ]
