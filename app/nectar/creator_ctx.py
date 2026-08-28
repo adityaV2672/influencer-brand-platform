@@ -1,6 +1,7 @@
 """Shared context for the Creator OS: who am I, and what is addressed to me."""
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -30,11 +31,15 @@ def my_requests(include_history: bool = True) -> pd.DataFrame:
         return live.sort_values("stage_index", ascending=False)
     hist = hist[hist.influencer_id == iid].copy()
     hist["source"] = "history"
-    for col in set(live.columns) - set(hist.columns):
-        hist[col] = None
-    for col in set(hist.columns) - set(live.columns):
-        live[col] = None
-    both = pd.concat([live, hist[live.columns]], ignore_index=True)
+    _align_missing(hist, live)
+    _align_missing(live, hist)
+    # Drop empty sides before concatenating. A creator with no live requests
+    # (or no history) would otherwise hand pandas an all-NA frame, and pandas
+    # warns that it will stop inferring dtypes from the non-empty side.
+    frames = [d for d in (live, hist[live.columns]) if not d.empty]
+    if not frames:
+        return live
+    both = frames[0].copy() if len(frames) == 1 else pd.concat(frames, ignore_index=True)
     return both.sort_values("stage_index", ascending=False)
 
 
@@ -100,3 +105,19 @@ def creator_picker(key: str = "who") -> None:
     if pick != cur:
         st.session_state["creator_id"] = pick
         st.rerun()
+
+
+def _align_missing(target: pd.DataFrame, other: pd.DataFrame) -> None:
+    """Give `target` the columns it lacks, typed like `other`'s.
+
+    Filling with a bare None makes an all-object column of nulls, and pandas
+    then warns that a future version will stop inferring the concatenated
+    dtype from the non-empty side - a live `followers` of int64 would silently
+    become object. Numeric columns are filled with NaN as float instead, which
+    is a dtype that can actually hold the missing value.
+    """
+    for col in [c for c in other.columns if c not in target.columns]:
+        if pd.api.types.is_numeric_dtype(other[col]) and not pd.api.types.is_bool_dtype(other[col]):
+            target[col] = np.full(len(target), np.nan, dtype="float64")
+        else:
+            target[col] = pd.Series([None] * len(target), index=target.index, dtype="object")
