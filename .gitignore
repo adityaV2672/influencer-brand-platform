@@ -22,3 +22,8 @@ data/csv/*.csv
 !data/csv/MANIFEST.csv
 
 # app_data/ is INTENTIONALLY committed - it is the deployment payload.
+
+# The real dataset is fetched and digest-verified by
+# `python -m src.realdata.train_news`; the provenance record is committed, the
+# 24 MB of raw articles are not.
+data/real/*.csv
