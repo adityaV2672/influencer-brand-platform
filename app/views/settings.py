@@ -75,3 +75,59 @@ with b:
             f"here rather than rendered as dead toggles, because a settings page full "
             f"of switches that do nothing is worse than one that says so."
             f"</div>", unsafe_allow_html=True)
+
+
+# --------------------------------------------------------------------------
+# Live behavioural log
+# --------------------------------------------------------------------------
+# Shown here rather than hidden because it is the mechanism by which the
+# platform stops depending on a simulated history. Every row a real user
+# generates is one row the ranker and the collaborative filter can be retrained
+# on, in exactly the schema they already read.
+from nectar import events  # noqa: E402
+
+st.markdown("<div style='height:30px'></div>", unsafe_allow_html=True)
+st.markdown(ui.section(
+    "Activity this session",
+    "What you have done, in the shape the recommendation models consume."),
+    unsafe_allow_html=True)
+
+_summary = events.summary()
+_cols = st.columns(len(_summary))
+for _c, (_k, _v) in zip(_cols, _summary.items()):
+    with _c:
+        st.markdown(
+            f"<div class='n-card' style='text-align:center;padding:13px'>"
+            f"<div style='font-size:11.5px;color:{INK_3};text-transform:capitalize'>"
+            f"{ui.esc(_k)}</div>"
+            f"<div class='n-num' style='font-size:23px'>{_v}</div></div>",
+            unsafe_allow_html=True)
+
+_recent = events.recent(12)
+st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+if _recent.empty:
+    st.markdown(ui.empty_state(
+        "◎", "Nothing recorded yet",
+        "Shortlist a creator on Discover, or pitch for a brief on the creator "
+        "side, and it appears here."), unsafe_allow_html=True)
+else:
+    st.markdown(ui.table(
+        ["When", "Who", "Action", "Creator", "Campaign", "Surface"],
+        [[f"<span style='font-size:11.5px;color:{INK_3}'>{ui.esc(str(r.ts)[11:19])}</span>",
+          ui.chip(str(r.actor).title()),
+          f"<span style='font-size:12.5px'>{ui.esc(str(r.stage))}</span>",
+          f"<span style='font-family:JetBrains Mono,monospace;font-size:11.5px'>"
+          f"{ui.esc(str(r.influencer_id))}</span>",
+          f"<span style='font-family:JetBrains Mono,monospace;font-size:11.5px'>"
+          f"{ui.esc(str(r.campaign_id))}</span>",
+          f"<span style='font-size:11.5px;color:{INK_3}'>{ui.esc(str(r.surface))}</span>"]
+         for r in _recent.itertuples()],
+        aligns=["left"] * 6), unsafe_allow_html=True)
+
+st.markdown(
+    f"<div class='n-muted' style='margin-top:12px;line-height:1.6'>"
+    f"The models currently ship trained on a <b>simulated</b> history of 10,699 "
+    f"events across 120 brands, because no real one exists yet. These rows use "
+    f"the identical schema, so a deployment with a database concatenates the two "
+    f"and retrains without touching the training code.</div>",
+    unsafe_allow_html=True)

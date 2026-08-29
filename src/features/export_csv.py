@@ -32,6 +32,55 @@ TABLES = [
      "the product shows (name, city, platforms, rate card)."),
     ("campaigns", APP_DATA / "nectar_campaigns.parquet",
      "The six showcase campaigns, their budgets, briefs and eligibility policy."),
+    ("creator_quality", APP_DATA / "nectar_creator_quality.parquet",
+     "Creator Quality: the brand-independent score, its seven components, its "
+     "band and the reason string shown in the product."),
+    ("organisation_fit", APP_DATA / "nectar_org_fit.parquet",
+     "Organisation Fit: the long-term brand-creator relationship score and its "
+     "six components, including visual similarity and the three-part brand "
+     "safety term."),
+    ("campaign_fit_v2", APP_DATA / "nectar_campaign_fit.parquet",
+     "Campaign Fit: per campaign and creator, the six components, the hard-gate "
+     "outcome, the block reason where one fired, and the reason string."),
+    ("audience_quality", APP_DATA / "nectar_audience_quality.parquet",
+     "Predicted audience authenticity band and score per creator, with the true "
+     "inauthentic share the model was scored against."),
+    ("comment_profile", APP_DATA / "nectar_comment_profile.parquet",
+     "Per-creator comment-section profile: sentiment shares, toxicity rate, "
+     "automation rate, duplication, length. Labels come from classifiers trained "
+     "on TweetEval, a real human-annotated corpus."),
+    ("comments_sample", APP_DATA / "nectar_comments_sample.parquet",
+     "24,000 individual comments with their model labels and surface features. "
+     "SIMULATED text (src/creator_data/comments.py); REAL classifiers."),
+    ("creator_connections", APP_DATA / "nectar_connections.parquet",
+     "Which creators have connected their Instagram account, when, and under "
+     "which scopes. Connection is SIMULATED."),
+    ("creator_insights", APP_DATA / "nectar_creator_insights.parquet",
+     "Owner-only metrics for connected creators: saves, shares, watch time, "
+     "dwell, profile visits, follows-from-post, and the full audience age, "
+     "gender, geography and language split. SIMULATED."),
+    ("post_insights_sample", APP_DATA / "nectar_post_insights_sample.parquet",
+     "20,000 posts with their owner-only metrics. SIMULATED."),
+    ("visual_profile", APP_DATA / "nectar_visual.parquet",
+     "Feed coherence and six readable visual attributes per creator. The encoder "
+     "is SIMULATED; no image exists."),
+    ("capability", APP_DATA / "nectar_capability.parquet",
+     "Which formats a creator offers, how each performs against their own "
+     "baseline, their booked window and the notice they need."),
+    ("interactions", APP_DATA / "nectar_interactions.parquet",
+     "The SIMULATED behavioural log: 10,699 brand-creator events across 120 "
+     "brands, used to train the learned ranker and the collaborative filter."),
+    ("brand_taste", APP_DATA / "nectar_brand_taste.parquet",
+     "Each brand's idiosyncratic taste weights. Never exposed as a model "
+     "feature - this is what the collaborative filter has to recover."),
+    ("creator_attributes", APP_DATA / "nectar_creator_attributes.parquet",
+     "The percentile attribute matrix both the composite and the brands score "
+     "against."),
+    ("cf_scores", APP_DATA / "nectar_cf_scores.parquet",
+     "Top 60 collaborative-filtering scores per brand."),
+    ("ranker_scores", APP_DATA / "nectar_ranker_scores.parquet",
+     "Out-of-fold scores from the hand-set composite, the learned linear weights "
+     "and the LambdaRank model, for every logged event."),
     ("audio_posts", APP_DATA / "nectar_audio_posts.parquet",
      "SIMULATED voice track for every video post: valence, arousal, speech "
      "rate, pause and music ratio, the audio sentiment label, and whether it "
@@ -118,6 +167,16 @@ PROVENANCE = [
       "comments_to_likes", "views_to_followers", "follower_", "posting_frequency",
       "audience_"),
      "generated — the synthetic creator universe (src/data/generate_synthetic.py)"),
+    (("saves", "shares", "dwell_", "watch_", "profile_visits", "follows_from",
+      "impressions", "video_length", "account_connected", "connected_days",
+      "scopes_granted", "insights_available", "audience_age_", "audience_female",
+      "audience_male", "audience_other", "audience_top_country",
+      "audience_language", "visual_", "booked_", "lead_time", "offers_",
+      "strength_", "taste_", "cf_score", "archetype"),
+     "simulated - creator-supplied or sensor data this project does not have"),
+    (("comment_", "n_comments"),
+     "derived - classifiers trained on TweetEval (real human labels), applied "
+     "to a simulated comment corpus"),
     (("audio_", "speech_rate", "pause_ratio", "pitch_variation", "music_ratio",
       "tone_mismatch", "n_video_posts"),
      "simulated - generated voice track, no audio was ever recorded "

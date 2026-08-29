@@ -138,6 +138,270 @@ campaigns,max_per_creator,float64,6,6,160000.0,derived
 campaigns,min_followers,int64,6,5,3000,derived
 campaigns,payment_type,object,6,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
 campaigns,creators_count,int64,6,4,12,derived
+creator_quality,influencer_id,object,2000,2000,INF00000,identifier
+creator_quality,creator_quality,float64,2000,497,73.7,derived
+creator_quality,creator_quality_band,object,2000,4,Strong,derived
+creator_quality,verified_metrics,bool,2000,2,true,derived
+creator_quality,q_engagement_quality,float64,2000,1795,0.6884,derived
+creator_quality,q_audience_quality,float64,2000,665,0.993,derived
+creator_quality,q_comment_quality,float64,2000,1162,0.8294,derived
+creator_quality,q_reach_strength,float64,2000,1844,0.599,derived
+creator_quality,q_content_consistency,float64,2000,962,0.6284,derived
+creator_quality,q_reliability,float64,2000,1750,0.5933,derived
+creator_quality,q_visual_coherence,float64,2000,1633,0.588,derived
+creator_quality,creator_quality_reasons,object,2000,213,Audience looks authentic · Comment section is real conversat,derived
+organisation_fit,brand_fit,float64,12000,3229,0.8754,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,brand_fit_ungated,float64,12000,2570,0.8754,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,gate_multiplier,float64,12000,3,1.0,derived
+organisation_fit,gate_reasons,object,12000,35,,derived
+organisation_fit,fit_semantic_similarity,float64,12000,289,0.7392,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_category_match,float64,12000,3,1.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_audience_match,float64,12000,4,1.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_content_safety,float64,12000,826,0.8617,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_consistency,float64,12000,962,0.758,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,brand_id,object,12000,6,BRD0002,identifier
+organisation_fit,influencer_id,object,12000,2000,INF01263,identifier
+organisation_fit,semantic_cosine,float64,12000,324,0.4784,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,semantic_imputed,bool,12000,2,true,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,campaign_id,object,12000,6,CMP00,identifier
+organisation_fit,name_campaign,object,12000,6,Monsoon Skin Reset,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,budget_inr,float64,12000,6,750000.0,derived
+organisation_fit,max_per_creator,float64,12000,6,160000.0,derived
+organisation_fit,min_followers,int64,12000,5,3000,derived
+organisation_fit,deliverables,object,12000,6,"[{""type"": ""Reel"", ""qty"": 2, ""platform"": ""Instagram""}, {""type",derived
+organisation_fit,deliverable_label,object,12000,6,"2 Reel, 3 Story",derived
+organisation_fit,name,object,12000,1343,Tara Banerjee,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,nectar_handle,object,12000,2000,@tarabanerjee,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,initials,object,12000,235,TB,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,avatar_color,object,12000,10,#7C4DA0,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,city,object,12000,36,Abu Dhabi,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,bio,object,12000,12,"Beauty creator. Honest reviews, everyday routines.","presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,categories,object,12000,132,"[""Beauty"", ""Home & Decor""]",derived
+organisation_fit,platform_names,object,12000,16,"[""Instagram"", ""Snapchat""]",derived
+organisation_fit,followers,int32,12000,1844,15094,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,follower_tier,object,12000,5,Micro,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,engagement_rate,float32,12000,2000,0.03036692552268505,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,er_vs_benchmark,float32,12000,2000,0.7340845465660095,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,avg_views,int32,12000,1897,5940,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,follower_growth_rate,float32,12000,2000,0.04638763517141342,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,comments_to_likes,float32,12000,2000,0.02101570926606655,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,content_promo_rate,float32,12000,280,0.1538461595773697,measured — NLP pipeline over the creator's captions
+organisation_fit,content_irony_rate,float32,12000,3,0.0,measured — NLP pipeline over the creator's captions
+organisation_fit,pagerank_pct,float32,12000,1920,0.8865000009536743,measured — co-behaviour graph (src/network/sna.py)
+organisation_fit,primary_niche,object,12000,12,Beauty,derived
+organisation_fit,verified,bool,12000,2,false,derived
+organisation_fit,availability,object,12000,3,Available,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,available_window,object,12000,145,10–30 Sept,"presentation — generated deterministically from the creator id, never a model input"
+organisation_fit,rate_reel,float64,12000,740,16600.0,model output — LightGBM performance or price model
+organisation_fit,rate_story,float64,12000,456,5800.0,model output — LightGBM performance or price model
+organisation_fit,rate_carousel,float64,12000,631,11700.0,model output — LightGBM performance or price model
+organisation_fit,rate_from,float64,12000,456,5800.0,model output — LightGBM performance or price model
+organisation_fit,price_estimate_inr,float32,12000,1941,16644.0,model output — LightGBM performance or price model
+organisation_fit,score_rate,float32,12000,1001,53.400001525878906,model output — LightGBM performance or price model
+organisation_fit,score_reach,float32,12000,1001,54.0,model output — LightGBM performance or price model
+organisation_fit,score_balanced,float32,12000,878,58.099998474121094,model output — LightGBM performance or price model
+organisation_fit,predicted_campaign_er,float32,12000,2000,0.023536982014775276,model output — LightGBM performance or price model
+organisation_fit,audience_age,object,12000,5,"[{""range"": ""13-17"", ""pct"": 22}, {""range"": ""18-24"", ""pct"": 35",generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,audience_gender,object,12000,93,"[{""label"": ""Female"", ""pct"": 44}, {""label"": ""Male"", ""pct"": 56",generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,audience_locations,object,12000,36,"[{""city"": ""Abu Dhabi"", ""pct"": 38}, {""city"": ""Doha"", ""pct"": 2",generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,platforms,object,12000,1972,"{""Instagram"": 15094, ""Snapchat"": 1811.0, ""YouTube"": null, ""M",derived
+organisation_fit,posting_frequency_month,float32,12000,2000,9.625753402709961,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,fit_composite,float64,12000,400,87.5,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,campaign_fit,float64,12000,999,100.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,org_composite,float64,12000,349,85.3,derived
+organisation_fit,org_fit,float64,12000,540,76.1,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_band,object,12000,3,High fit,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,org_band,object,12000,3,High fit,derived
+organisation_fit,blocked,bool,12000,1,false,derived
+organisation_fit,ad_saturated,bool,12000,2,false,derived
+organisation_fit,safety_flags,object,12000,35,[],derived
+organisation_fit,brief_fee_inr,float64,12000,2696,50600.0,model output — LightGBM performance or price model
+organisation_fit,within_budget,bool,12000,2,true,derived
+organisation_fit,meets_audience_floor,bool,12000,2,true,derived
+organisation_fit,eligible,bool,12000,2,true,derived
+organisation_fit,fit_budget,float64,12000,101,100.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_audience,float64,12000,4,100.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_category,float64,12000,3,100.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,fit_deliverable,float64,12000,45,76.0,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,rank_best,int64,12000,2000,1,derived
+organisation_fit,rank_engagement,int64,12000,2000,507,derived
+organisation_fit,rank_reach,int64,12000,2000,608,derived
+organisation_fit,pool_size,int64,12000,1,2000,derived
+organisation_fit,eligible_pool_size,int64,12000,6,1252,derived
+organisation_fit,what_helped,object,12000,1660,"[""Beauty is exactly the brief's category"", ""Audience geograp",derived
+organisation_fit,what_held_back,object,12000,612,"[""Engagement is 0.7\u00d7 the benchmark for this size""]",derived
+organisation_fit,match_reasons,object,12000,365,"[""Beauty is exactly the brief's category"", ""Audience geograp",derived
+organisation_fit,creator_quality,float64,12000,497,47.6,derived
+organisation_fit,comment_toxicity_rate,float64,11802,502,0.0191,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+organisation_fit,audience_quality_score,float64,11802,665,33.7,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+organisation_fit,o_category_affinity,float64,12000,3,1.0,derived
+organisation_fit,o_semantic_similarity,float64,12000,289,0.7392,derived
+organisation_fit,o_audience_alignment,float64,12000,4,1.0,derived
+organisation_fit,o_visual_similarity,float32,12000,6438,0.2487119436264038,derived
+organisation_fit,o_creator_quality,float64,12000,497,0.47600000000000003,derived
+organisation_fit,o_brand_safety,float64,12000,1916,0.760325,derived
+organisation_fit,org_fit_ungated,float64,12000,421,76.1,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,org_fit_band,object,12000,4,Strong,model output — brand-fit composite (src/models/brandfit.py)
+organisation_fit,org_blocked,bool,12000,1,false,derived
+organisation_fit,org_fit_reasons,object,12000,46,Works in exactly this category · Audience matches the brand',model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,campaign_id,object,12000,6,CMP00,identifier
+campaign_fit_v2,influencer_id,object,12000,2000,INF00000,identifier
+campaign_fit_v2,campaign_fit,float64,5855,295,66.2,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,campaign_fit_band,object,12000,5,Strong,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,blocked,bool,12000,2,false,derived
+campaign_fit_v2,block_reasons,object,12000,143,,derived
+campaign_fit_v2,campaign_fit_reasons,object,12000,203,Strong in the formats the brief needs · Free for the campaig,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,brief_fee,float64,12000,2696,51500.0,model output — LightGBM performance or price model
+campaign_fit_v2,org_fit,float64,12000,540,51.0,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,org_fit_band,object,12000,4,Moderate,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,org_fit_reasons,object,12000,46,"Clean, brand-safe profile · Different content category · Vis",model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit_v2,c_organisation_fit,float64,12000,540,0.51,derived
+campaign_fit_v2,c_audience_match,float64,12000,4,0.465,derived
+campaign_fit_v2,c_semantic_match,float64,12000,289,0.7392,derived
+campaign_fit_v2,c_budget_fit,float64,12000,2524,0.7264062499999999,derived
+campaign_fit_v2,c_deliverable_fit,float64,12000,2981,0.9183,derived
+campaign_fit_v2,c_availability_fit,float64,12000,67,0.88,derived
+campaign_fit_v2,o_category_affinity,float64,12000,3,0.15,derived
+campaign_fit_v2,o_semantic_similarity,float64,12000,289,0.7392,derived
+campaign_fit_v2,o_audience_alignment,float64,12000,4,0.495,derived
+campaign_fit_v2,o_brand_safety,float64,12000,1916,0.8973749999999999,derived
+campaign_fit_v2,o_creator_quality,float64,12000,497,0.737,derived
+campaign_fit_v2,o_visual_similarity,float32,12000,6438,0.0,derived
+campaign_fit_v2,campaign_fit_pct,float64,5855,701,65.2,model output — brand-fit composite (src/models/brandfit.py)
+audience_quality,influencer_id,object,1967,1967,INF00000,identifier
+audience_quality,audience_band,object,1967,3,Authentic,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+audience_quality,p_suspect,float64,1967,944,0.0,derived
+audience_quality,audience_quality_score,float64,1967,665,99.3,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+audience_quality,inauthentic_share_true,float64,1967,1329,0.1086,derived
+comment_profile,influencer_id,object,1967,1967,INF00000,identifier
+comment_profile,n_comments_analysed,int64,1967,367,350,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_sentiment_positive,float64,1967,937,0.5971,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_sentiment_negative,float64,1967,893,0.2743,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_p_positive_mean,float64,1967,1000,0.6077,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_toxicity_rate,float64,1967,502,0.0257,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_automated_rate,float64,1967,1197,0.0714,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_duplicate_rate,float64,1967,1120,0.7629,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_emoji_only_rate,float64,1967,740,0.0057,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_generic_rate,float64,1967,951,0.4771,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_mean_words,float64,1967,1696,6.4114,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_link_cue_rate,float64,1967,867,0.0257,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comment_profile,comment_quality_index,float64,1967,1161,0.8294,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comments_sample,comment_id,object,24000,24000,INF00215_P012_C02,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comments_sample,post_id,object,24000,18702,INF00215_P012,identifier
+comments_sample,influencer_id,object,24000,1912,INF00215,identifier
+comments_sample,text,object,24000,1753,beautiful 😍❤️,derived
+comments_sample,archetype,object,24000,6,casual,simulated - creator-supplied or sensor data this project does not have
+comments_sample,n_comments_on_post,int64,24000,738,38,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comments_sample,n_chars,int64,24000,52,13,derived
+comments_sample,n_words,int64,24000,14,2,derived
+comments_sample,n_emoji,int64,24000,6,3,derived
+comments_sample,is_emoji_only,bool,24000,2,false,derived
+comments_sample,has_link_cue,bool,24000,2,false,derived
+comments_sample,is_generic,bool,24000,2,true,derived
+comments_sample,comment_sentiment,object,24000,3,positive,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comments_sample,p_positive,float64,24000,78,0.999,derived
+comments_sample,p_negative,float64,24000,76,0.0001,derived
+comments_sample,comment_toxicity,object,24000,2,not-offensive,"derived - classifiers trained on TweetEval (real human labels), applied to a simulated comment corpus"
+comments_sample,p_offensive,float64,24000,67,0.0286,derived
+comments_sample,looks_automated,bool,24000,2,false,derived
+comments_sample,is_duplicate_text,bool,24000,2,false,derived
+creator_connections,influencer_id,object,2000,2000,INF00000,identifier
+creator_connections,account_connected,bool,2000,2,true,simulated - creator-supplied or sensor data this project does not have
+creator_connections,connected_days_ago,float64,1221,308,276.0,simulated - creator-supplied or sensor data this project does not have
+creator_connections,scopes_granted,object,2000,2,instagram_business_basic|instagram_business_manage_insights|,simulated - creator-supplied or sensor data this project does not have
+creator_connections,insights_available,bool,2000,2,true,simulated - creator-supplied or sensor data this project does not have
+creator_insights,influencer_id,object,1221,1221,INF00000,identifier
+creator_insights,avg_saves,float64,1221,714,42.3,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_shares,float64,1221,559,21.8,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_reach_verified,float64,1221,1177,5980.0,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_watch_time_s,float64,1221,761,13.03,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_watch_through_rate,float64,1221,1056,0.5348,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_dwell_seconds,float64,1221,680,9.51,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_profile_visits,float64,1221,809,51.2,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,avg_follows_from_post,float64,1221,777,5.43,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,save_rate,float64,1221,725,0.00693,derived
+creator_insights,share_rate,float64,1221,532,0.00354,derived
+creator_insights,n_posts_with_insights,int64,1221,29,35,derived
+creator_insights,audience_age_13_17,float64,1221,835,0.4376,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_age_18_24,float64,1221,921,0.2145,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_age_25_34,float64,1221,880,0.1673,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_age_35_44,float64,1221,862,0.0985,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_age_45_54,float64,1221,737,0.0522,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_age_55plus,float64,1221,590,0.03,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_female_pct,float64,1221,1112,0.6895,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_male_pct,float64,1221,1123,0.2618,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_other_pct,float64,1221,456,0.0487,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_top_country_pct,float64,1221,1017,0.6819,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_insights,audience_language_match_pct,float64,1221,1065,0.6743,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+post_insights_sample,post_id,object,20000,20000,INF00749_P015,identifier
+post_insights_sample,influencer_id,object,20000,1221,INF00749,identifier
+post_insights_sample,saves,int64,20000,846,56,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,shares,int64,20000,553,33,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,reach,int64,20000,12167,28604,derived
+post_insights_sample,impressions,int64,20000,13387,32243,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,video_length_s,float64,20000,602,13.0,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,avg_watch_time_s,float64,11505,2668,3.93,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+post_insights_sample,watch_through_rate,float64,11505,4972,0.3025,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,dwell_seconds,float64,20000,2762,3.93,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,profile_visits,int64,20000,1012,85,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,follows_from_post,int64,20000,267,6,simulated - creator-supplied or sensor data this project does not have
+post_insights_sample,engagements_total,int64,20000,4121,1525,derived
+post_insights_sample,save_rate,float64,20000,1428,0.00196,derived
+post_insights_sample,share_rate,float64,20000,856,0.00115,derived
+visual_profile,influencer_id,object,2000,2000,INF00000,identifier
+visual_profile,visual_coherence,float64,2000,1633,0.588,simulated - creator-supplied or sensor data this project does not have
+visual_profile,visual_brightness,float64,2000,1754,0.5526,simulated - creator-supplied or sensor data this project does not have
+visual_profile,visual_saturation,float64,2000,1830,0.6116,simulated - creator-supplied or sensor data this project does not have
+visual_profile,visual_minimalism,float64,2000,1772,0.259,simulated - creator-supplied or sensor data this project does not have
+visual_profile,visual_people_present,float64,2000,1825,0.1881,simulated - creator-supplied or sensor data this project does not have
+visual_profile,visual_product_focus,float64,2000,1823,0.4086,simulated - creator-supplied or sensor data this project does not have
+visual_profile,visual_outdoor,float64,2000,1813,0.6277,simulated - creator-supplied or sensor data this project does not have
+capability,influencer_id,object,2000,2000,INF00000,identifier
+capability,offers_reel,bool,2000,2,true,simulated - creator-supplied or sensor data this project does not have
+capability,offers_story,bool,2000,1,true,simulated - creator-supplied or sensor data this project does not have
+capability,offers_carousel,bool,2000,2,false,simulated - creator-supplied or sensor data this project does not have
+capability,strength_reel,float64,2000,661,1.403,simulated - creator-supplied or sensor data this project does not have
+capability,strength_story,float64,2000,666,1.123,simulated - creator-supplied or sensor data this project does not have
+capability,strength_carousel,float64,2000,631,0.0,simulated - creator-supplied or sensor data this project does not have
+capability,n_formats,int64,2000,3,2,derived
+capability,availability_status,object,2000,3,Unavailable,"presentation — generated deterministically from the creator id, never a model input"
+capability,booked_from,object,2000,120,2026-11-03,simulated - creator-supplied or sensor data this project does not have
+capability,booked_to,object,2000,195,2027-01-28,simulated - creator-supplied or sensor data this project does not have
+capability,lead_time_days,int64,2000,11,5,simulated - creator-supplied or sensor data this project does not have
+capability,available_window,object,2000,187,Free until 3 Nov,"presentation — generated deterministically from the creator id, never a model input"
+interactions,brand_id,object,10699,120,BRD0000,identifier
+interactions,influencer_id,object,10699,1989,INF01098,identifier
+interactions,stage,object,10699,5,viewed,derived
+interactions,stage_index,int64,10699,5,0,simulated — the transactional layer (src/nectar/build_pipeline.py)
+interactions,shortlisted,int64,10699,2,0,derived
+interactions,accepted,int64,10699,2,0,derived
+interactions,completed,int64,10699,2,0,derived
+interactions,outcome_index,float64,1109,1019,NaN,derived
+interactions,days_ago,int64,10699,364,152,derived
+brand_taste,brand_id,object,120,120,BRD0000,identifier
+brand_taste,taste_reach,float64,120,115,0.086,simulated - creator-supplied or sensor data this project does not have
+brand_taste,taste_engagement,float64,120,117,0.0188,simulated - creator-supplied or sensor data this project does not have
+brand_taste,taste_audience_quality,float64,120,118,0.3001,simulated - creator-supplied or sensor data this project does not have
+brand_taste,taste_visual_fit,float64,120,118,0.0188,simulated - creator-supplied or sensor data this project does not have
+brand_taste,taste_semantic_fit,float64,120,118,0.1439,simulated - creator-supplied or sensor data this project does not have
+brand_taste,taste_price_value,float64,120,116,0.2992,simulated - creator-supplied or sensor data this project does not have
+brand_taste,taste_consistency,float64,120,117,0.1332,simulated - creator-supplied or sensor data this project does not have
+creator_attributes,influencer_id,object,2000,2000,INF00000,identifier
+creator_attributes,a_reach,float64,2000,1844,0.599,derived
+creator_attributes,a_engagement,float64,2000,2000,0.329,derived
+creator_attributes,a_audience_quality,float64,2000,665,0.90575,derived
+creator_attributes,a_visual_fit,float64,2000,1633,0.231,derived
+creator_attributes,a_semantic_fit,float64,2000,1162,0.93775,derived
+creator_attributes,a_price_value,float64,2000,1888,0.6655,derived
+creator_attributes,a_consistency,float64,2000,1227,0.07625000000000004,derived
+cf_scores,brand_id,object,7200,120,BRD0000,identifier
+cf_scores,influencer_id,object,7200,1023,INF00946,identifier
+cf_scores,cf_score,float32,7200,5264,1.465499997138977,simulated - creator-supplied or sensor data this project does not have
+ranker_scores,brand_id,object,10699,120,BRD0000,identifier
+ranker_scores,influencer_id,object,10699,1989,INF01098,identifier
+ranker_scores,score_composite,float64,10699,1981,0.28706,model output — LightGBM performance or price model
+ranker_scores,score_lr,float64,10699,6620,0.0645663312696621,model output — LightGBM performance or price model
+ranker_scores,score_rank,float64,10699,6601,-3.1189876491931328,model output — LightGBM performance or price model
 audio_posts,post_id,object,27981,27981,INF00000_P000,identifier
 audio_posts,influencer_id,object,27981,2000,INF00000,identifier
 audio_posts,audio_sentiment,object,27981,3,negative,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"

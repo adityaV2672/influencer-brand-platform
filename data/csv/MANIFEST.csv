@@ -1,6 +1,22 @@
 file,rows,columns,size_kb,source_parquet,description
 creators.csv,2000,115,4236.0,app_data/nectar_creators.parquet,"One row per creator: the full feature table plus the presentation fields the product shows (name, city, platforms, rate card)."
 campaigns.csv,6,24,2.7,app_data/nectar_campaigns.parquet,"The six showcase campaigns, their budgets, briefs and eligibility policy."
+creator_quality.csv,2000,12,380.6,app_data/nectar_creator_quality.parquet,"Creator Quality: the brand-independent score, its seven components, its band and the reason string shown in the product."
+organisation_fit.csv,12000,94,23662.1,app_data/nectar_org_fit.parquet,"Organisation Fit: the long-term brand-creator relationship score and its six components, including visual similarity and the three-part brand safety term."
+campaign_fit_v2.csv,12000,24,3773.5,app_data/nectar_campaign_fit.parquet,"Campaign Fit: per campaign and creator, the six components, the hard-gate outcome, the block reason where one fired, and the reason string."
+audience_quality.csv,1967,5,66.3,app_data/nectar_audience_quality.parquet,"Predicted audience authenticity band and score per creator, with the true inauthentic share the model was scored against."
+comment_profile.csv,1967,13,166.7,app_data/nectar_comment_profile.parquet,"Per-creator comment-section profile: sentiment shares, toxicity rate, automation rate, duplication, length. Labels come from classifiers trained on TweetEval, a real human-annotated corpus."
+comments_sample.csv,24000,19,3857.3,app_data/nectar_comments_sample.parquet,"24,000 individual comments with their model labels and surface features. SIMULATED text (src/creator_data/comments.py); REAL classifiers."
+creator_connections.csv,2000,5,162.6,app_data/nectar_connections.parquet,"Which creators have connected their Instagram account, when, and under which scopes. Connection is SIMULATED."
+creator_insights.csv,1221,23,177.1,app_data/nectar_creator_insights.parquet,"Owner-only metrics for connected creators: saves, shares, watch time, dwell, profile visits, follows-from-post, and the full audience age, gender, geography and language split. SIMULATED."
+post_insights_sample.csv,20000,15,1645.3,app_data/nectar_post_insights_sample.parquet,"20,000 posts with their owner-only metrics. SIMULATED."
+visual_profile.csv,2000,8,111.9,app_data/nectar_visual.parquet,Feed coherence and six readable visual attributes per creator. The encoder is SIMULATED; no image exists.
+capability.csv,2000,13,184.6,app_data/nectar_capability.parquet,"Which formats a creator offers, how each performs against their own baseline, their booked window and the notice they need."
+interactions.csv,10699,9,431.9,app_data/nectar_interactions.parquet,"The SIMULATED behavioural log: 10,699 brand-creator events across 120 brands, used to train the learned ranker and the collaborative filter."
+brand_taste.csv,120,8,6.7,app_data/nectar_brand_taste.parquet,Each brand's idiosyncratic taste weights. Never exposed as a model feature - this is what the collaborative filter has to recover.
+creator_attributes.csv,2000,8,131.2,app_data/nectar_creator_attributes.parquet,The percentile attribute matrix both the composite and the brands score against.
+cf_scores.csv,7200,3,252.9,app_data/nectar_cf_scores.parquet,Top 60 collaborative-filtering scores per brand.
+ranker_scores.csv,10699,5,715.7,app_data/nectar_ranker_scores.parquet,"Out-of-fold scores from the hand-set composite, the learned linear weights and the LambdaRank model, for every logged event."
 audio_posts.csv,27981,26,6935.4,app_data/nectar_audio_posts.parquet,"SIMULATED voice track for every video post: valence, arousal, speech rate, pause and music ratio, the audio sentiment label, and whether it disagrees with the caption model. No audio exists (src/nlp/audio_sim.py)."
 audio_creators.csv,2000,14,176.7,app_data/nectar_audio_creators.parquet,SIMULATED per-creator voice profile aggregated from audio_posts. Two of its columns feed the content-safety component of the fit composite.
 creator_terms.csv,80000,3,2889.4,app_data/nectar_creator_terms.parquet,"The lexical profile behind the typed-brief matcher: the forty heaviest TF-IDF terms for each creator, L2-normalised."

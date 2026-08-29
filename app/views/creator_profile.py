@@ -5,7 +5,7 @@ import streamlit as st
 
 from nectar import creator_ctx as ctx
 from nectar import data, ui
-from nectar.theme import (AMBER, AMBER_BG, GREEN, INK, INK_2, INK_3,
+from nectar.theme import (AMBER, AMBER_BG, GREEN, GREEN_BG, INK, INK_2, INK_3,
                           LINE, LINE_2)
 
 me = ctx.me()
@@ -86,6 +86,59 @@ with tabs[0]:
                 unsafe_allow_html=True)
 
 with tabs[1]:
+    # Audience authenticity first, because it is the question a brand asks
+    # before any of the demographic detail matters. A creator whose following
+    # is bought has an age distribution too.
+    _aq = data.load("nectar_audience_quality.parquet")
+    _row = (_aq[_aq.influencer_id.astype(str) == str(me.influencer_id)]
+            if _aq is not None else None)
+    if _row is not None and len(_row):
+        _r = _row.iloc[0]
+        _tone = {"Suspect": AMBER, "Mixed": AMBER}.get(str(_r.audience_band), GREEN)
+        _bg = {"Suspect": AMBER_BG, "Mixed": AMBER_BG}.get(str(_r.audience_band), GREEN_BG)
+        with st.container(border=True):
+            _l, _m = st.columns([1, 2.4])
+            with _l:
+                st.markdown(
+                    f"<div style='text-align:center;padding:8px 4px'>"
+                    f"<div style='font-size:11.5px;color:{INK_3}'>AUDIENCE QUALITY</div>"
+                    f"<div class='n-num' style='font-size:40px;color:{_tone};"
+                    f"line-height:1.15'>{_r.audience_quality_score:.0f}</div>"
+                    f"<div style='display:inline-block;padding:2px 9px;border-radius:6px;"
+                    f"background:{_bg};color:{_tone};font-size:11.5px;font-weight:700'>"
+                    f"{ui.esc(str(_r.audience_band))}</div></div>",
+                    unsafe_allow_html=True)
+            with _m:
+                _cp = data.load("nectar_comment_profile.parquet")
+                _c = (_cp[_cp.influencer_id.astype(str) == str(me.influencer_id)]
+                      if _cp is not None else None)
+                _rows = []
+                if _c is not None and len(_c):
+                    _cr = _c.iloc[0]
+                    _rows = [
+                        ("Automated-looking comments", f"{_cr.comment_automated_rate:.0%}"),
+                        ("Repeated comment text", f"{_cr.comment_duplicate_rate:.0%}"),
+                        ("Emoji-only comments", f"{_cr.comment_emoji_only_rate:.0%}"),
+                        ("Average comment length",
+                         f"{_cr.comment_mean_words:.1f} words"),
+                    ]
+                _rows.append(("Follower / following ratio",
+                              f"{float(me.follower_following_ratio):.0f}×"))
+                st.markdown("".join(
+                    f"<div style='display:flex;justify-content:space-between;"
+                    f"padding:7px 0;border-top:1px solid {LINE_2};font-size:12.5px'>"
+                    f"<span style='color:{INK_2}'>{ui.esc(k)}</span>"
+                    f"<span class='n-num'>{ui.esc(v)}</span></div>"
+                    for k, v in _rows), unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='n-muted' style='margin-top:10px;line-height:1.6'>"
+                f"Scored from the comment section and the account's own signals. "
+                f"On held-out creators the model reaches 0.89 macro F1; the "
+                f"follower/following rule of thumb reaches 0.44. Inputs are "
+                f"synthetic — see the Metric library for provenance.</div>",
+                unsafe_allow_html=True)
+        st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
+
     a, b = st.columns(2)
     with a:
         st.markdown("<div class='n-h3' style='margin-bottom:10px'>Age</div>",

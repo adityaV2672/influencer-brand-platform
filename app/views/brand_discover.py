@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from nectar import data, state, ui
+from nectar import data, events, state, ui
 from nectar.theme import GREEN, INK, INK_2, INK_3, LINE
 
 fit = data.fit()
@@ -194,6 +194,15 @@ with body:
 
     # ---- card grid --------------------------------------------------------
     shown = d.head(24)
+    # An impression is the denominator every downstream rate needs: without it
+    # a shortlist rate cannot be computed, only a shortlist count.
+    if not st.session_state.get(f"_seen_{camp.campaign_id}"):
+        for _r in shown.itertuples():
+            events.log("viewed", actor="brand", actor_id=str(camp.brand_id),
+                       brand_id=str(camp.brand_id),
+                       campaign_id=str(camp.campaign_id),
+                       influencer_id=str(_r.influencer_id), surface="discover")
+        st.session_state[f"_seen_{camp.campaign_id}"] = True
     rows = [shown.iloc[i:i + 3] for i in range(0, len(shown), 3)]
     for chunk in rows:
         cols = st.columns(3, gap="medium")
@@ -223,6 +232,17 @@ with body:
                                      use_container_width=True,
                                      type="secondary" if saved else "primary"):
                             added = state.toggle_shortlist(r.influencer_id)
+                            # Both directions are recorded. A rejection is as
+                            # informative to a ranker as a shortlist, and a log
+                            # that only keeps the positives teaches a model that
+                            # everything is good.
+                            events.log("shortlisted" if added else "declined",
+                                       actor="brand", actor_id=str(camp.brand_id),
+                                       brand_id=str(camp.brand_id),
+                                       campaign_id=str(camp.campaign_id),
+                                       influencer_id=str(r.influencer_id),
+                                       surface="discover",
+                                       note=str(getattr(r, "v2_campaign_fit_pct", "")))
                             state.flash(f"{r.name} "
                                         f"{'added to' if added else 'removed from'} "
                                         f"your shortlist.")
