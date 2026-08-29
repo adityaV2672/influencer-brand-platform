@@ -5,7 +5,8 @@ import streamlit as st
 
 from nectar import creator_ctx as ctx
 from nectar import data, ui
-from nectar.theme import AMBER, GREEN, INK, INK_2, INK_3, LINE, LINE_2
+from nectar.theme import (AMBER, AMBER_BG, GREEN, INK, INK_2, INK_3,
+                          LINE, LINE_2)
 
 me = ctx.me()
 peers, peer_label = ctx.peers()
@@ -107,33 +108,152 @@ with tabs[1]:
                 f"<span class='n-num' style='width:36px;text-align:right;font-size:12px'>"
                 f"{x['pct']}%</span></div>", unsafe_allow_html=True)
 
+def _share_bar(shares: list[tuple[str, float, str]]) -> str:
+    """A single stacked bar. Three separate progress bars made three unrelated
+    numbers out of one distribution."""
+    segs = "".join(
+        f"<div style='width:{max(pct, 0) * 100:.4f}%;background:{colour}' "
+        f"title='{ui.esc(label)} {pct:.0%}'></div>"
+        for label, pct, colour in shares)
+    key = "".join(
+        f"<span style='display:inline-flex;align-items:center;gap:5px;margin-right:14px'>"
+        f"<span style='width:8px;height:8px;border-radius:2px;background:{colour}'></span>"
+        f"<span style='font-size:11.5px;color:{INK_2}'>{ui.esc(label)} "
+        f"<span class='n-num'>{pct:.0%}</span></span></span>"
+        for label, pct, colour in shares)
+    return (f"<div style='display:flex;height:9px;border-radius:5px;overflow:hidden;"
+            f"background:{LINE_2};margin:8px 0 9px 0'>{segs}</div>"
+            f"<div style='margin-bottom:4px'>{key}</div>")
+
+
+def _tone_row(label: str, value: str, note: str = "") -> str:
+    n = (f"<span style='font-size:11.5px;color:{INK_3};margin-left:8px'>"
+         f"{ui.esc(note)}</span>" if note else "")
+    return (f"<div style='display:flex;justify-content:space-between;align-items:baseline;"
+            f"padding:7px 0;border-top:1px solid {LINE_2};font-size:12.5px'>"
+            f"<span style='color:{INK_2}'>{ui.esc(label)}{n}</span>"
+            f"<span class='n-num'>{ui.esc(value)}</span></div>")
+
+
 with tabs[2]:
+    # ---- tone breakdown -------------------------------------------------
+    # This block is what a brand looks at before it commits budget: not a
+    # single safety number, but the distribution behind it. It was in the
+    # first version of the dashboard, lost in the product rebuild, and is
+    # back because content_safety is 12% of the fit composite and a brand
+    # that cannot see what moved it cannot argue with it.
+    tone_l, tone_r = st.columns(2, gap="large")
+
+    with tone_l, st.container(border=True):
+        st.markdown(ui.section("Caption tone",
+                               "What the NLP pipeline read in the words."),
+                    unsafe_allow_html=True)
+        st.markdown(_share_bar([
+            ("Positive", float(me.content_share_positive or 0), GREEN),
+            ("Neutral", float(me.content_share_neutral or 0), INK_3),
+            ("Negative", float(me.content_share_negative or 0), AMBER),
+        ]), unsafe_allow_html=True)
+        irony = float(me.content_irony_rate or 0)
+        st.markdown(
+            _tone_row("Irony / sarcasm rate", f"{irony:.0%}",
+                      "CardiffNLP irony model")
+            + _tone_row("Promotional posts", f"{float(me.content_promo_rate or 0):.0%}")
+            + _tone_row("Disclosed partnerships",
+                        f"{float(me.content_disclosure_rate or 0):.0%}")
+            + _tone_row("Topic focus",
+                        f"{int(me.content_n_topics or 0)} topics",
+                        "lower is more predictable"),
+            unsafe_allow_html=True)
+
+    with tone_r, st.container(border=True):
+        st.markdown(ui.section("Voice tone",
+                               "What the delivery sounds like on video posts."),
+                    unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='margin:-6px 0 8px 0'>"
+            f"<span style='display:inline-block;padding:2px 8px;border-radius:5px;"
+            f"background:{AMBER_BG};color:{AMBER};font-size:10.5px;font-weight:700;"
+            f"letter-spacing:.04em'>SIMULATED</span>"
+            f"<span style='font-size:11.5px;color:{INK_3};margin-left:8px'>"
+            f"generated voice track — no audio was recorded</span></div>",
+            unsafe_allow_html=True)
+        st.markdown(_share_bar([
+            ("Positive", float(getattr(me, "audio_share_positive", 0) or 0), GREEN),
+            ("Neutral", float(getattr(me, "audio_share_neutral", 0) or 0), INK_3),
+            ("Negative", float(getattr(me, "audio_share_negative", 0) or 0), AMBER),
+        ]), unsafe_allow_html=True)
+        mism = float(getattr(me, "tone_mismatch_rate", 0) or 0)
+        st.markdown(
+            _tone_row("Tone mismatch", f"{mism:.0%}",
+                      "voice disagrees with the caption")
+            + _tone_row("Speaking rate",
+                        f"{float(getattr(me, 'audio_speech_rate_mean', 0) or 0):.0f} wpm")
+            + _tone_row("Vocal energy",
+                        f"{float(getattr(me, 'audio_arousal_mean', 0) or 0):.2f}",
+                        "0 flat, 1 animated")
+            + _tone_row("Video posts analysed",
+                        f"{int(getattr(me, 'n_video_posts', 0) or 0)}"),
+            unsafe_allow_html=True)
+        if mism > 0.28:
+            st.markdown(
+                f"<div style='margin-top:10px;font-size:12px;color:{AMBER};"
+                f"line-height:1.55'>Delivery contradicts the caption on more than "
+                f"a quarter of video posts. Worth watching two before signing.</div>",
+                unsafe_allow_html=True)
+
+    st.markdown(
+        f"<div class='n-muted' style='margin:14px 0 4px 0;line-height:1.6'>"
+        f"Both panels feed one number. Content safety = 1 − 0.8×caption negative "
+        f"− 0.5×irony − 0.30×voice negative − 0.20×tone mismatch, and is 12% of "
+        f"the brand-fit composite. The two voice terms are simulated and are "
+        f"weighted below the caption terms for exactly that reason.</div>",
+        unsafe_allow_html=True)
+
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+
     posts = data.load("posts_sample.parquet")
     mine = posts[posts.influencer_id == me.influencer_id] if posts is not None else None
     st.markdown(
         f"<div class='n-muted' style='margin-bottom:12px'>"
-        f"Recent captions with the labels the NLP pipeline assigned. Sentiment is "
-        f"RoBERTa; the irony probability is the CardiffNLP irony model — the signal "
-        f"the lexicon methods could not produce.</div>", unsafe_allow_html=True)
+        f"Recent posts with the labels each pipeline assigned. Caption sentiment is "
+        f"RoBERTa and the irony probability is the CardiffNLP irony model; the voice "
+        f"column is the simulated audio track, and ⚠ marks the two disagreeing.</div>",
+        unsafe_allow_html=True)
     if mine is None or mine.empty:
         st.markdown(ui.empty_state("✎", "No captions on file.",
                                    "Post-level NLP output is not available for this creator."),
                     unsafe_allow_html=True)
     else:
+        # The voice track only exists for video posts, so a post with no audio
+        # row shows a dash rather than being silently scored as neutral.
+        au = data.load("nectar_audio_posts.parquet")
+        au = (au.set_index("post_id") if au is not None
+              else None)
         rows = []
         for p in mine.head(8).itertuples():
             irony = float(p.roberta_p_irony or 0)
+            a = au.loc[p.post_id] if au is not None and p.post_id in au.index else None
+            if a is None:
+                voice = f"<span style='color:{INK_3};font-size:12.5px'>no video</span>"
+            else:
+                flag = (" <span title='voice disagrees with the caption'>⚠</span>"
+                        if bool(a.tone_mismatch) else "")
+                voice = (f"<span style='font-size:12.5px;color:"
+                         f"{AMBER if bool(a.tone_mismatch) else INK_2}'>"
+                         f"{ui.esc(str(a.audio_sentiment).title())}{flag}</span>")
             rows.append([
-                f"<div style='font-size:13px;max-width:460px'>{ui.esc(p.caption)[:170]}</div>",
+                f"<div style='font-size:13px;max-width:380px'>{ui.esc(p.caption)[:150]}</div>",
                 ui.chip(str(p.roberta_sentiment).title()),
+                voice,
                 f"<span class='n-num' style='color:{AMBER if irony > 0.5 else INK_3}'>"
                 f"{irony:.2f}</span>",
                 f"<span style='font-size:12.5px;color:{INK_2}'>{ui.esc(p.topic_label)}</span>",
                 f"<span class='n-num'>{ui.count(p.likes)}</span>",
             ])
-        st.markdown(ui.table(["Caption", "Sentiment", "P(irony)", "Topic", "Likes"], rows,
-                             aligns=["left", "left", "right", "left", "right"]),
-                    unsafe_allow_html=True)
+        st.markdown(ui.table(
+            ["Post", "Caption", "Voice", "P(irony)", "Topic", "Likes"], rows,
+            aligns=["left", "left", "left", "right", "left", "right"]),
+            unsafe_allow_html=True)
 
 with tabs[3]:
     st.markdown(

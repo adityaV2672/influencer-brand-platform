@@ -21,7 +21,7 @@ Structure:
     eligibility gates  ->  hard pass/fail (competitor conflict, geo, age)
     similarity score   ->  SBERT cosine between creator content and brand profile
     category signals   ->  niche match, category consistency
-    safety adjustments ->  ad saturation, negative-tone penalty
+    safety adjustments ->  ad saturation, negative-tone penalty, vocal delivery
 
     fit = gate * weighted_sum(components)
 
@@ -167,9 +167,24 @@ def score_pair(
 
     # Safety: penalise consistently negative tone and heavy irony, both of which
     # make branded content read badly.
+    #
+    # Two of the four terms are read from the voice track. A brand reads the
+    # caption; an audience watches the Reel, and a creator whose captions are
+    # cheerful can deliver a flat or contemptuous voice-over. `tone_mismatch`
+    # is the sign disagreement between the caption model and the audio model -
+    # the signal a single-modality pipeline cannot produce at all.
+    #
+    # THE AUDIO TERMS ARE SIMULATED. src/nlp/audio_sim.py generates them; no
+    # waveform exists in this project. They are weighted well below the text
+    # terms for that reason, and both default to zero so the function still
+    # scores correctly against a feature table built before audio existed.
     neg = float(inf.get("content_share_negative", 0) or 0)
     irony = float(inf.get("content_irony_rate", 0) or 0)
-    content_safety = float(np.clip(1.0 - 0.8 * neg - 0.5 * irony, 0.0, 1.0))
+    audio_neg = float(inf.get("audio_share_negative", 0) or 0)
+    mismatch = float(inf.get("tone_mismatch_rate", 0) or 0)
+    content_safety = float(np.clip(
+        1.0 - 0.8 * neg - 0.5 * irony - 0.30 * audio_neg - 0.20 * mismatch,
+        0.0, 1.0))
 
     # Consistency: low topic entropy = focused creator = predictable for a brand.
     ent = inf.get("content_topic_entropy", np.nan)

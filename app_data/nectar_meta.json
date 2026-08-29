@@ -1,5 +1,5 @@
 {
-  "default_creator_id": "INF01822",
+  "default_creator_id": "INF01758",
   "n_creators": 2000,
   "n_campaigns": 6,
   "n_requests": 194,
@@ -8,16 +8,21 @@
     "nectar_campaigns.parquet": 6,
     "nectar_fit.parquet": 12000,
     "nectar_requests.parquet": 194,
-    "nectar_messages.parquet": 313,
+    "nectar_messages.parquet": 310,
     "nectar_funnel.parquet": 45,
     "nectar_campaign_summary.parquet": 6,
-    "nectar_creator_performance.parquet": 71,
+    "nectar_creator_performance.parquet": 69,
     "nectar_calibration.parquet": 12,
     "nectar_monthly.parquet": 5,
     "nectar_earnings.parquet": 2124,
     "nectar_category_fit.parquet": 24000,
     "nectar_creator_history.parquet": 1417,
-    "nectar_weight_sensitivity.parquet": 20
+    "nectar_weight_sensitivity.parquet": 20,
+    "nectar_creator_terms.parquet": 80000,
+    "nectar_vocab.parquet": 780,
+    "nectar_brand_mentions.parquet": 12117,
+    "nectar_audio_posts.parquet": 30071,
+    "nectar_audio_creators.parquet": 2000
   },
   "semantic_extension": {
     "method": "per-brand cosine floor for pairs SBERT did not score",
@@ -34,15 +39,31 @@
       "cause": "labelled pairs are the top-60 per brand by cosine, so the sample is range-restricted at the high end"
     }
   },
+  "audio_simulation": {
+    "n_video_posts": 30071,
+    "video_share": 0.58,
+    "caption_audio_agreement": 0.5545,
+    "caption_label_source": {
+      "vader": 18507,
+      "roberta": 11564
+    },
+    "tone_mismatch_rate_overall": 0.1766,
+    "tone_mismatch_rate_sarcastic": 0.7213,
+    "tone_mismatch_rate_sincere": 0.1218,
+    "circularity_warning": "Sarcastic posts are GIVEN a negative voice by the simulator, so a higher mismatch rate on them is arithmetic, not detection. These figures describe the generator, not any real audio capability.",
+    "provenance": "simulated - src/nlp/audio_sim.py. No audio was recorded, transcribed or classified at any point in this project."
+  },
   "provenance": {
     "campaign_fit": "brand_fit_ungated from src/models/brandfit.py (SBERT semantic similarity, category affinity, audience overlap, content safety, consistency)",
+    "typed_brief_fit": "same components and weights as campaign_fit, except the semantic term, which is TF-IDF cosine over creator captions and keywords rather than SBERT - the hosted app loads no model, so a brief typed at request time cannot be embedded",
+    "content_safety": "1 - 0.8*text_negative_share - 0.5*irony_rate - 0.30*audio_negative_share - 0.20*tone_mismatch_rate. The two audio terms are SIMULATED (src/nlp/audio_sim.py); no waveform exists in this project.",
     "org_fit": "0.45*content_safety + 0.35*consistency + 0.20*audience_match",
     "fees": "price_model.joblib (LightGBM), Reel = point estimate, Story = 0.35x, Carousel = 0.70x",
     "predicted_vs_actual": "performance_oof.npy (GroupKFold out-of-fold predictions) vs campaign_engagement_rate in modelling_table.parquet",
     "simulated_here": "request funnel stages, negotiation messages, payment status, creator names, cities, bios, avatars, availability windows"
   },
   "csv_export": {
-    "tables": 22,
-    "columns_documented": 573
+    "tables": 27,
+    "columns_documented": 622
   }
 }

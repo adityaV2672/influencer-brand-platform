@@ -28,6 +28,8 @@ from src.nectar.build_pipeline import (
     build_reporting, build_requests,
 )
 from src.nectar.semantic_impute import build_full_fit
+from src.nlp.audio_sim import aggregate as aggregate_audio
+from src.nlp.audio_sim import agreement_metrics, simulate as simulate_audio
 
 APP_DATA = ROOT / "app_data"
 APP_DATA.mkdir(parents=True, exist_ok=True)
@@ -69,6 +71,29 @@ def run() -> dict:
     modelling = pd.read_parquet(ARTIFACT_DIR / "features" / "modelling_table.parquet")
     oof = np.load(ARTIFACT_DIR / "models" / "performance_oof.npy")
 
+    # ---- simulated voice track ------------------------------------------
+    # Generated before anything is scored, because two of its columns feed the
+    # content-safety component of the fit composite. Everything it produces is
+    # simulated; src/nlp/audio_sim.py says so at length.
+    posts = pd.read_parquet(
+        ROOT / "data" / "processed" / "posts.parquet",
+        columns=["post_id", "influencer_id", "caption", "gen_brand",
+                 "gen_has_promo", "gen_sentiment", "gen_is_sarcastic", "days_ago"],
+    )
+    post_nlp = pd.read_parquet(
+        ARTIFACT_DIR / "nlp" / "post_features.parquet",
+        columns=["post_id", "roberta_sentiment", "roberta_p_irony", "vader_label"],
+    )
+    audio_posts = simulate_audio(posts, post_nlp)
+    audio_creators = aggregate_audio(audio_posts)
+    audio_metrics = agreement_metrics(audio_posts)
+    print(f"    simulated audio: {audio_metrics['n_video_posts']:,} video posts, "
+          f"caption/audio agreement {audio_metrics['caption_audio_agreement']:.3f}, "
+          f"tone mismatch {audio_metrics['tone_mismatch_rate_overall']:.3f}")
+
+    inf["influencer_id"] = inf["influencer_id"].astype(str)
+    inf = inf.merge(audio_creators, on="influencer_id", how="left")
+
     creators = build_creators(inf)
     campaigns = build_campaigns(brands)
 
@@ -77,6 +102,12 @@ def run() -> dict:
     # campaign - so it is extended to the whole creator base for the brands that
     # matter here. See src/nectar/semantic_impute.py for what is exact and what
     # is bounded.
+    audio_cols = [c for c in audio_creators.columns if c != "influencer_id"]
+    missing = [c for c in audio_cols if c not in creators.columns]
+    if missing:
+        creators = creators.merge(
+            audio_creators[["influencer_id"] + missing], on="influencer_id", how="left")
+
     camp_brands = brands[brands.brand_id.isin(campaigns.brand_id)]
     full_fit, semantic_stats = build_full_fit(inf, camp_brands, fit_matrix)
 
@@ -132,11 +163,6 @@ def run() -> dict:
     # no precomputed SBERT row, and the hosted app carries no model, so the
     # typed text is matched against TF-IDF profiles instead. See
     # src/nectar/build_terms.py for what that costs.
-    posts_path = ROOT / "data" / "processed" / "posts.parquet"
-    posts = pd.read_parquet(
-        posts_path,
-        columns=["influencer_id", "caption", "gen_brand", "gen_has_promo", "days_ago"],
-    )
     creator_terms, vocab = build_terms(creators, posts)
     brand_mentions = build_brand_mentions(posts)
     print(f"    lexical profiles: {len(vocab):,} vocabulary terms, "
@@ -160,6 +186,8 @@ def run() -> dict:
         "nectar_creator_terms.parquet": creator_terms,
         "nectar_vocab.parquet": vocab,
         "nectar_brand_mentions.parquet": brand_mentions,
+        "nectar_audio_posts.parquet": audio_posts,
+        "nectar_audio_creators.parquet": audio_creators,
     }
     written = {}
     for fname, df in tables.items():
@@ -173,11 +201,16 @@ def run() -> dict:
         "n_requests": int(len(requests)),
         "files": written,
         "semantic_extension": semantic_stats,
+        "audio_simulation": audio_metrics,
         "provenance": {
             "campaign_fit": "brand_fit_ungated from src/models/brandfit.py (SBERT semantic "
                             "similarity, category affinity, audience overlap, content safety, "
                             "consistency)",
             "typed_brief_fit": "same components and weights as campaign_fit, except the semantic term, which is TF-IDF cosine over creator captions and keywords rather than SBERT - the hosted app loads no model, so a brief typed at request time cannot be embedded",
+            "content_safety": "1 - 0.8*text_negative_share - 0.5*irony_rate "
+                              "- 0.30*audio_negative_share - 0.20*tone_mismatch_rate. "
+                              "The two audio terms are SIMULATED (src/nlp/audio_sim.py); "
+                              "no waveform exists in this project.",
             "org_fit": "0.45*content_safety + 0.35*consistency + 0.20*audience_match",
             "fees": "price_model.joblib (LightGBM), Reel = point estimate, "
                     "Story = 0.35x, Carousel = 0.70x",

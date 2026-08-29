@@ -32,6 +32,13 @@ TABLES = [
      "the product shows (name, city, platforms, rate card)."),
     ("campaigns", APP_DATA / "nectar_campaigns.parquet",
      "The six showcase campaigns, their budgets, briefs and eligibility policy."),
+    ("audio_posts", APP_DATA / "nectar_audio_posts.parquet",
+     "SIMULATED voice track for every video post: valence, arousal, speech "
+     "rate, pause and music ratio, the audio sentiment label, and whether it "
+     "disagrees with the caption model. No audio exists (src/nlp/audio_sim.py)."),
+    ("audio_creators", APP_DATA / "nectar_audio_creators.parquet",
+     "SIMULATED per-creator voice profile aggregated from audio_posts. Two of "
+     "its columns feed the content-safety component of the fit composite."),
     ("creator_terms", APP_DATA / "nectar_creator_terms.parquet",
      "The lexical profile behind the typed-brief matcher: the forty heaviest "
      "TF-IDF terms for each creator, L2-normalised."),
@@ -111,6 +118,10 @@ PROVENANCE = [
       "comments_to_likes", "views_to_followers", "follower_", "posting_frequency",
       "audience_"),
      "generated — the synthetic creator universe (src/data/generate_synthetic.py)"),
+    (("audio_", "speech_rate", "pause_ratio", "pitch_variation", "music_ratio",
+      "tone_mismatch", "n_video_posts"),
+     "simulated - generated voice track, no audio was ever recorded "
+     "(src/nlp/audio_sim.py)"),
     (("term", "idf", "df", "weight"),
      "derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)"),
     (("n_mentions", "n_paid", "days_ago_min"),

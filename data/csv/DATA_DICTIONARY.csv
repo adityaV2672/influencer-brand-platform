@@ -81,6 +81,17 @@ creators,performance_band,object,2000,3,Low,derived
 creators,price_estimate_inr,float32,2000,1941,16938.0,model output — LightGBM performance or price model
 creators,price_low_inr,float32,2000,1922,12088.0,model output — LightGBM performance or price model
 creators,price_high_inr,float32,2000,1961,23322.0,model output — LightGBM performance or price model
+creators,n_video_posts,int64,2000,28,18,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_valence_mean,float64,2000,1739,-0.1333,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_arousal_mean,float64,2000,1528,0.7325,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_speech_rate_mean,float64,2000,517,151.8,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_pause_ratio_mean,float64,2000,712,0.2053,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_music_ratio_mean,float64,2000,1223,0.3273,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_confidence_mean,float64,2000,1134,0.6611,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,tone_mismatch_rate,float64,2000,113,0.2778,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_share_positive,float64,2000,170,0.3333,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_share_neutral,float64,2000,116,0.2778,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+creators,audio_share_negative,float64,2000,139,0.3889,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
 creators,name,object,2000,1343,Kavya Das,"presentation — generated deterministically from the creator id, never a model input"
 creators,nectar_handle,object,2000,2000,@kavyadas,"presentation — generated deterministically from the creator id, never a model input"
 creators,handle_original,object,2000,1598,@urban_ish_hq718,derived
@@ -111,8 +122,8 @@ campaigns,objective,object,6,3,Awareness,derived
 campaigns,description,object,6,3,Maximise qualified reach in the target segment.,derived
 campaigns,budget_inr,float64,6,6,750000.0,derived
 campaigns,annual_brand_budget_inr,float64,6,1,3000000.0,derived
-campaigns,spent_inr,float64,6,6,569800.0,derived
-campaigns,progress,float64,6,6,0.76,derived
+campaigns,spent_inr,float64,6,6,582900.0,derived
+campaigns,progress,float64,6,6,0.777,derived
 campaigns,start_date,object,6,2,2026-08-01,derived
 campaigns,end_date,object,6,2,2026-09-30,derived
 campaigns,target_geo,object,6,4,MENA,derived
@@ -124,7 +135,34 @@ campaigns,deliverable_label,object,6,6,"2 Reel, 3 Story",derived
 campaigns,max_per_creator,float64,6,6,160000.0,derived
 campaigns,min_followers,int64,6,5,3000,derived
 campaigns,payment_type,object,6,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
-campaigns,creators_count,int64,6,6,12,derived
+campaigns,creators_count,int64,6,5,12,derived
+audio_posts,post_id,object,30071,30071,INF00000_P000,identifier
+audio_posts,influencer_id,object,30071,2000,INF00000,identifier
+audio_posts,audio_sentiment,object,30071,3,negative,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,audio_valence,float64,30071,1999,-1.0,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,audio_arousal,float64,30071,907,0.873,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,audio_confidence,float64,30071,681,0.866,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,speech_rate_wpm,float64,30071,821,158.1,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,pause_ratio,float64,30071,314,0.147,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,pitch_variation,float64,30071,644,0.514,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,music_ratio,float64,30071,871,0.38,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,audio_is_speech,bool,30071,2,true,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,tone_mismatch,bool,30071,2,false,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_posts,caption_sentiment,object,30071,3,negative,derived
+audio_posts,caption_source,object,30071,2,vader,derived
+audio_posts,gen_is_sarcastic,int64,30071,2,0,derived
+audio_creators,influencer_id,object,2000,2000,INF00000,identifier
+audio_creators,n_video_posts,int64,2000,28,18,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_valence_mean,float64,2000,1739,-0.1333,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_arousal_mean,float64,2000,1528,0.7325,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_speech_rate_mean,float64,2000,517,151.8,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_pause_ratio_mean,float64,2000,712,0.2053,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_music_ratio_mean,float64,2000,1223,0.3273,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_confidence_mean,float64,2000,1134,0.6611,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,tone_mismatch_rate,float64,2000,113,0.2778,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_share_positive,float64,2000,170,0.3333,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_share_neutral,float64,2000,116,0.2778,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
+audio_creators,audio_share_negative,float64,2000,139,0.3889,"simulated - generated voice track, no audio was ever recorded (src/nlp/audio_sim.py)"
 creator_terms,influencer_id,object,80000,2000,INF00000,identifier
 creator_terms,term,object,80000,774,tax,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
 creator_terms,weight,float32,80000,68561,0.22313334047794342,derived - TF-IDF over creator captions and keywords (src/nectar/build_terms.py)
@@ -136,14 +174,14 @@ brand_mentions,brand,object,12117,73,groww,derived
 brand_mentions,n_mentions,int64,12117,10,3,generated - brand mentions in the synthetic post corpus
 brand_mentions,n_paid,int64,12117,10,3,generated - brand mentions in the synthetic post corpus
 brand_mentions,days_ago_min,int64,12117,364,135,generated - brand mentions in the synthetic post corpus
-campaign_fit,brand_fit,float64,12000,3154,0.8825,model output — brand-fit composite (src/models/brandfit.py)
-campaign_fit,brand_fit_ungated,float64,12000,2460,0.8825,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit,brand_fit,float64,12000,3200,0.8778,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit,brand_fit_ungated,float64,12000,2548,0.8778,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,gate_multiplier,float64,12000,3,1.0,derived
 campaign_fit,gate_reasons,object,12000,35,,derived
 campaign_fit,fit_semantic_similarity,float64,12000,289,0.756,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,fit_category_match,float64,12000,3,1.0,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,fit_audience_match,float64,12000,4,1.0,model output — brand-fit composite (src/models/brandfit.py)
-campaign_fit,fit_content_safety,float64,12000,13,0.92,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit,fit_content_safety,float64,12000,842,0.8809,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,fit_consistency,float64,12000,962,0.6882,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,brand_id,object,12000,6,BRD0002,identifier
 campaign_fit,influencer_id,object,12000,2000,INF01951,identifier
@@ -192,10 +230,10 @@ campaign_fit,audience_gender,object,12000,93,"[{""label"": ""Female"", ""pct"": 
 campaign_fit,audience_locations,object,12000,36,"[{""city"": ""Doha"", ""pct"": 38}, {""city"": ""Riyadh"", ""pct"": 24},",generated — the synthetic creator universe (src/data/generate_synthetic.py)
 campaign_fit,platforms,object,12000,1972,"{""Instagram"": 12728, ""YouTube"": 5473.0, ""Snapchat"": null, ""M",derived
 campaign_fit,posting_frequency_month,float32,12000,2000,10.146073341369629,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-campaign_fit,fit_composite,float64,12000,379,88.2,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit,fit_composite,float64,12000,398,87.8,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,campaign_fit,float64,12000,1000,100.0,model output — brand-fit composite (src/models/brandfit.py)
-campaign_fit,org_composite,float64,12000,307,85.5,derived
-campaign_fit,org_fit,float64,12000,253,92.7,model output — brand-fit composite (src/models/brandfit.py)
+campaign_fit,org_composite,float64,12000,349,83.7,derived
+campaign_fit,org_fit,float64,12000,290,96.3,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,fit_band,object,12000,3,High fit,model output — brand-fit composite (src/models/brandfit.py)
 campaign_fit,org_band,object,12000,3,High fit,derived
 campaign_fit,blocked,bool,12000,1,false,derived
@@ -223,117 +261,117 @@ requests,campaign_name,object,194,5,Monsoon Skin Reset,derived
 requests,brand_name,object,194,5,Minimalist Labs,derived
 requests,brand_category,object,194,5,Beauty,derived
 requests,influencer_id,object,194,194,INF01951,identifier
-requests,creator_name,object,194,185,Manav Nair,derived
+requests,creator_name,object,194,186,Manav Nair,derived
 requests,creator_handle,object,194,194,@manavnair,derived
 requests,initials,object,194,112,MN,"presentation — generated deterministically from the creator id, never a model input"
 requests,avatar_color,object,194,10,#C2185B,"presentation — generated deterministically from the creator id, never a model input"
 requests,followers,int64,194,194,12728,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-requests,campaign_fit,float64,194,39,100.0,model output — brand-fit composite (src/models/brandfit.py)
-requests,org_fit,float64,194,106,92.7,model output — brand-fit composite (src/models/brandfit.py)
+requests,campaign_fit,float64,194,42,100.0,model output — brand-fit composite (src/models/brandfit.py)
+requests,org_fit,float64,194,122,96.3,model output — brand-fit composite (src/models/brandfit.py)
 requests,stage_index,int64,194,9,8,simulated — the transactional layer (src/nectar/build_pipeline.py)
 requests,status,object,194,10,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
-requests,fee_inr,float64,194,166,31900.0,generated — the synthetic universe's realised outcome
+requests,fee_inr,float64,194,165,31900.0,generated — the synthetic universe's realised outcome
 requests,counter_fee_inr,float64,24,23,NaN,simulated — the transactional layer (src/nectar/build_pipeline.py)
 requests,deliverables,object,194,5,"2 Reel, 3 Story",derived
 requests,sent_at,object,194,20,2026-08-15,simulated — the transactional layer (src/nectar/build_pipeline.py)
 requests,viewed_at,object,170,20,2026-08-16,simulated — the transactional layer (src/nectar/build_pipeline.py)
-requests,responded_at,object,95,20,2026-08-18,simulated — the transactional layer (src/nectar/build_pipeline.py)
+requests,responded_at,object,93,19,2026-08-18,simulated — the transactional layer (src/nectar/build_pipeline.py)
 requests,deadline,object,194,2,2026-09-30,derived
 requests,payment,object,194,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
 requests,usage_rights,object,194,1,30 days,simulated — the transactional layer (src/nectar/build_pipeline.py)
 requests,exclusivity,object,194,1,No,simulated — the transactional layer (src/nectar/build_pipeline.py)
-messages,request_id,object,313,170,MN-2026-100,identifier
-messages,seq,int64,313,3,0,simulated — the transactional layer (src/nectar/build_pipeline.py)
-messages,sender,object,313,2,brand,simulated — the transactional layer (src/nectar/build_pipeline.py)
-messages,sender_name,object,313,98,Minimalist Labs,simulated — the transactional layer (src/nectar/build_pipeline.py)
-messages,timestamp,object,313,39,2026-08-15,derived
-messages,body,object,313,143,Hi Manav — we'd love to have you for Monsoon Skin Reset. Her,simulated — the transactional layer (src/nectar/build_pipeline.py)
-messages,offer_inr,float64,265,164,31900.0,simulated — the transactional layer (src/nectar/build_pipeline.py)
-messages,offer_note,object,265,11,"2 Reel, 3 Story · 2026-09-30",simulated — the transactional layer (src/nectar/build_pipeline.py)
+messages,request_id,object,310,170,MN-2026-100,identifier
+messages,seq,int64,310,3,0,simulated — the transactional layer (src/nectar/build_pipeline.py)
+messages,sender,object,310,2,brand,simulated — the transactional layer (src/nectar/build_pipeline.py)
+messages,sender_name,object,310,97,Minimalist Labs,simulated — the transactional layer (src/nectar/build_pipeline.py)
+messages,timestamp,object,310,39,2026-08-15,derived
+messages,body,object,310,139,Hi Manav — we'd love to have you for Monsoon Skin Reset. Her,simulated — the transactional layer (src/nectar/build_pipeline.py)
+messages,offer_inr,float64,263,171,31900.0,simulated — the transactional layer (src/nectar/build_pipeline.py)
+messages,offer_note,object,263,11,"2 Reel, 3 Story · 2026-09-30",simulated — the transactional layer (src/nectar/build_pipeline.py)
 funnel,campaign_id,object,45,5,CMP00,identifier
 funnel,stage,object,45,9,Drafted,derived
 funnel,stage_index,int64,45,9,0,simulated — the transactional layer (src/nectar/build_pipeline.py)
-funnel,count,int64,45,19,42,derived
+funnel,count,int64,45,20,42,derived
 campaign_summary,campaign_id,object,6,6,CMP00,identifier
-campaign_summary,spend,float64,6,6,569800.0,derived
-campaign_summary,reach,float64,6,6,364175.0,derived
-campaign_summary,engagements,float64,6,6,27372.0,derived
-campaign_summary,creators,float64,6,6,12.0,derived
+campaign_summary,spend,float64,6,6,582900.0,derived
+campaign_summary,reach,float64,6,6,368840.0,derived
+campaign_summary,engagements,float64,6,6,27792.0,derived
+campaign_summary,creators,float64,6,5,12.0,derived
 campaign_summary,name,object,6,6,Monsoon Skin Reset,"presentation — generated deterministically from the creator id, never a model input"
 campaign_summary,category,object,6,6,Beauty,derived
 campaign_summary,budget_inr,float64,6,6,750000.0,derived
 campaign_summary,status,object,6,3,Live,simulated — the transactional layer (src/nectar/build_pipeline.py)
-campaign_summary,avg_cpe,float64,5,5,20.82,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-campaign_summary,avg_cpr,float64,5,5,1.565,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-campaign_summary,budget_used,float64,6,6,0.76,derived
+campaign_summary,avg_cpe,float64,5,5,20.97,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+campaign_summary,avg_cpr,float64,5,5,1.58,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+campaign_summary,budget_used,float64,6,6,0.777,derived
 campaign_summary,predicted_er,float64,6,6,0.022759653814631128,model output — LightGBM performance or price model
 campaign_summary,actual_er,float64,6,6,0.022882703949135746,generated — the synthetic universe's realised outcome
 campaign_summary,n_campaigns,int64,6,6,166,derived
 campaign_summary,vs_predicted,float64,6,6,0.5,derived
-campaign_summary,predicted_reach,float64,6,6,362363.0,model output — LightGBM performance or price model
-campaign_summary,predicted_engagements,float64,6,6,27236.0,model output — LightGBM performance or price model
-creator_performance,request_id,object,71,71,MN-2026-100,identifier
-creator_performance,campaign_id,object,71,5,CMP00,identifier
-creator_performance,campaign_name,object,71,5,Monsoon Skin Reset,derived
-creator_performance,brand_name,object,71,5,Minimalist Labs,derived
-creator_performance,brand_category,object,71,5,Beauty,derived
-creator_performance,influencer_id,object,71,71,INF01951,identifier
-creator_performance,creator_name,object,71,71,Manav Nair,derived
-creator_performance,creator_handle,object,71,71,@manavnair,derived
-creator_performance,initials,object,71,50,MN,"presentation — generated deterministically from the creator id, never a model input"
-creator_performance,avatar_color,object,71,10,#C2185B,"presentation — generated deterministically from the creator id, never a model input"
-creator_performance,followers,int64,71,71,12728,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-creator_performance,campaign_fit,float64,71,18,100.0,model output — brand-fit composite (src/models/brandfit.py)
-creator_performance,org_fit,float64,71,52,92.7,model output — brand-fit composite (src/models/brandfit.py)
-creator_performance,stage_index,int64,71,5,8,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,status,object,71,5,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,fee_inr,float64,71,66,31900.0,generated — the synthetic universe's realised outcome
+campaign_summary,predicted_reach,float64,6,6,367005.0,model output — LightGBM performance or price model
+campaign_summary,predicted_engagements,float64,6,6,27654.0,model output — LightGBM performance or price model
+creator_performance,request_id,object,69,69,MN-2026-100,identifier
+creator_performance,campaign_id,object,69,5,CMP00,identifier
+creator_performance,campaign_name,object,69,5,Monsoon Skin Reset,derived
+creator_performance,brand_name,object,69,5,Minimalist Labs,derived
+creator_performance,brand_category,object,69,5,Beauty,derived
+creator_performance,influencer_id,object,69,69,INF01951,identifier
+creator_performance,creator_name,object,69,69,Manav Nair,derived
+creator_performance,creator_handle,object,69,69,@manavnair,derived
+creator_performance,initials,object,69,52,MN,"presentation — generated deterministically from the creator id, never a model input"
+creator_performance,avatar_color,object,69,10,#C2185B,"presentation — generated deterministically from the creator id, never a model input"
+creator_performance,followers,int64,69,69,12728,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_performance,campaign_fit,float64,69,19,100.0,model output — brand-fit composite (src/models/brandfit.py)
+creator_performance,org_fit,float64,69,55,96.3,model output — brand-fit composite (src/models/brandfit.py)
+creator_performance,stage_index,int64,69,5,8,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,status,object,69,5,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,fee_inr,float64,69,64,31900.0,generated — the synthetic universe's realised outcome
 creator_performance,counter_fee_inr,float64,0,0,,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,deliverables,object,71,5,"2 Reel, 3 Story",derived
-creator_performance,sent_at,object,71,20,2026-08-15,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,viewed_at,object,71,20,2026-08-16,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,responded_at,object,71,20,2026-08-18,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,deadline,object,71,2,2026-09-30,derived
-creator_performance,payment,object,71,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,usage_rights,object,71,1,30 days,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,exclusivity,object,71,1,No,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_performance,avg_reach,int32,71,71,5825,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-creator_performance,engagement_rate,float32,71,71,0.027507396414875984,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-creator_performance,avg_views,int32,71,71,8003,generated — the synthetic creator universe (src/data/generate_synthetic.py)
-creator_performance,reach,int64,71,71,29125,derived
-creator_performance,engagements,float64,71,70,1751.0,derived
-creator_performance,cost,float64,71,66,31900.0,derived
-creator_performance,cpe,float64,71,71,18.22,derived
-creator_performance,cpr,float64,71,70,1.095,derived
-creator_history,request_id,object,1417,1417,OM-H0000,identifier
-creator_history,influencer_id,object,1417,400,INF01268,identifier
-creator_history,brand_id,object,1417,120,BRD0084,identifier
-creator_history,brand_name,object,1417,102,Kuvera Labs,derived
-creator_history,brand_category,object,1417,12,Finance,derived
-creator_history,campaign_name,object,1417,264,Kuvera Edit,derived
+creator_performance,deliverables,object,69,5,"2 Reel, 3 Story",derived
+creator_performance,sent_at,object,69,18,2026-08-15,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,viewed_at,object,69,18,2026-08-16,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,responded_at,object,69,18,2026-08-18,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,deadline,object,69,2,2026-09-30,derived
+creator_performance,payment,object,69,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,usage_rights,object,69,1,30 days,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,exclusivity,object,69,1,No,simulated — the transactional layer (src/nectar/build_pipeline.py)
+creator_performance,avg_reach,int32,69,69,5825,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_performance,engagement_rate,float32,69,69,0.027507396414875984,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_performance,avg_views,int32,69,69,8003,generated — the synthetic creator universe (src/data/generate_synthetic.py)
+creator_performance,reach,int64,69,69,29125,derived
+creator_performance,engagements,float64,69,68,1751.0,derived
+creator_performance,cost,float64,69,64,31900.0,derived
+creator_performance,cpe,float64,69,69,18.22,derived
+creator_performance,cpr,float64,69,68,1.095,derived
+creator_history,request_id,object,1417,1417,MN-H0000,identifier
+creator_history,influencer_id,object,1417,400,INF01951,identifier
+creator_history,brand_id,object,1417,120,BRD0063,identifier
+creator_history,brand_name,object,1417,102,Lakme India,derived
+creator_history,brand_category,object,1417,12,Beauty,derived
+creator_history,campaign_name,object,1417,271,Lakme Edit,derived
 creator_history,deliverables,object,1417,6,3 Reel,derived
-creator_history,fee_inr,float64,1417,686,3600.0,generated — the synthetic universe's realised outcome
+creator_history,fee_inr,float64,1417,683,31200.0,generated — the synthetic universe's realised outcome
 creator_history,counter_fee_inr,float64,158,151,NaN,simulated — the transactional layer (src/nectar/build_pipeline.py)
 creator_history,status,object,1417,7,Approved,simulated — the transactional layer (src/nectar/build_pipeline.py)
 creator_history,stage_index,int64,1417,6,7,simulated — the transactional layer (src/nectar/build_pipeline.py)
-creator_history,campaign_fit,float64,1417,34,87.0,model output — brand-fit composite (src/models/brandfit.py)
+creator_history,campaign_fit,float64,1417,35,88.0,model output — brand-fit composite (src/models/brandfit.py)
 creator_history,month,object,1417,6,Mar,simulated — the transactional layer (src/nectar/build_pipeline.py)
 creator_history,date,object,1417,162,2026-03-16,derived
 creator_history,deadline,object,1417,96,2026-03-28,derived
-creator_history,creator_name,object,1417,369,Om Malhotra,derived
-creator_history,creator_handle,object,1417,400,@ommalhotra,derived
-creator_history,initials,object,1417,163,OM,"presentation — generated deterministically from the creator id, never a model input"
-creator_history,avatar_color,object,1417,10,#2E7D8F,"presentation — generated deterministically from the creator id, never a model input"
+creator_history,creator_name,object,1417,363,Manav Nair,derived
+creator_history,creator_handle,object,1417,400,@manavnair,derived
+creator_history,initials,object,1417,152,MN,"presentation — generated deterministically from the creator id, never a model input"
+creator_history,avatar_color,object,1417,10,#C2185B,"presentation — generated deterministically from the creator id, never a model input"
 creator_history,payment,object,1417,1,Paid,simulated — the transactional layer (src/nectar/build_pipeline.py)
 creator_history,usage_rights,object,1417,1,30 days,simulated — the transactional layer (src/nectar/build_pipeline.py)
 creator_history,exclusivity,object,1417,1,No,simulated — the transactional layer (src/nectar/build_pipeline.py)
 earnings,influencer_id,object,2124,354,INF00002,identifier
 earnings,month,object,2124,6,Mar,simulated — the transactional layer (src/nectar/build_pipeline.py)
-earnings,amount,float64,2124,439,0.0,derived
+earnings,amount,float64,2124,441,25200.0,derived
 category_fit,influencer_id,object,24000,2000,INF00000,identifier
 category_fit,category,object,24000,12,Finance,derived
-category_fit,fit,float64,24000,3047,0.7828,derived
-category_fit,fit_pct,float64,24000,42,78.0,model output — brand-fit composite (src/models/brandfit.py)
+category_fit,fit,float64,24000,3153,0.7621,derived
+category_fit,fit_pct,float64,24000,45,76.0,model output — brand-fit composite (src/models/brandfit.py)
 category_fit,brands,int64,24000,8,11,derived
 model_calibration,brand_category,object,12,12,Automotive,derived
 model_calibration,predicted_er,float64,12,12,0.013324607465498817,model output — LightGBM performance or price model

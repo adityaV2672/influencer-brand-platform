@@ -68,4 +68,6 @@ def creator_perf() -> pd.DataFrame:  return require("nectar_creator_performance.
 def monthly() -> pd.DataFrame:       return require("nectar_monthly.parquet", "Monthly performance")
 def earnings() -> pd.DataFrame:      return require("nectar_earnings.parquet", "Earnings")
 def calibration() -> pd.DataFrame:   return require("nectar_calibration.parquet", "Model calibration")
+def audio_posts() -> pd.DataFrame:   return require("nectar_audio_posts.parquet", "Voice track")
+def audio_creators() -> pd.DataFrame: return require("nectar_audio_creators.parquet", "Voice profiles")
 def meta() -> dict:                  return load_json("nectar_meta.json") or {}

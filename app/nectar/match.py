@@ -233,9 +233,19 @@ def score(brief: Brief) -> tuple[pd.DataFrame, dict]:
     c["fit_audience_match"] = (0.55 * np.where(geo_ok, 1.0, 0.45)
                                + 0.45 * np.where(age_ok, 1.0, 0.55))
 
+    # Mirrors score_pair() in src/models/brandfit.py exactly, audio terms
+    # included. tests/test_match.py scores a sample of creators both ways and
+    # fails if the two ever disagree.
     neg = c.content_share_negative.fillna(0.0)
     irony = c.content_irony_rate.fillna(0.0)
-    c["fit_content_safety"] = np.clip(1.0 - 0.8 * neg - 0.5 * irony, 0.0, 1.0)
+    audio_neg = (c["audio_share_negative"] if "audio_share_negative" in c
+                 else 0.0)
+    mismatch = (c["tone_mismatch_rate"] if "tone_mismatch_rate" in c else 0.0)
+    audio_neg = audio_neg.fillna(0.0) if hasattr(audio_neg, "fillna") else audio_neg
+    mismatch = mismatch.fillna(0.0) if hasattr(mismatch, "fillna") else mismatch
+    c["fit_content_safety"] = np.clip(
+        1.0 - 0.8 * neg - 0.5 * irony - 0.30 * audio_neg - 0.20 * mismatch,
+        0.0, 1.0)
 
     ent = c.content_topic_entropy
     c["fit_consistency"] = np.where(ent.notna(), np.clip(1.0 - ent / 3.0, 0.0, 1.0), 0.5)

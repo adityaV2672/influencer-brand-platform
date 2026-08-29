@@ -1,16 +1,18 @@
 file,rows,columns,size_kb,source_parquet,description
-creators.csv,2000,102,4076.8,app_data/nectar_creators.parquet,"One row per creator: the full feature table plus the presentation fields the product shows (name, city, platforms, rate card)."
+creators.csv,2000,113,4210.4,app_data/nectar_creators.parquet,"One row per creator: the full feature table plus the presentation fields the product shows (name, city, platforms, rate card)."
 campaigns.csv,6,24,2.7,app_data/nectar_campaigns.parquet,"The six showcase campaigns, their budgets, briefs and eligibility policy."
+audio_posts.csv,30071,15,2986.9,app_data/nectar_audio_posts.parquet,"SIMULATED voice track for every video post: valence, arousal, speech rate, pause and music ratio, the audio sentiment label, and whether it disagrees with the caption model. No audio exists (src/nlp/audio_sim.py)."
+audio_creators.csv,2000,12,151.2,app_data/nectar_audio_creators.parquet,SIMULATED per-creator voice profile aggregated from audio_posts. Two of its columns feed the content-safety component of the fit composite.
 creator_terms.csv,80000,3,2889.4,app_data/nectar_creator_terms.parquet,"The lexical profile behind the typed-brief matcher: the forty heaviest TF-IDF terms for each creator, L2-normalised."
 vocabulary.csv,780,3,23.1,app_data/nectar_vocab.parquet,"Every term the typed-brief matcher can recognise, with its document frequency and inverse document frequency."
 brand_mentions.csv,12117,5,297.8,app_data/nectar_brand_mentions.parquet,"Which creator mentioned which brand, how often, and whether any of it was a disclosed paid post - the evidence the competitor-conflict veto reads."
-campaign_fit.csv,12000,81,21737.7,app_data/nectar_fit.parquet,"Every (campaign, creator) pair with its fit composite, components, safety gates and ranking under each objective."
-requests.csv,194,25,40.7,app_data/nectar_requests.parquet,"The request funnel: who was approached for which campaign, at what fee, and how far they got."
-messages.csv,313,8,49.4,app_data/nectar_messages.parquet,Negotiation threads attached to requests.
+campaign_fit.csv,12000,81,21757.7,app_data/nectar_fit.parquet,"Every (campaign, creator) pair with its fit composite, components, safety gates and ranking under each objective."
+requests.csv,194,25,40.6,app_data/nectar_requests.parquet,"The request funnel: who was approached for which campaign, at what fee, and how far they got."
+messages.csv,310,8,48.9,app_data/nectar_messages.parquet,Negotiation threads attached to requests.
 funnel.csv,45,4,0.9,app_data/nectar_funnel.parquet,"Cumulative count of requests reaching each funnel stage, per campaign."
 campaign_summary.csv,6,18,1.1,app_data/nectar_campaign_summary.parquet,Campaign-level results including predicted-vs-actual calibration.
-creator_performance.csv,71,33,19.8,app_data/nectar_creator_performance.parquet,"Per-creator delivered reach, engagement, cost, CPE and CPR."
-creator_history.csv,1417,22,257.4,app_data/nectar_creator_history.parquet,"Past brand approaches per creator, outside the six showcase campaigns."
+creator_performance.csv,69,33,19.2,app_data/nectar_creator_performance.parquet,"Per-creator delivered reach, engagement, cost, CPE and CPR."
+creator_history.csv,1417,22,257.3,app_data/nectar_creator_history.parquet,"Past brand approaches per creator, outside the six showcase campaigns."
 earnings.csv,2124,3,37.7,app_data/nectar_earnings.parquet,Monthly realised earnings per creator.
 category_fit.csv,24000,5,757.3,app_data/nectar_category_fit.parquet,Each creator's brand-fit score against a representative brand in every category.
 model_calibration.csv,12,4,0.7,app_data/nectar_calibration.parquet,"Out-of-fold predicted vs actual campaign engagement rate, by brand category."
