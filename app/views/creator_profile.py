@@ -169,13 +169,14 @@ with tabs[2]:
         st.markdown(ui.section("Voice tone",
                                "What the delivery sounds like on video posts."),
                     unsafe_allow_html=True)
+        card = (data.meta() or {}).get("audio_model", {})
         st.markdown(
             f"<div style='margin:-6px 0 8px 0'>"
             f"<span style='display:inline-block;padding:2px 8px;border-radius:5px;"
             f"background:{AMBER_BG};color:{AMBER};font-size:10.5px;font-weight:700;"
-            f"letter-spacing:.04em'>SIMULATED</span>"
+            f"letter-spacing:.04em'>SIMULATED INPUT</span>"
             f"<span style='font-size:11.5px;color:{INK_3};margin-left:8px'>"
-            f"generated voice track — no audio was recorded</span></div>",
+            f"trained fusion model, generated audio — no waveform exists</span></div>",
             unsafe_allow_html=True)
         st.markdown(_share_bar([
             ("Positive", float(getattr(me, "audio_share_positive", 0) or 0), GREEN),
@@ -191,6 +192,12 @@ with tabs[2]:
             + _tone_row("Vocal energy",
                         f"{float(getattr(me, 'audio_arousal_mean', 0) or 0):.2f}",
                         "0 flat, 1 animated")
+            + _tone_row("Spoken disclosure",
+                        f"{float(getattr(me, 'spoken_disclosure_rate', 0) or 0):.0%}",
+                        "says it out loud, not just in the caption")
+            + _tone_row("Transcript confidence",
+                        f"{float(getattr(me, 'asr_mean_confidence', 0) or 0):.2f}",
+                        "ASR word confidence")
             + _tone_row("Video posts analysed",
                         f"{int(getattr(me, 'n_video_posts', 0) or 0)}"),
             unsafe_allow_html=True)
@@ -205,9 +212,60 @@ with tabs[2]:
         f"<div class='n-muted' style='margin:14px 0 4px 0;line-height:1.6'>"
         f"Both panels feed one number. Content safety = 1 − 0.8×caption negative "
         f"− 0.5×irony − 0.30×voice negative − 0.20×tone mismatch, and is 12% of "
-        f"the brand-fit composite. The two voice terms are simulated and are "
-        f"weighted below the caption terms for exactly that reason.</div>",
+        f"the brand-fit composite. The two voice terms are weighted below the "
+        f"caption terms because their inputs are simulated.</div>",
         unsafe_allow_html=True)
+
+    if card:
+        with st.expander("How the voice label is produced, and what is real about it"):
+            arms = {a["arm"]: a for a in card.get("arms", [])}
+            st.markdown(
+                f"**Architecture.** {card['architecture']}.\n\n"
+                f"**Validation.** {card['validation']}, scored out of fold. Every "
+                f"label shown above is the prediction made for that clip while "
+                f"that creator was held out of training.")
+            st.markdown(ui.table(
+                ["Arm", "Accuracy", "Macro F1"],
+                [[ui.esc(a["arm"]), f"{a['accuracy']:.4f}", f"{a['macro_f1']:.4f}"]
+                 for a in card.get("arms", [])],
+                aligns=["left", "right", "right"]), unsafe_allow_html=True)
+            sweeps = card.get("sweeps", {})
+            noise = sweeps.get("prosody_noise", [])
+            curve = sweeps.get("learning_curve", [])
+            wer = sweeps.get("wer", [])
+            bullets = []
+            if wer:
+                bullets.append(
+                    f"Raising the transcript's word error rate from "
+                    f"{wer[0]['wer']:.0%} to {wer[-1]['wer']:.0%} costs the text "
+                    f"branch only {wer[0]['text_macro_f1'] - wer[-1]['text_macro_f1']:.3f} "
+                    f"macro F1 — the caption carries most of the text signal, so a "
+                    f"cheaper recogniser would do.")
+            if noise:
+                bullets.append(
+                    f"At ten times the recording noise the prosody head alone falls "
+                    f"from {noise[0]['audio_macro_f1']:.3f} to "
+                    f"{noise[-1]['audio_macro_f1']:.3f}, while fusion holds at "
+                    f"{noise[-1]['fusion_macro_f1']:.3f}. Graceful degradation is what "
+                    f"the second modality actually buys.")
+            if curve:
+                bullets.append(
+                    f"The curve is still climbing at {curve[-1]['n_labelled_clips']:,} "
+                    f"annotated clips ({curve[-1]['fusion_macro_f1']:.3f}), so a real "
+                    f"build would need at least that many.")
+            if bullets:
+                st.markdown("**What the sweeps found.**\n\n"
+                            + "\n\n".join(f"- {b}" for b in bullets))
+            cav = card.get("caveats", {})
+            st.markdown(
+                f"**What is not real.** {cav.get('corpus', '')} "
+                f"{cav.get('asr', '')} {cav.get('prosody_encoder', '')}\n\n"
+                f"**What is real.** {cav.get('models', '')}\n\n"
+                f"**Why fusion wins here.** {cav.get('why_fusion_wins', '')}")
+            diag = card.get("corpus_diagnostics", {})
+            if diag:
+                st.markdown(f"**A defect this work found.** {diag['finding']} "
+                            f"{diag['consequence']}")
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 

@@ -1,5 +1,5 @@
 {
-  "default_creator_id": "INF01758",
+  "default_creator_id": "INF00018",
   "n_creators": 2000,
   "n_campaigns": 6,
   "n_requests": 194,
@@ -8,20 +8,20 @@
     "nectar_campaigns.parquet": 6,
     "nectar_fit.parquet": 12000,
     "nectar_requests.parquet": 194,
-    "nectar_messages.parquet": 310,
+    "nectar_messages.parquet": 305,
     "nectar_funnel.parquet": 45,
     "nectar_campaign_summary.parquet": 6,
-    "nectar_creator_performance.parquet": 69,
+    "nectar_creator_performance.parquet": 64,
     "nectar_calibration.parquet": 12,
     "nectar_monthly.parquet": 5,
-    "nectar_earnings.parquet": 2124,
+    "nectar_earnings.parquet": 2142,
     "nectar_category_fit.parquet": 24000,
     "nectar_creator_history.parquet": 1417,
     "nectar_weight_sensitivity.parquet": 20,
     "nectar_creator_terms.parquet": 80000,
     "nectar_vocab.parquet": 780,
     "nectar_brand_mentions.parquet": 12117,
-    "nectar_audio_posts.parquet": 30071,
+    "nectar_audio_posts.parquet": 27981,
     "nectar_audio_creators.parquet": 2000
   },
   "semantic_extension": {
@@ -39,24 +39,214 @@
       "cause": "labelled pairs are the top-60 per brand by cosine, so the sample is range-restricted at the high end"
     }
   },
-  "audio_simulation": {
-    "n_video_posts": 30071,
-    "video_share": 0.58,
-    "caption_audio_agreement": 0.5545,
-    "caption_label_source": {
-      "vader": 18507,
-      "roberta": 11564
+  "audio_model": {
+    "architecture": "late fusion: TF-IDF(caption + Whisper-class transcript) -> logistic regression; 128-d prosody embedding -> logistic regression; both branches' out-of-fold probabilities plus ASR quality -> logistic regression",
+    "validation": "GroupKFold by creator, 2,000 creators, 27,981 adjudicated clips",
+    "macro_f1": 0.7454,
+    "accuracy": 0.772,
+    "lift_over_text_only": 0.0355,
+    "lift_over_audio_only": 0.0234,
+    "majority_baseline_macro_f1": 0.2132,
+    "annotator_agreement_fleiss_kappa": 0.3551,
+    "asr_word_error_rate": 0.098,
+    "arms": [
+      {
+        "arm": "majority baseline",
+        "accuracy": 0.4701,
+        "macro_f1": 0.2132,
+        "weighted_f1": 0.3007,
+        "accuracy_sarcastic": null,
+        "accuracy_sincere": null
+      },
+      {
+        "arm": "text only (caption + ASR)",
+        "accuracy": 0.7419,
+        "macro_f1": 0.7099,
+        "weighted_f1": 0.7332,
+        "accuracy_sarcastic": 0.9919,
+        "accuracy_sincere": 0.7149
+      },
+      {
+        "arm": "audio only (prosody head)",
+        "accuracy": 0.7525,
+        "macro_f1": 0.722,
+        "weighted_f1": 0.7456,
+        "accuracy_sarcastic": 0.9919,
+        "accuracy_sincere": 0.7267
+      },
+      {
+        "arm": "late fusion",
+        "accuracy": 0.772,
+        "macro_f1": 0.7454,
+        "weighted_f1": 0.7666,
+        "accuracy_sarcastic": 0.9919,
+        "accuracy_sincere": 0.7483
+      }
+    ],
+    "sweeps": {
+      "wer": [
+        {
+          "wer": 0.0,
+          "text_macro_f1": 0.7065,
+          "fusion_macro_f1": 0.7367,
+          "audio_macro_f1": 0.706
+        },
+        {
+          "wer": 0.1,
+          "text_macro_f1": 0.6992,
+          "fusion_macro_f1": 0.7319,
+          "audio_macro_f1": 0.706
+        },
+        {
+          "wer": 0.2,
+          "text_macro_f1": 0.6929,
+          "fusion_macro_f1": 0.7323,
+          "audio_macro_f1": 0.706
+        },
+        {
+          "wer": 0.35,
+          "text_macro_f1": 0.6917,
+          "fusion_macro_f1": 0.7298,
+          "audio_macro_f1": 0.706
+        },
+        {
+          "wer": 0.5,
+          "text_macro_f1": 0.6827,
+          "fusion_macro_f1": 0.7306,
+          "audio_macro_f1": 0.706
+        }
+      ],
+      "prosody_noise": [
+        {
+          "noise_multiplier": 0.5,
+          "audio_macro_f1": 0.7458,
+          "fusion_macro_f1": 0.755,
+          "text_macro_f1": 0.7022
+        },
+        {
+          "noise_multiplier": 1.0,
+          "audio_macro_f1": 0.706,
+          "fusion_macro_f1": 0.7345,
+          "text_macro_f1": 0.7022
+        },
+        {
+          "noise_multiplier": 1.75,
+          "audio_macro_f1": 0.6421,
+          "fusion_macro_f1": 0.7203,
+          "text_macro_f1": 0.7022
+        },
+        {
+          "noise_multiplier": 3.0,
+          "audio_macro_f1": 0.5536,
+          "fusion_macro_f1": 0.71,
+          "text_macro_f1": 0.7022
+        },
+        {
+          "noise_multiplier": 5.0,
+          "audio_macro_f1": 0.4624,
+          "fusion_macro_f1": 0.7004,
+          "text_macro_f1": 0.7022
+        }
+      ],
+      "learning_curve": [
+        {
+          "n_creators": 25,
+          "n_labelled_clips": 356,
+          "fusion_macro_f1": 0.6035
+        },
+        {
+          "n_creators": 60,
+          "n_labelled_clips": 852,
+          "fusion_macro_f1": 0.6834
+        },
+        {
+          "n_creators": 140,
+          "n_labelled_clips": 1865,
+          "fusion_macro_f1": 0.6978
+        },
+        {
+          "n_creators": 320,
+          "n_labelled_clips": 4397,
+          "fusion_macro_f1": 0.7313
+        }
+      ]
     },
-    "tone_mismatch_rate_overall": 0.1766,
-    "tone_mismatch_rate_sarcastic": 0.7213,
-    "tone_mismatch_rate_sincere": 0.1218,
-    "circularity_warning": "Sarcastic posts are GIVEN a negative voice by the simulator, so a higher mismatch rate on them is arithmetic, not detection. These figures describe the generator, not any real audio capability.",
-    "provenance": "simulated - src/nlp/audio_sim.py. No audio was recorded, transcribed or classified at any point in this project."
+    "corpus_diagnostics": {
+      "finding": "Sarcastic and sincere captions are drawn from disjoint template vocabularies, so a bag-of-words model separates them almost perfectly without any audio at all.",
+      "consequence": "The fusion model's gain in this corpus comes from ordinary delivery variation, NOT from catching sarcasm. Any sarcasm result measured on these synthetic captions is a property of the generator. The NLP benchmark on TweetEval and the Misra headlines is unaffected - that corpus is real.",
+      "n_sarcastic": 4737,
+      "n_sincere": 47352,
+      "most_leaking_tokens": [
+        {
+          "token": "that",
+          "p_given_sarcastic": 0.6722,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 31825.8,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "another",
+          "p_given_sarcastic": 0.3939,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 18655.8,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "nothing",
+          "p_given_sarcastic": 0.2335,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 11061.6,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "nobody",
+          "p_given_sarcastic": 0.205,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 9712.6,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "asked",
+          "p_given_sarcastic": 0.1718,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 8143.8,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "exactly",
+          "p_given_sarcastic": 0.1718,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 8143.8,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "fine",
+          "p_given_sarcastic": 0.1706,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 8083.9,
+          "sincere_occurrences": 0
+        },
+        {
+          "token": "supposed",
+          "p_given_sarcastic": 0.1706,
+          "p_given_sincere": 0.0,
+          "lift_laplace": 8083.9,
+          "sincere_occurrences": 0
+        }
+      ]
+    },
+    "caveats": {
+      "corpus": "SIMULATED. No video was recorded or watched. The gold label is the majority vote of three SIMULATED annotators over the generator's latent spoken affect. This is not a human-labelled corpus and must never be described as one.",
+      "asr": "SIMULATED at the output interface. Whisper was not run. Word errors, timings and per-word confidence are generated at a chosen word error rate.",
+      "prosody_encoder": "SIMULATED. wav2vec2 and HuBERT were not run. A fixed random projection produces embeddings with the property the head depends on - affect linearly decodable, speaker identity a larger nuisance direction - and no other property of a real encoder.",
+      "models": "REAL. The text branch, the prosody head and the fusion layer are scikit-learn models fitted on this data with GroupKFold by creator and scored out of fold. The learning is genuine; the inputs are not.",
+      "why_fusion_wins": "Sarcastic posts are constructed with a caption whose sentiment is inverted while prosody keeps the true affect. Fusion therefore SHOULD beat text-only on that subset - that is the generator's design, not a finding. The findings are the sweeps: how far word error rate can rise before the text branch stops contributing, how much recording noise the prosody head survives, and how many labelled clips the fusion needs. None of those curves were chosen."
+    }
   },
   "provenance": {
     "campaign_fit": "brand_fit_ungated from src/models/brandfit.py (SBERT semantic similarity, category affinity, audience overlap, content safety, consistency)",
     "typed_brief_fit": "same components and weights as campaign_fit, except the semantic term, which is TF-IDF cosine over creator captions and keywords rather than SBERT - the hosted app loads no model, so a brief typed at request time cannot be embedded",
-    "content_safety": "1 - 0.8*text_negative_share - 0.5*irony_rate - 0.30*audio_negative_share - 0.20*tone_mismatch_rate. The two audio terms are SIMULATED (src/nlp/audio_sim.py); no waveform exists in this project.",
+    "content_safety": "1 - 0.8*text_negative_share - 0.5*irony_rate - 0.30*audio_negative_share - 0.20*tone_mismatch_rate. The two audio terms come from a trained late-fusion model (src/audio/), scored out of fold. Its INPUTS are simulated: no waveform, no Whisper run, no wav2vec2 run, and no human-labelled video exists in this project.",
     "org_fit": "0.45*content_safety + 0.35*consistency + 0.20*audience_match",
     "fees": "price_model.joblib (LightGBM), Reel = point estimate, Story = 0.35x, Carousel = 0.70x",
     "predicted_vs_actual": "performance_oof.npy (GroupKFold out-of-fold predictions) vs campaign_engagement_rate in modelling_table.parquet",
@@ -64,6 +254,6 @@
   },
   "csv_export": {
     "tables": 27,
-    "columns_documented": 622
+    "columns_documented": 637
   }
 }

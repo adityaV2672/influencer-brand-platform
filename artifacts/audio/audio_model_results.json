@@ -1,0 +1,210 @@
+{
+  "caveats": {
+    "corpus": "SIMULATED. No video was recorded or watched. The gold label is the majority vote of three SIMULATED annotators over the generator's latent spoken affect. This is not a human-labelled corpus and must never be described as one.",
+    "asr": "SIMULATED at the output interface. Whisper was not run. Word errors, timings and per-word confidence are generated at a chosen word error rate.",
+    "prosody_encoder": "SIMULATED. wav2vec2 and HuBERT were not run. A fixed random projection produces embeddings with the property the head depends on - affect linearly decodable, speaker identity a larger nuisance direction - and no other property of a real encoder.",
+    "models": "REAL. The text branch, the prosody head and the fusion layer are scikit-learn models fitted on this data with GroupKFold by creator and scored out of fold. The learning is genuine; the inputs are not.",
+    "why_fusion_wins": "Sarcastic posts are constructed with a caption whose sentiment is inverted while prosody keeps the true affect. Fusion therefore SHOULD beat text-only on that subset - that is the generator's design, not a finding. The findings are the sweeps: how far word error rate can rise before the text branch stops contributing, how much recording noise the prosody head survives, and how many labelled clips the fusion needs. None of those curves were chosen."
+  },
+  "corpus": {
+    "n_video_posts": 30071,
+    "n_adjudicated": 27981,
+    "dropped_no_majority": 2090,
+    "fleiss_kappa": 0.3551,
+    "asr_wer_target": 0.11,
+    "asr_wer_realised": 0.098,
+    "gold_distribution": {
+      "positive": 0.4701,
+      "negative": 0.2673,
+      "neutral": 0.2626
+    },
+    "sarcastic_share": 0.0974,
+    "n_creators": 2000
+  },
+  "arms": [
+    {
+      "arm": "majority baseline",
+      "accuracy": 0.4701,
+      "macro_f1": 0.2132,
+      "weighted_f1": 0.3007,
+      "accuracy_sarcastic": null,
+      "accuracy_sincere": null
+    },
+    {
+      "arm": "text only (caption + ASR)",
+      "accuracy": 0.7419,
+      "macro_f1": 0.7099,
+      "weighted_f1": 0.7332,
+      "accuracy_sarcastic": 0.9919,
+      "accuracy_sincere": 0.7149
+    },
+    {
+      "arm": "audio only (prosody head)",
+      "accuracy": 0.7525,
+      "macro_f1": 0.722,
+      "weighted_f1": 0.7456,
+      "accuracy_sarcastic": 0.9919,
+      "accuracy_sincere": 0.7267
+    },
+    {
+      "arm": "late fusion",
+      "accuracy": 0.772,
+      "macro_f1": 0.7454,
+      "weighted_f1": 0.7666,
+      "accuracy_sarcastic": 0.9919,
+      "accuracy_sincere": 0.7483
+    }
+  ],
+  "corpus_diagnostics": {
+    "finding": "Sarcastic and sincere captions are drawn from disjoint template vocabularies, so a bag-of-words model separates them almost perfectly without any audio at all.",
+    "consequence": "The fusion model's gain in this corpus comes from ordinary delivery variation, NOT from catching sarcasm. Any sarcasm result measured on these synthetic captions is a property of the generator. The NLP benchmark on TweetEval and the Misra headlines is unaffected - that corpus is real.",
+    "n_sarcastic": 4737,
+    "n_sincere": 47352,
+    "most_leaking_tokens": [
+      {
+        "token": "that",
+        "p_given_sarcastic": 0.6722,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 31825.8,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "another",
+        "p_given_sarcastic": 0.3939,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 18655.8,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "nothing",
+        "p_given_sarcastic": 0.2335,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 11061.6,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "nobody",
+        "p_given_sarcastic": 0.205,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 9712.6,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "asked",
+        "p_given_sarcastic": 0.1718,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 8143.8,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "exactly",
+        "p_given_sarcastic": 0.1718,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 8143.8,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "fine",
+        "p_given_sarcastic": 0.1706,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 8083.9,
+        "sincere_occurrences": 0
+      },
+      {
+        "token": "supposed",
+        "p_given_sarcastic": 0.1706,
+        "p_given_sincere": 0.0,
+        "lift_laplace": 8083.9,
+        "sincere_occurrences": 0
+      }
+    ]
+  },
+  "sweeps": {
+    "wer": [
+      {
+        "wer": 0.0,
+        "text_macro_f1": 0.7065,
+        "fusion_macro_f1": 0.7367,
+        "audio_macro_f1": 0.706
+      },
+      {
+        "wer": 0.1,
+        "text_macro_f1": 0.6992,
+        "fusion_macro_f1": 0.7319,
+        "audio_macro_f1": 0.706
+      },
+      {
+        "wer": 0.2,
+        "text_macro_f1": 0.6929,
+        "fusion_macro_f1": 0.7323,
+        "audio_macro_f1": 0.706
+      },
+      {
+        "wer": 0.35,
+        "text_macro_f1": 0.6917,
+        "fusion_macro_f1": 0.7298,
+        "audio_macro_f1": 0.706
+      },
+      {
+        "wer": 0.5,
+        "text_macro_f1": 0.6827,
+        "fusion_macro_f1": 0.7306,
+        "audio_macro_f1": 0.706
+      }
+    ],
+    "prosody_noise": [
+      {
+        "noise_multiplier": 0.5,
+        "audio_macro_f1": 0.7458,
+        "fusion_macro_f1": 0.755,
+        "text_macro_f1": 0.7022
+      },
+      {
+        "noise_multiplier": 1.0,
+        "audio_macro_f1": 0.706,
+        "fusion_macro_f1": 0.7345,
+        "text_macro_f1": 0.7022
+      },
+      {
+        "noise_multiplier": 1.75,
+        "audio_macro_f1": 0.6421,
+        "fusion_macro_f1": 0.7203,
+        "text_macro_f1": 0.7022
+      },
+      {
+        "noise_multiplier": 3.0,
+        "audio_macro_f1": 0.5536,
+        "fusion_macro_f1": 0.71,
+        "text_macro_f1": 0.7022
+      },
+      {
+        "noise_multiplier": 5.0,
+        "audio_macro_f1": 0.4624,
+        "fusion_macro_f1": 0.7004,
+        "text_macro_f1": 0.7022
+      }
+    ],
+    "learning_curve": [
+      {
+        "n_creators": 25,
+        "n_labelled_clips": 356,
+        "fusion_macro_f1": 0.6035
+      },
+      {
+        "n_creators": 60,
+        "n_labelled_clips": 852,
+        "fusion_macro_f1": 0.6834
+      },
+      {
+        "n_creators": 140,
+        "n_labelled_clips": 1865,
+        "fusion_macro_f1": 0.6978
+      },
+      {
+        "n_creators": 320,
+        "n_labelled_clips": 4397,
+        "fusion_macro_f1": 0.7313
+      }
+    ]
+  }
+}

@@ -28,8 +28,7 @@ from src.nectar.build_pipeline import (
     build_reporting, build_requests,
 )
 from src.nectar.semantic_impute import build_full_fit
-from src.nlp.audio_sim import aggregate as aggregate_audio
-from src.nlp.audio_sim import agreement_metrics, simulate as simulate_audio
+from src.audio import serve as audio_serve
 
 APP_DATA = ROOT / "app_data"
 APP_DATA.mkdir(parents=True, exist_ok=True)
@@ -84,12 +83,18 @@ def run() -> dict:
         ARTIFACT_DIR / "nlp" / "post_features.parquet",
         columns=["post_id", "roberta_sentiment", "roberta_p_irony", "vader_label"],
     )
-    audio_posts = simulate_audio(posts, post_nlp)
-    audio_creators = aggregate_audio(audio_posts)
-    audio_metrics = agreement_metrics(audio_posts)
-    print(f"    simulated audio: {audio_metrics['n_video_posts']:,} video posts, "
-          f"caption/audio agreement {audio_metrics['caption_audio_agreement']:.3f}, "
-          f"tone mismatch {audio_metrics['tone_mismatch_rate_overall']:.3f}")
+    if not audio_serve.available():
+        raise SystemExit(
+            "The audio model has not been trained. Run:\n"
+            "    python -m src.audio.train --stage corpus\n"
+            "    python -m src.audio.train --stage train")
+    audio_posts = audio_serve.build_posts(post_nlp)
+    audio_creators = audio_serve.build_creators(audio_posts)
+    audio_metrics = audio_serve.model_card()
+    print(f"    audio model: {len(audio_posts):,} clips, fusion macro F1 "
+          f"{audio_metrics['macro_f1']:.4f} "
+          f"(text-only {audio_metrics['macro_f1'] - audio_metrics['lift_over_text_only']:.4f}, "
+          f"majority {audio_metrics['majority_baseline_macro_f1']:.4f})")
 
     inf["influencer_id"] = inf["influencer_id"].astype(str)
     inf = inf.merge(audio_creators, on="influencer_id", how="left")
@@ -201,7 +206,7 @@ def run() -> dict:
         "n_requests": int(len(requests)),
         "files": written,
         "semantic_extension": semantic_stats,
-        "audio_simulation": audio_metrics,
+        "audio_model": audio_metrics,
         "provenance": {
             "campaign_fit": "brand_fit_ungated from src/models/brandfit.py (SBERT semantic "
                             "similarity, category affinity, audience overlap, content safety, "
@@ -209,8 +214,10 @@ def run() -> dict:
             "typed_brief_fit": "same components and weights as campaign_fit, except the semantic term, which is TF-IDF cosine over creator captions and keywords rather than SBERT - the hosted app loads no model, so a brief typed at request time cannot be embedded",
             "content_safety": "1 - 0.8*text_negative_share - 0.5*irony_rate "
                               "- 0.30*audio_negative_share - 0.20*tone_mismatch_rate. "
-                              "The two audio terms are SIMULATED (src/nlp/audio_sim.py); "
-                              "no waveform exists in this project.",
+                              "The two audio terms come from a trained late-fusion "
+                              "model (src/audio/), scored out of fold. Its INPUTS are "
+                              "simulated: no waveform, no Whisper run, no wav2vec2 run, "
+                              "and no human-labelled video exists in this project.",
             "org_fit": "0.45*content_safety + 0.35*consistency + 0.20*audience_match",
             "fees": "price_model.joblib (LightGBM), Reel = point estimate, "
                     "Story = 0.35x, Carousel = 0.70x",
