@@ -1,0 +1,155 @@
+{
+  "visual": {
+    "task": "recover creator niche from the visual centroid alone",
+    "n_creators": 2000,
+    "n_classes": 12,
+    "dim": 64,
+    "macro_f1": 0.6377,
+    "accuracy": 0.639,
+    "majority_accuracy": 0.0975,
+    "caveats": {
+      "encoder": "SIMULATED. No image was loaded; CLIP and DINOv2 were not run. The space is constructed so category is linearly decodable, so this score confirms the construction worked - it is NOT evidence that visual models can identify creator niche.",
+      "head": "REAL. Logistic regression, 5-fold cross-validated."
+    }
+  },
+  "ranker": {
+    "label": "shortlisted",
+    "n_events": 10699,
+    "n_brands": 120,
+    "validation": "GroupKFold by brand, 5 folds - every scored brand is one the model never trained on",
+    "arms": [
+      {
+        "arm": "random order",
+        "ndcg@10": 0.3655,
+        "ndcg@5": 0.3647
+      },
+      {
+        "arm": "hand-set composite weights",
+        "ndcg@10": 0.7932,
+        "ndcg@5": 0.8254
+      },
+      {
+        "arm": "learned weights (logistic)",
+        "ndcg@10": 0.7995,
+        "ndcg@5": 0.836
+      },
+      {
+        "arm": "learned ranker (LambdaRank)",
+        "ndcg@10": 0.7814,
+        "ndcg@5": 0.8083
+      }
+    ],
+    "weights": [
+      {
+        "component": "price_value",
+        "hand_set": 0.08,
+        "learned": 0.1048,
+        "shift": 0.0248
+      },
+      {
+        "component": "semantic_fit",
+        "hand_set": 0.2,
+        "learned": 0.1768,
+        "shift": -0.0232
+      },
+      {
+        "component": "engagement",
+        "hand_set": 0.22,
+        "learned": 0.2065,
+        "shift": -0.0135
+      },
+      {
+        "component": "visual_fit",
+        "hand_set": 0.1,
+        "learned": 0.1112,
+        "shift": 0.0112
+      },
+      {
+        "component": "consistency",
+        "hand_set": 0.08,
+        "learned": 0.0692,
+        "shift": -0.0108
+      },
+      {
+        "component": "audience_quality",
+        "hand_set": 0.14,
+        "learned": 0.1496,
+        "shift": 0.0096
+      },
+      {
+        "component": "reach",
+        "hand_set": 0.18,
+        "learned": 0.1819,
+        "shift": 0.0019
+      }
+    ],
+    "capacity_sweep": [
+      {
+        "n_estimators": 350,
+        "num_leaves": 15,
+        "ndcg@10": 0.7372
+      },
+      {
+        "n_estimators": 120,
+        "num_leaves": 7,
+        "ndcg@10": 0.7814
+      },
+      {
+        "n_estimators": 60,
+        "num_leaves": 5,
+        "ndcg@10": 0.7723
+      },
+      {
+        "n_estimators": 250,
+        "num_leaves": 31,
+        "ndcg@10": 0.7294
+      }
+    ],
+    "finding": "On brands it has never seen, a learned ranker does NOT beat well-chosen hand-set weights - the best of four capacity settings reached 0.7814 against the composite's 0.7932. Learned linear weights edge it by 0.006. The reason is the reason collaborative filtering exists: per-brand taste is not recoverable from creator features, only from that brand's own history.",
+    "caveats": {
+      "data": "The behavioural log is SIMULATED (src/reco/interactions.py). These figures measure whether learning-to-rank can recover brand-specific taste from behaviour, not how well it would work on real brands.",
+      "why_it_can_win": "Brands were given idiosyncratic taste vectors that are not exposed as features, so a single global weight vector cannot fit all of them. That is by construction, and it is also true of real brands."
+    }
+  },
+  "cf": {
+    "n_brands_evaluated": 120,
+    "n_creators": 1452,
+    "n_factors": 24,
+    "sparsity": 0.02222,
+    "median_rank_cf": 174,
+    "median_rank_popularity": 219,
+    "cf_hit@10": 0.1,
+    "cf_hit@20": 0.175,
+    "cf_hit@50": 0.3167,
+    "pop_hit@10": 0.0083,
+    "pop_hit@20": 0.0167,
+    "pop_hit@50": 0.0583,
+    "caveats": {
+      "cold_start": "A brand with no history has no row here and CF returns nothing for it. Content-based scoring carries the product until history exists; hybrid() is the blend.",
+      "data": "SIMULATED interaction log (src/reco/interactions.py)."
+    }
+  },
+  "interaction_log": {
+    "n_events": 10699,
+    "n_brands": 120,
+    "n_creators": 1989,
+    "stage_shares": {
+      "viewed": 0.6381,
+      "shortlisted": 0.1408,
+      "completed": 0.1037,
+      "contacted": 0.0918,
+      "accepted": 0.0257
+    },
+    "taste_spread": 0.55,
+    "global_taste": {
+      "reach": 0.18,
+      "engagement": 0.22,
+      "audience_quality": 0.14,
+      "visual_fit": 0.1,
+      "semantic_fit": 0.2,
+      "price_value": 0.08,
+      "consistency": 0.08
+    },
+    "provenance": "SIMULATED. No brand has used this platform. Brand taste vectors are drawn per brand and are never exposed as a feature, which is what gives the learned ranker and the collaborative filter something the content composite does not already contain."
+  }
+}

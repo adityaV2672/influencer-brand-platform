@@ -1,0 +1,70 @@
+{
+  "n_creators": 1967,
+  "bands": [
+    "Authentic",
+    "Mixed",
+    "Suspect"
+  ],
+  "band_distribution": {
+    "Mixed": 0.4001,
+    "Suspect": 0.3498,
+    "Authentic": 0.2501
+  },
+  "arms": [
+    {
+      "arm": "follower/following rule (tertile-calibrated)",
+      "features": 1,
+      "correlation_with_truth": -0.2251,
+      "macro_f1": 0.441,
+      "accuracy": 0.4403
+    },
+    {
+      "arm": "majority baseline",
+      "features": 0,
+      "macro_f1": 0.1905,
+      "accuracy": 0.4001
+    },
+    {
+      "arm": "account signals only",
+      "features": 6,
+      "macro_f1": 0.5339,
+      "accuracy": 0.5394
+    },
+    {
+      "arm": "account + comment section",
+      "features": 13,
+      "macro_f1": 0.8906,
+      "accuracy": 0.8887
+    }
+  ],
+  "confusion_matrix": {
+    "labels": [
+      "Authentic",
+      "Mixed",
+      "Suspect"
+    ],
+    "matrix": [
+      [
+        462,
+        30,
+        0
+      ],
+      [
+        73,
+        653,
+        61
+      ],
+      [
+        1,
+        54,
+        633
+      ]
+    ]
+  },
+  "predictions_available": true,
+  "caveats": {
+    "construction": "In this corpus the bot archetype writes cue-laden text, so the automation rule catches it and the comment arm is advantaged BY CONSTRUCTION. Treat the gap between arms as an upper bound on what comment analysis buys, not an estimate of it.",
+    "still_informative": "The account-only arm is not advantaged that way - its features are generated independently of the comment mix - so its weakness is a genuine result about the public-profile heuristics brands currently rely on.",
+    "provenance": "Ground truth is the SIMULATED comment corpus's archetype labels. No real account has been audited."
+  }
+}

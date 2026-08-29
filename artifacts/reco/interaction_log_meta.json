@@ -1,0 +1,23 @@
+{
+  "n_events": 10699,
+  "n_brands": 120,
+  "n_creators": 1989,
+  "stage_shares": {
+    "viewed": 0.6381,
+    "shortlisted": 0.1408,
+    "completed": 0.1037,
+    "contacted": 0.0918,
+    "accepted": 0.0257
+  },
+  "taste_spread": 0.55,
+  "global_taste": {
+    "reach": 0.18,
+    "engagement": 0.22,
+    "audience_quality": 0.14,
+    "visual_fit": 0.1,
+    "semantic_fit": 0.2,
+    "price_value": 0.08,
+    "consistency": 0.08
+  },
+  "provenance": "SIMULATED. No brand has used this platform. Brand taste vectors are drawn per brand and are never exposed as a feature, which is what gives the learned ranker and the collaborative filter something the content composite does not already contain."
+}

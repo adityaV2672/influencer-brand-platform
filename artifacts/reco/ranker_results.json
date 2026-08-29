@@ -1,0 +1,99 @@
+{
+  "label": "shortlisted",
+  "n_events": 10699,
+  "n_brands": 120,
+  "validation": "GroupKFold by brand, 5 folds - every scored brand is one the model never trained on",
+  "arms": [
+    {
+      "arm": "random order",
+      "ndcg@10": 0.3655,
+      "ndcg@5": 0.3647
+    },
+    {
+      "arm": "hand-set composite weights",
+      "ndcg@10": 0.7932,
+      "ndcg@5": 0.8254
+    },
+    {
+      "arm": "learned weights (logistic)",
+      "ndcg@10": 0.7995,
+      "ndcg@5": 0.836
+    },
+    {
+      "arm": "learned ranker (LambdaRank)",
+      "ndcg@10": 0.7814,
+      "ndcg@5": 0.8083
+    }
+  ],
+  "weights": [
+    {
+      "component": "price_value",
+      "hand_set": 0.08,
+      "learned": 0.1048,
+      "shift": 0.0248
+    },
+    {
+      "component": "semantic_fit",
+      "hand_set": 0.2,
+      "learned": 0.1768,
+      "shift": -0.0232
+    },
+    {
+      "component": "engagement",
+      "hand_set": 0.22,
+      "learned": 0.2065,
+      "shift": -0.0135
+    },
+    {
+      "component": "visual_fit",
+      "hand_set": 0.1,
+      "learned": 0.1112,
+      "shift": 0.0112
+    },
+    {
+      "component": "consistency",
+      "hand_set": 0.08,
+      "learned": 0.0692,
+      "shift": -0.0108
+    },
+    {
+      "component": "audience_quality",
+      "hand_set": 0.14,
+      "learned": 0.1496,
+      "shift": 0.0096
+    },
+    {
+      "component": "reach",
+      "hand_set": 0.18,
+      "learned": 0.1819,
+      "shift": 0.0019
+    }
+  ],
+  "capacity_sweep": [
+    {
+      "n_estimators": 350,
+      "num_leaves": 15,
+      "ndcg@10": 0.7372
+    },
+    {
+      "n_estimators": 120,
+      "num_leaves": 7,
+      "ndcg@10": 0.7814
+    },
+    {
+      "n_estimators": 60,
+      "num_leaves": 5,
+      "ndcg@10": 0.7723
+    },
+    {
+      "n_estimators": 250,
+      "num_leaves": 31,
+      "ndcg@10": 0.7294
+    }
+  ],
+  "finding": "On brands it has never seen, a learned ranker does NOT beat well-chosen hand-set weights - the best of four capacity settings reached 0.7814 against the composite's 0.7932. Learned linear weights edge it by 0.006. The reason is the reason collaborative filtering exists: per-brand taste is not recoverable from creator features, only from that brand's own history.",
+  "caveats": {
+    "data": "The behavioural log is SIMULATED (src/reco/interactions.py). These figures measure whether learning-to-rank can recover brand-specific taste from behaviour, not how well it would work on real brands.",
+    "why_it_can_win": "Brands were given idiosyncratic taste vectors that are not exposed as features, so a single global weight vector cannot fit all of them. That is by construction, and it is also true of real brands."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "task": "recover creator niche from the visual centroid alone",
+  "n_creators": 2000,
+  "n_classes": 12,
+  "dim": 64,
+  "macro_f1": 0.6377,
+  "accuracy": 0.639,
+  "majority_accuracy": 0.0975,
+  "caveats": {
+    "encoder": "SIMULATED. No image was loaded; CLIP and DINOv2 were not run. The space is constructed so category is linearly decodable, so this score confirms the construction worked - it is NOT evidence that visual models can identify creator niche.",
+    "head": "REAL. Logistic regression, 5-fold cross-validated."
+  }
+}

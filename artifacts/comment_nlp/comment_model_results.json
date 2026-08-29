@@ -1,0 +1,38 @@
+{
+  "models": [
+    {
+      "task": "sentiment",
+      "corpus": "tweeteval_sentiment",
+      "n_train": 45615,
+      "n_test": 12284,
+      "accuracy": 0.5861,
+      "macro_f1": 0.5829,
+      "majority_baseline_accuracy": 0.4833,
+      "labels": [
+        "negative",
+        "neutral",
+        "positive"
+      ],
+      "provenance": "REAL - trained and evaluated on human-annotated tweets"
+    },
+    {
+      "task": "toxicity",
+      "corpus": "tweeteval_offensive",
+      "n_train": 11916,
+      "n_test": 860,
+      "accuracy": 0.7733,
+      "macro_f1": 0.7186,
+      "majority_baseline_accuracy": 0.7209,
+      "labels": [
+        "not-offensive",
+        "offensive"
+      ],
+      "provenance": "REAL - trained and evaluated on human-annotated tweets"
+    }
+  ],
+  "caveats": {
+    "domain_shift": "Both classifiers are trained and validated on tweets, then applied to Instagram comments. Comments are shorter, more emoji-heavy and more formulaic than tweets, so real-world accuracy on comments will be LOWER than the figures reported here. No labelled comment corpus was available to measure the drop.",
+    "automation_flag": "The bot/automation label is a transparent rule over surface cues, not a learned model. It is not validated against any human-labelled corpus.",
+    "corpus": "The comments the models are applied to are SIMULATED (src/creator_data/comments.py). The models are not."
+  }
+}

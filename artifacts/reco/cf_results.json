@@ -1,0 +1,18 @@
+{
+  "n_brands_evaluated": 120,
+  "n_creators": 1452,
+  "n_factors": 24,
+  "sparsity": 0.02222,
+  "median_rank_cf": 174,
+  "median_rank_popularity": 219,
+  "cf_hit@10": 0.1,
+  "cf_hit@20": 0.175,
+  "cf_hit@50": 0.3167,
+  "pop_hit@10": 0.0083,
+  "pop_hit@20": 0.0167,
+  "pop_hit@50": 0.0583,
+  "caveats": {
+    "cold_start": "A brand with no history has no row here and CF returns nothing for it. Content-based scoring carries the product until history exists; hybrid() is the blend.",
+    "data": "SIMULATED interaction log (src/reco/interactions.py)."
+  }
+}
