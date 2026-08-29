@@ -1,0 +1,50 @@
+{
+  "weights": {
+    "creator_quality": {
+      "engagement_quality": 0.22,
+      "audience_quality": 0.2,
+      "comment_quality": 0.16,
+      "reach_strength": 0.14,
+      "content_consistency": 0.12,
+      "reliability": 0.1,
+      "visual_coherence": 0.06
+    },
+    "organisation_fit": {
+      "category_affinity": 0.24,
+      "semantic_similarity": 0.2,
+      "audience_alignment": 0.16,
+      "brand_safety": 0.16,
+      "creator_quality": 0.14,
+      "visual_similarity": 0.1
+    },
+    "campaign_fit": {
+      "organisation_fit": 0.28,
+      "audience_match": 0.18,
+      "semantic_match": 0.16,
+      "budget_fit": 0.14,
+      "deliverable_fit": 0.12,
+      "availability_fit": 0.12
+    }
+  },
+  "creator_quality": {
+    "mean": 57.9,
+    "verified_share": 0.6105,
+    "bands": {
+      "Moderate": 830,
+      "Strong": 563,
+      "Weak": 563,
+      "Excellent": 44
+    }
+  },
+  "org_fit": {
+    "pairs": 12000,
+    "mean": 49.04,
+    "blocked": 0
+  },
+  "campaign_fit": {
+    "rows": 12000,
+    "eligible": 5855,
+    "blocked": 6145
+  },
+  "note": "Hard gates block rather than deduct. A blocked creator carries no campaign fit score at all, only a reason."
+}

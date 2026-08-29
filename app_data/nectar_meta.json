@@ -251,9 +251,5 @@
     "fees": "price_model.joblib (LightGBM), Reel = point estimate, Story = 0.35x, Carousel = 0.70x",
     "predicted_vs_actual": "performance_oof.npy (GroupKFold out-of-fold predictions) vs campaign_engagement_rate in modelling_table.parquet",
     "simulated_here": "request funnel stages, negotiation messages, payment status, creator names, cities, bios, avatars, availability windows"
-  },
-  "csv_export": {
-    "tables": 27,
-    "columns_documented": 637
   }
 }

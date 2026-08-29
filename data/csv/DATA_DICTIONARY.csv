@@ -126,7 +126,7 @@ campaigns,budget_inr,float64,6,6,750000.0,derived
 campaigns,annual_brand_budget_inr,float64,6,1,3000000.0,derived
 campaigns,spent_inr,float64,6,6,563200.0,derived
 campaigns,progress,float64,6,6,0.751,derived
-campaigns,start_date,object,6,2,2026-08-01,derived
+campaigns,start_date,object,6,3,2026-08-01,derived
 campaigns,end_date,object,6,2,2026-09-30,derived
 campaigns,target_geo,object,6,4,MENA,derived
 campaigns,target_age_band,object,6,2,18-24,derived

@@ -94,8 +94,17 @@ def build_campaigns(brands: pd.DataFrame, seed: int = 20260904) -> pd.DataFrame:
             "annual_brand_budget_inr": float(brand.budget_inr),
             "spent_inr": 0.0,
             "progress": round(progress, 3),
-            "start_date": "2026-08-01" if status != "Draft" else "2026-09-15",
-            "end_date": "2026-09-30" if status != "Completed" else "2026-07-31",
+            # A completed campaign ran and finished, so BOTH its dates are in
+            # the past. The previous version moved only the end date back,
+            # leaving completed campaigns with an end date before their start
+            # and a negative-length window - which made every availability
+            # check return zero free days and left two campaigns with no
+            # eligible creators at all.
+            "start_date": ("2026-06-01" if status == "Completed"
+                           else "2026-09-15" if status == "Draft"
+                           else "2026-08-01"),
+            "end_date": ("2026-07-31" if status == "Completed"
+                         else "2026-09-30"),
             "target_geo": brand.target_geo,
             "target_age_band": brand.target_age_band,
             "brand_keywords": brand.brand_keywords,
