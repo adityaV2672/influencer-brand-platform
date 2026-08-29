@@ -1,0 +1,80 @@
+<!doctype html><html><head><meta charset='utf-8'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap' rel='stylesheet'>
+<style>body{margin:0;background:#FFFDFB;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+.block-container{max-width:1180px;margin:0 auto;padding:26px 24px 60px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
+.rolegrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;margin-top:22px}
+.rc{background:#fff;border:1px solid #EAE6E3;border-radius:14px;padding:22px}
+.btn{margin-top:14px;background:#181316;color:#fff;border:none;border-radius:10px;padding:11px;width:100%;font-weight:600;font-size:14px;font-family:Inter}
+</style>
+<style>
+[data-testid="stSidebar"] { display:none !important; }
+[data-testid="stMain"] .block-container { max-width:1180px; padding-top:1.6rem; padding-bottom:3rem; }
+.hero { position:relative; background:#181316; border-radius:28px; padding:52px 56px 44px; overflow:hidden; animation:heroIn .7s cubic-bezier(.16,.84,.44,1) both; }
+.hero-brand { display:flex; align-items:center; gap:16px; margin-bottom:44px; position:relative; z-index:2; }
+.mark { display:inline-flex; align-items:center; justify-content:center; border-radius:50% 50% 50% 4px; transform:rotate(45deg); background:linear-gradient(180deg, #FF6A2C 0%, #FF3E93 100%); animation:logoSettle .8s cubic-bezier(.16,.84,.44,1) both; }
+.mark .dot { border-radius:50%; background:#181316; transform:rotate(-45deg); }
+.wordmark { font-size:46px; font-weight:800; letter-spacing:-.04em; color:#FFFDFB; line-height:1; }
+.hero-h { font-size:clamp(40px,5.4vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.02; color:#FFFDFB; max-width:15ch; position:relative; z-index:2; }
+.hero-h .dot-accent { display:inline-block; width:13px; height:13px; border-radius:50%; background:linear-gradient(180deg, #FF6A2C 0%, #FF3E93 100%); margin-left:10px; vertical-align:middle; }
+.hero-p { font-size:17px; line-height:1.55; color:#B4ADB1; max-width:52ch; margin-top:26px; position:relative; z-index:2; }
+.hero-art { position:absolute; right:-40px; top:20px; width:520px; height:500px; opacity:.95; pointer-events:none; z-index:1; }
+.ring { transform-origin:260px 258px; }
+.ring-a { animation:breathe 9s ease-in-out infinite; }
+.ring-b { animation:breathe 9s ease-in-out infinite; animation-delay:-4.5s; }
+.impact { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:46px; border-top:1px solid rgba(255,255,255,.10); position:relative; z-index:2; }
+.impact div { padding:20px 22px 4px 0; border-right:1px solid rgba(255,255,255,.08); }
+.impact div:last-child { border-right:none; }
+.impact .k { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:11px; letter-spacing:.08em; color:#FF6A2C; font-weight:600; }
+.impact .v { font-size:13.5px; color:#B4ADB1; margin-top:7px; line-height:1.45; }
+.hero-mono { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:10.5px; letter-spacing:.14em; color:#6E666B; margin-top:34px; position:relative; z-index:2; }
+.eyebrow { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:11px; letter-spacing:.14em; color:#FF6A2C; font-weight:600; }
+.sec { margin-top:82px; }
+.sec-h { font-size:38px; font-weight:800; letter-spacing:-.03em; margin-top:12px; color:#181316; }
+.side { background:#fff; border:1px solid #EAE6E3; border-radius:18px; padding:32px 30px; height:100%; position:relative; overflow:hidden; transition:transform .18s ease, box-shadow .18s ease; }
+.side::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--accent); opacity:0; transition:opacity .18s ease; }
+.side:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(24,19,22,.07); }
+.side:hover::before { opacity:1; }
+.side .ix { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:11px; letter-spacing:.12em; color:#8A8289; }
+.side .ix b { color:var(--accent); font-weight:600; }
+.side h3 { font-size:27px; font-weight:800; letter-spacing:-.03em; margin:14px 0 12px; line-height:1.15; }
+.side p { font-size:14px; line-height:1.62; color:#4A4247; }
+.side ul { list-style:none; padding:0; margin:22px 0 0; }
+.side li { display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.55; color:#4A4247; margin-bottom:11px; }
+.side li span { color:var(--accent); font-weight:700; }
+.side .box { margin-top:24px; border-top:1px solid #F2EEEB; padding-top:18px; display:flex; align-items:baseline; gap:12px; }
+.side .box b { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:30px; font-weight:700; letter-spacing:-.02em; color:#181316; }
+.side .box span { font-size:12.5px; color:#8A8289; line-height:1.4; }
+.bridge { margin:96px 0 0; text-align:center; font-size:clamp(30px,4vw,54px); font-weight:800; letter-spacing:-.035em; line-height:1.1; color:#181316; }
+.bridge em { font-style:normal; color:#8A8289; }
+.enter { margin-top:92px; text-align:center; }
+.enter h2 { font-size:38px; font-weight:800; letter-spacing:-.03em; margin-top:10px; }
+.rolecard { text-align:left; }
+.rolecard .rl { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:10.5px; letter-spacing:.12em; color:#8A8289; }
+.rolecard h4 { font-size:21px; font-weight:700; letter-spacing:-.02em; margin:8px 0 6px; }
+.rolecard p { font-size:13.5px; color:#4A4247; line-height:1.55; margin-bottom:6px; }
+.foot { margin-top:74px; padding-top:22px; border-top:1px solid #EAE6E3; display:flex; justify-content:space-between; font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; font-size:10.5px; letter-spacing:.1em; color:#8A8289; }
+@keyframes heroIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+@keyframes logoSettle { from { opacity:0; transform:rotate(45deg) scale(.7); } to { opacity:1; transform:rotate(45deg) scale(1); } }
+@keyframes breathe { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.035); opacity:.72; } }
+@media (prefers-reduced-motion: reduce) { .hero,.mark,.ring { animation:none !important; } }
+@media (max-width:980px) { .hero { padding:36px 26px; } .hero-art { display:none; } .impact { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head><body><div class='block-container'>
+<div class='hero'><svg class='hero-art' viewBox='0 0 520 500' aria-hidden='true'><line x1='0' y1='60' x2='520' y2='60' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='104' x2='520' y2='104' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='148' x2='520' y2='148' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='192' x2='520' y2='192' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='236' x2='520' y2='236' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='280' x2='520' y2='280' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='324' x2='520' y2='324' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='368' x2='520' y2='368' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='412' x2='520' y2='412' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><line x1='0' y1='456' x2='520' y2='456' stroke='#FF6A2C' stroke-width='0.5' opacity='0.05'/><g class='ring ring-a' transform='translate(260 258) scale(0.420) rotate(0) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF6A2C' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.420'/></g><g class='ring ring-b' transform='translate(260 258) scale(0.780) rotate(4) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF6A2C' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.392'/></g><g class='ring ring-a' transform='translate(260 258) scale(1.140) rotate(8) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF6A2C' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.364'/></g><g class='ring ring-b' transform='translate(260 258) scale(1.500) rotate(12) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF6A2C' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.336'/></g><g class='ring ring-a' transform='translate(260 258) scale(1.860) rotate(16) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF6A2C' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.308'/></g><g class='ring ring-b' transform='translate(260 258) scale(2.220) rotate(20) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF3E93' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.280'/></g><g class='ring ring-a' transform='translate(260 258) scale(2.580) rotate(24) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF3E93' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.252'/></g><g class='ring ring-b' transform='translate(260 258) scale(2.940) rotate(28) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF3E93' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.224'/></g><g class='ring ring-a' transform='translate(260 258) scale(3.300) rotate(32) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF3E93' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.196'/></g><g class='ring ring-b' transform='translate(260 258) scale(3.660) rotate(36) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF3E93' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.168'/></g><g class='ring ring-a' transform='translate(260 258) scale(4.020) rotate(40) translate(-260 -258)'><path d='M 260 130 C 300 178 330 216 330 258 C 330 300 298 330 260 330 C 222 330 190 300 190 258 C 190 216 220 178 260 130 Z' fill='none' stroke='#FF3E93' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.140'/></g><circle cx='260' cy='258' r='5' fill='#FF3E93'/></svg>
+<div class='hero-brand'><span class='mark' style='width:60px;height:60px'><span class='dot' style='width:18px;height:18px'></span></span><span class='wordmark'>nectar</span></div>
+<div class='hero-h'>Find the right creators.<br>Know exactly why.<span class='dot-accent'></span></div>
+<div class='hero-p'>Nectar turns influencer marketing into a transparent, self-serve marketplace — from campaign brief to ranked creator shortlist to deal.</div>
+<div class='impact'><div><div class='k'>FASTER DISCOVERY</div><div class='v'>Brief → ranked shortlist</div></div><div><div class='k'>BETTER FIT</div><div class='v'>Campaign + brand compatibility</div></div><div><div class='k'>LESS GUESSWORK</div><div class='v'>See why every creator matches</div></div><div><div class='k'>FASTER DEALS</div><div class='v'>Briefs, offers and counters in one place</div></div></div><div class='hero-mono'>SCORING · CAMPAIGN FIT · BRAND FIT · VERIFIED CREATOR DATA</div></div>
+<div class='sec'><div class='eyebrow'>BUILT FOR BOTH SIDES</div><div class='sec-h'>One engine, pointed in two directions.</div></div>
+<div class='grid2'><div class='side' style='--accent:#FF6A2C'><div class='ix'><b>01</b> / BRANDS</div><h3>Stop paying an agency to guess.</h3><p>Describe the campaign in your own words. Every creator in the market is scored against it, gated on the things that actually stop a deal, and ranked with the reasoning attached.</p><ul><li><span>✓</span>Campaign Fit, Organisation Fit and Creator Quality kept apart</li><li><span>✓</span>Competitor conflicts block a creator, they do not just lower them</li><li><span>✓</span>Audience authenticity checked before you pay for reach</li><li><span>✓</span>Every score opens into the components behind it</li></ul><div class='box'><b>2,000</b><span>creators scored against every brief</span></div></div><div class='side' style='--accent:#FF3E93'><div class='ix'><b>02</b> / CREATORS</div><h3>Get found for what you actually do.</h3><p>Connect your account and the numbers only you can see - saves, shares, watch time, who your audience really is - become the reason a brand picks you instead of someone with more followers.</p><ul><li><span>✓</span>Briefs matched to your rates, formats and calendar</li><li><span>✓</span>Verified metrics rank above inferred ones</li><li><span>✓</span>See why a brief fits before you spend time on it</li><li><span>✓</span>Your data stays yours; you choose what to connect</li></ul><div class='box'><b>61%</b><span>of creators have connected their insights</span></div></div></div>
+<div class='bridge'>The middleman disappears.<br><em>The reasoning doesn't.</em></div>
+<div class='enter'><div class='eyebrow'>ENTER NECTAR</div><h2>Choose your side.</h2></div>
+<div class='rolegrid'>
+<div class='rc'><div class='rolecard'><div class='rl'>FOR BRANDS</div><h4>I'm running a campaign</h4><p>Brief the campaign, see every creator scored against it, and read the reasoning before you commit budget.</p></div><button class='btn'>Enter Brand OS</button></div>
+<div class='rc'><div class='rolecard'><div class='rl'>FOR CREATORS</div><h4>I make the content</h4><p>Connect your account, get matched to briefs that fit your rates, formats and calendar, and see why each one fits.</p></div><button class='btn'>Enter Creator OS</button></div>
+<div style='padding:6px 4px;font-size:12.5px;color:#8A8289;line-height:1.65'><b style='color:#181316'>Not sure?</b><br>Brands search and shortlist. Creators receive briefs and reply. You can switch sides at any time from the sidebar — the same scores are shown to both, which is the point.</div>
+</div>
+<div class='foot'><span>NECTAR · MARKETPLACE PROTOTYPE</span><span>SYNTHETIC DATA · NO REAL CREATOR IS REPRESENTED</span></div>
+</div></body></html>

@@ -24,7 +24,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from nectar import shell, state  # noqa: E402
+from nectar import landing, shell, state  # noqa: E402
 
 shell.inject_css()
 
@@ -55,6 +55,7 @@ BRAND_PAGES = [
     (_page("brand_requests", "Requests", "brand-requests"), "Requests", ":material/inbox:"),
     (_page("brand_deals", "Deals", "brand-deals"), "Deals", ":material/handshake:"),
     (_page("brand_reporting", "Reporting", "brand-reporting"), "Reporting", ":material/trending_up:"),
+    (_page("onboarding_brand", "Set up", "brand-setup"), "Set up", ":material/tune:"),
 ]
 BRAND_HIDDEN: list = []
 
@@ -66,6 +67,7 @@ CREATOR_PAGES = [
     (_page("creator_analytics", "Analytics", "creator-analytics"), "Analytics", ":material/trending_up:"),
     (_page("creator_earnings", "Earnings", "creator-earnings"), "Earnings", ":material/payments:"),
     (_page("creator_profile", "Profile", "creator-profile"), "Profile", ":material/person:"),
+    (_page("onboarding_creator", "Set up", "creator-setup"), "Set up", ":material/link:"),
 ]
 
 # The Model & methods section is switched off in the product. The four page
@@ -81,6 +83,7 @@ METHOD_PAGES: list = []
 # ]
 
 FOOTER_PAGES = [
+    (_page("metric_library", "Metric library", "metrics"), "Metric library", ":material/menu_book:"),
     (_page("settings", "Settings", "settings"), "Settings", ":material/settings:"),
     (_page("help", "Help", "help"), "Help", ":material/help:"),
 ]
@@ -109,7 +112,13 @@ nav = st.navigation(ALL, position="hidden")
 # chosen. Routing exists either way, so a deep link still lands correctly once
 # a role is picked.
 if state.role() is None:
-    shell.render_signin()
+    # The landing page IS the sign-in screen. A visitor who has never used
+    # Nectar should meet the product's argument before its navigation, and the
+    # role choice is the last thing on the page rather than the first.
+    picked = landing.render()
+    if picked:
+        state.set_role(picked)
+        st.rerun()
     st.stop()
 
 st.session_state["_home_page"] = (

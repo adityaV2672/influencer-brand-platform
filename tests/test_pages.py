@@ -20,17 +20,19 @@ sys.path.insert(0, str(ROOT))
 BRAND_PAGES = [
     "brand_overview", "brand_campaigns", "brand_discover", "brand_shortlist",
     "brand_requests", "brand_deals", "brand_reporting", "brand_builder",
+    "onboarding_brand",
 ]
 CREATOR_PAGES = [
     "creator_overview", "creator_discover", "creator_requests", "creator_deals",
     "creator_analytics", "creator_earnings", "creator_profile",
+    "onboarding_creator",
 ]
 # The four methods_* pages are no longer registered as routes, so they are no
 # longer part of the product surface. Their files stay in views/ and are
 # still smoke-tested below, because switching them back on is a one-line
 # change in Home.py and a page that has rotted in the meantime is worse than
 # no page at all.
-SHARED_PAGES = ["settings", "help"]
+SHARED_PAGES = ["settings", "help", "metric_library"]
 RETIRED_PAGES = ["methods_model", "methods_nlp", "methods_network", "methods_data"]
 
 CASES = ([("brand", p) for p in BRAND_PAGES + SHARED_PAGES]

@@ -24,10 +24,81 @@ from nectar.theme import GREEN, INK, INK_2, INK_3, LINE
 fit = data.fit()
 camps = data.campaigns()
 
+# The three-tier scores live in their own tables so the older ranking columns
+# keep working. Merged in here rather than recomputed per card: a card is drawn
+# 24 times a page and a merge is drawn once.
+_cq = data.load("nectar_creator_quality.parquet")
+_aq = data.load("nectar_audience_quality.parquet")
+_cf2 = data.load("nectar_campaign_fit.parquet")
+_conn = data.load("nectar_connections.parquet")
+for _t, _cols in ((_cq, ["influencer_id", "creator_quality", "creator_quality_band",
+                         "creator_quality_reasons", "verified_metrics"]),
+                  (_aq, ["influencer_id", "audience_quality_score", "audience_band"]),
+                  (_conn, ["influencer_id", "account_connected"])):
+    if _t is not None:
+        _t = _t.copy(); _t["influencer_id"] = _t.influencer_id.astype(str)
+        fit["influencer_id"] = fit.influencer_id.astype(str)
+        fit = fit.merge(_t[[c for c in _cols if c in _t.columns]],
+                        on="influencer_id", how="left")
+if _cf2 is not None:
+    _c = _cf2.copy(); _c["influencer_id"] = _c.influencer_id.astype(str)
+    # nectar_fit already carries campaign_fit and org_fit from the older
+    # composite, so the new columns are renamed rather than merged on top of
+    # them - pandas would otherwise suffix both to _x/_y and the creator card,
+    # which reads r.campaign_fit, would break on every row.
+    fit = fit.merge(
+        _c[["campaign_id", "influencer_id", "campaign_fit_pct", "campaign_fit_band",
+            "campaign_fit_reasons", "org_fit", "block_reasons"]].rename(columns={
+                "campaign_fit_pct": "v2_campaign_fit_pct",
+                "campaign_fit_band": "v2_campaign_fit_band",
+                "campaign_fit_reasons": "v2_reasons",
+                "org_fit": "v2_org_fit",
+                "block_reasons": "v2_block_reasons"}),
+        on=["campaign_id", "influencer_id"], how="left")
+
 PLATFORMS = ["Instagram", "YouTube", "Moj", "Josh", "Snapchat"]
 CATEGORIES = ["Beauty", "Fashion", "Fitness", "Travel", "Food", "Technology",
               "Gaming", "Finance", "Education", "Parenting", "Home & Decor", "Automotive"]
 AVAILABILITY = ["Available", "Busy", "Unavailable"]
+
+def _score_strip(r) -> str:
+    """Campaign Fit, Organisation Fit and Creator Quality, side by side.
+
+    Three numbers rather than one because they answer different questions and a
+    brand needs to be able to see them disagree - a creator can be excellent in
+    general, a poor long-term match for the brand, and still right for this one
+    brief.
+    """
+    def tile(label, value, sub, tone=INK):
+        shown = "—" if value is None or (isinstance(value, float) and value != value) \
+            else f"{float(value):.0f}"
+        return (f"<div style='flex:1;min-width:0'>"
+                f"<div style='font-size:10.5px;color:{INK_3};letter-spacing:.03em'>"
+                f"{ui.esc(label)}</div>"
+                f"<div class='n-num' style='font-size:19px;color:{tone};line-height:1.3'>"
+                f"{shown}</div>"
+                f"<div style='font-size:10.5px;color:{INK_3}'>{ui.esc(sub)}</div></div>")
+
+    aq = getattr(r, "audience_quality_score", None)
+    band = str(getattr(r, "audience_band", "") or "")
+    aq_tone = {"Suspect": "#C2413F", "Mixed": "#B8860B"}.get(band, GREEN)
+    verified = bool(getattr(r, "account_connected", False))
+    return (f"<div style='display:flex;gap:10px;margin:12px 0 10px 0;"
+            f"padding-top:11px;border-top:1px solid {LINE}'>"
+            + tile("CAMPAIGN FIT", getattr(r, "v2_campaign_fit_pct", None), "percentile")
+            + tile("ORG FIT", getattr(r, "v2_org_fit", None),
+                   str(getattr(r, "v2_campaign_fit_band", "") or ""))
+            + tile("QUALITY", getattr(r, "creator_quality", None),
+                   str(getattr(r, "creator_quality_band", "") or ""))
+            + tile("AUDIENCE", aq, band or "unrated", aq_tone)
+            + "</div>"
+            + (f"<div style='font-family:JetBrains Mono,monospace;font-size:9.5px;"
+               f"letter-spacing:.06em;color:{GREEN};margin-bottom:6px'>"
+               f"✓ VERIFIED METRICS</div>" if verified else
+               f"<div style='font-family:JetBrains Mono,monospace;font-size:9.5px;"
+               f"letter-spacing:.06em;color:{INK_3};margin-bottom:6px'>"
+               f"INFERRED FROM PUBLIC DATA</div>"))
+
 
 rail, body = st.columns([0.85, 4], gap="large")
 
@@ -130,6 +201,14 @@ with body:
             with col:
                 with st.container(border=True):
                     st.markdown(ui.creator_card_html(r), unsafe_allow_html=True)
+                    st.markdown(_score_strip(r), unsafe_allow_html=True)
+                    _reasons = str(getattr(r, "v2_reasons", "") or "")
+                    if _reasons:
+                        st.markdown(
+                            ui.reason_list(_reasons.split(" · ")[:3],
+                                           tone="warn" if getattr(r, "blocked", False)
+                                           else "good"),
+                            unsafe_allow_html=True)
                     b1, b2 = st.columns([1, 1])
                     with b1:
                         if st.button("View profile",
