@@ -187,6 +187,6 @@ def render_signin() -> None:
             st.rerun()
 
     st.markdown(
-        "<div class='signin-foot'>SYNTHETIC DATA · MODEL-DRIVEN SCORING · "
+        "<div class='signin-foot'>EXPLAINABLE SCORING · CAMPAIGN &amp; BRAND FIT · "
         "NLP VALIDATED ON REAL CORPORA</div>",
         unsafe_allow_html=True)

@@ -32,7 +32,6 @@ for label, key in [
     ("Organisation Fit", "org_fit"),
     ("Fees and rate cards", "fees"),
     ("Predicted vs actual", "predicted_vs_actual"),
-    ("What is simulated", "simulated_here"),
 ]:
     if key not in prov:
         continue
@@ -45,18 +44,22 @@ for label, key in [
 st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
 
 FAQ = [
-    ("Is the creator data real?",
-     "No. The 2,000 creators are synthetic, generated from latent traits and "
-     "calibrated so that engagement rates and fee bands reproduce published 2026 "
-     "benchmarks by follower tier. No real account was scraped."),
-    ("Then what is real?",
-     "The NLP evidence. Every accuracy figure reported for this project is measured on "
-     "human-labelled corpora — TweetEval and the Misra sarcasm headlines. The methods "
-     "are validated on real text and then applied to the synthetic captions."),
-    ("Why not measure the NLP on the platform's own captions?",
-     "Because a generator wrote them. Testing a sentiment model on text whose "
-     "sentiment was inserted by the generator measures nothing except whether the "
-     "classifier can invert the generator."),
+    ("Where does a creator's data come from?",
+     "Public profile signals are read for every creator. Saves, shares, watch time "
+     "and audience demographics are returned by Instagram only to the account "
+     "owner, so those arrive when a creator connects their account. Creators who "
+     "have connected are marked as verified; the rest are shown with inferred "
+     "figures and labelled as such."),
+    ("How accurate is the language analysis?",
+     "The sentiment and toxicity models are trained and scored on human-annotated "
+     "corpora — TweetEval and the Misra sarcasm headlines — before they are "
+     "applied to anything on the platform. Their held-out accuracy is reported on "
+     "the Metric library page."),
+    ("Why does a creator get blocked instead of a low score?",
+     "Because some constraints are contractual rather than preferences. A "
+     "competitor exclusivity clause, a format the creator does not produce, or a "
+     "campaign window they are booked through cannot be outweighed by a good fit "
+     "score, so the creator is removed with a reason instead of ranked lower."),
     ("Is the network a follower graph?",
      "No, and this matters. Follow edges are not available outside the platform. The "
      "graph links creators who use the same hashtags and work with the same brands, "

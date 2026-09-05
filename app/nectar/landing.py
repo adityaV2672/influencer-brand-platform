@@ -1,12 +1,17 @@
 """
 The landing page: Nectar's front door.
 
-Replicated from the Figma Make design. Four sections, in order:
+One screen, landscape, no scroll. The page is a fixed-height flex column
+rather than a document:
 
-    hero            ink panel on paper, oversized headline, impact strip
-    both sides      editorial two-column, 01 / BRANDS and 02 / CREATORS
-    bridge          one full-bleed sentence
-    enter           the role choice, which is where the product starts
+    head        logo, wordmark, positioning line
+    cols        the argument (left) and the two sides (right) - this row
+                takes whatever height is left over and centres its content
+    foot        the bridge line and the two role buttons
+
+Because the middle row absorbs the slack and the footer is a rigid flex
+item, the role buttons cannot be pushed below the fold no matter how tall
+the argument gets - the middle clips before the footer moves.
 
 The role cards are the only interactive part, and they are real Streamlit
 buttons rather than styled anchors - a link would lose the session state that
@@ -29,26 +34,26 @@ IMPACTS = [
 
 POSITIONING = "SCORING · CAMPAIGN FIT · BRAND FIT · VERIFIED CREATOR DATA"
 
+# The card ground is a flat colour rather than a translucent wash: the drop
+# contours behind the page used to show through the cards and cross the text.
+CARD = "#1F1A1E"
+
 SIDES = [
     {"index": "01", "label": "BRANDS", "accent": ACCENT_A,
      "head": "Stop paying an agency to guess.",
-     "body": "Describe the campaign in your own words. Every creator in the "
-             "market is scored against it, gated on the things that actually "
-             "stop a deal, and ranked with the reasoning attached.",
-     "points": ["Campaign Fit, Organisation Fit and Creator Quality kept apart",
-                "Competitor conflicts block a creator, they do not just lower them",
-                "Audience authenticity checked before you pay for reach",
-                "Every score opens into the components behind it"],
+     "body": "Describe the campaign in your own words. Every creator is scored "
+             "against it and ranked with the reasoning attached.",
+     "points": ["Campaign, organisation and quality scores kept apart",
+                "Conflicts block a creator rather than quietly lowering them",
+                "Audience authenticity checked before you pay for reach"],
      "impact": ("2,000", "creators scored against every brief")},
     {"index": "02", "label": "CREATORS", "accent": ACCENT_B,
      "head": "Get found for what you actually do.",
-     "body": "Connect your account and the numbers only you can see - saves, "
-             "shares, watch time, who your audience really is - become the "
-             "reason a brand picks you instead of someone with more followers.",
+     "body": "Connect your account and the numbers only you can see become the "
+             "reason a brand picks you over someone with more followers.",
      "points": ["Briefs matched to your rates, formats and calendar",
-                "Verified metrics rank above inferred ones",
-                "See why a brief fits before you spend time on it",
-                "Your data stays yours; you choose what to connect"],
+                "Connected accounts rank above unverified ones",
+                "See why a brief fits before you spend time on it"],
      "impact": ("61%", "of creators have connected their insights")},
 ]
 
@@ -83,71 +88,145 @@ def _rings() -> str:
             f"<circle cx='260' cy='258' r='5' fill='{ACCENT_B}'/></svg>")
 
 
-def _logo(size: int = 60) -> str:
-    """One mark, defined once, in ui.logo_svg.
-
-    This used to be a CSS square with three rounded corners and a 45-degree
-    rotation. That is a tilted drop by construction - the rotation IS what
-    makes the shape read as a teardrop - so it could not be stood upright
-    without ceasing to be a drop at all. The SVG the sidebar already used is
-    upright on its own, so the landing page now uses the same one and there is
-    a single definition of the logo rather than three.
-    """
+def _logo(size: int = 46) -> str:
+    """One mark, defined once, in ui.logo_svg."""
     return f"<span class='mark'>{logo_svg(size)}</span>"
 
 
 CSS = f"""
 <style>
-[data-testid="stSidebar"] {{ display:none !important; }}
-[data-testid="stMain"] .block-container {{ max-width:1180px; padding-top:1.6rem; padding-bottom:3rem; }}
-.hero {{ position:relative; background:{INK}; border-radius:28px; padding:52px 56px 44px; overflow:hidden; animation:heroIn .7s cubic-bezier(.16,.84,.44,1) both; }}
-.hero-brand {{ display:flex; align-items:center; gap:16px; margin-bottom:44px; position:relative; z-index:2; }}
-.mark {{ display:inline-flex; align-items:center; justify-content:center; animation:logoSettle .8s cubic-bezier(.16,.84,.44,1) both; }}
-.wordmark {{ font-size:46px; font-weight:800; letter-spacing:-.04em; color:{PAPER}; line-height:1; }}
-.hero-h {{ font-size:clamp(40px,5.4vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.02; color:{PAPER}; max-width:15ch; position:relative; z-index:2; }}
-.hero-h .dot-accent {{ display:inline-block; width:13px; height:13px; border-radius:50%; background:{GRADIENT}; margin-left:10px; vertical-align:middle; }}
-.hero-p {{ font-size:17px; line-height:1.55; color:#B4ADB1; max-width:52ch; margin-top:26px; position:relative; z-index:2; }}
-.hero-art {{ position:absolute; right:-40px; top:20px; width:520px; height:500px; opacity:.95; pointer-events:none; z-index:1; }}
+/* ---- the frame -------------------------------------------------------
+   height:100vh with padding only adds up to one screen if the padding is
+   counted inside the height. Without border-box the container measured
+   100vh + 20px, which is precisely how far the role buttons used to hang
+   below the fold. */
+[data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stToolbar"] {{ display:none !important; }}
+[data-testid="stAppViewContainer"], [data-testid="stMain"], .stApp {{ background:{INK} !important; }}
+[data-testid="stMain"] .block-container {{
+    box-sizing:border-box; max-width:1560px; padding:2.2vh 2.8vw 2.0vh;
+    height:100vh; overflow:hidden; display:flex; flex-direction:column; position:relative; }}
+[data-testid="stMain"] .block-container *, [data-testid="stMain"] .block-container *::before,
+[data-testid="stMain"] .block-container *::after {{ box-sizing:border-box; }}
+
+/* Streamlit wraps the page in two anonymous divs before the vertical block.
+   They are made flex columns so the height of the frame reaches the rows. */
+[data-testid="stMain"] .block-container > div,
+[data-testid="stMain"] .block-container > div > div {{
+    flex:1 1 auto; min-height:0; width:100%; display:flex; flex-direction:column; }}
+[data-testid="stMain"] .block-container > div > div > [data-testid="stVerticalBlock"] {{
+    flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:0; }}
+[data-testid="stMain"] .block-container > div > div > [data-testid="stVerticalBlock"]
+    > [data-testid="stElementContainer"] {{ flex:0 0 auto; }}
+
+/* The hero row absorbs the slack; the role row is rigid. Marker classes are
+   used rather than child position so that adding an element to the page
+   cannot silently retarget these rules. */
+[data-testid="stMain"] [data-testid="stHorizontalBlock"]:has(.nl-hero) {{
+    flex:1 1 auto; min-height:0; align-items:stretch; }}
+[data-testid="stMain"] [data-testid="stHorizontalBlock"]:has(.nl-role) {{
+    flex:0 0 auto; align-items:end; padding-top:2.2vh; }}
+[data-testid="stMain"] [data-testid="stHorizontalBlock"] {{ align-items:stretch; }}
+[data-testid="stMain"] [data-testid="stColumn"] > div,
+[data-testid="stMain"] [data-testid="stColumn"] > div > [data-testid="stVerticalBlock"] {{
+    height:100%; display:flex; flex-direction:column; justify-content:center; gap:0; }}
+
+.nl-wrap {{ position:relative; z-index:2; }}
+.nl-head {{ display:flex; align-items:center; justify-content:space-between; }}
+.nl-brand {{ display:flex; align-items:center; gap:14px;
+    animation:heroIn .6s cubic-bezier(.16,.84,.44,1) both; }}
+.mark {{ display:inline-flex; align-items:center; justify-content:center;
+    animation:logoSettle .8s cubic-bezier(.16,.84,.44,1) both; }}
+.wordmark {{ font-size:clamp(24px,min(2.4vw,4.4vh),46px); font-weight:800;
+    letter-spacing:-.04em; color:{PAPER}; line-height:1; }}
+.nl-mono {{ font-family:{MONO}; font-size:clamp(8.5px,min(.62vw,1.2vh),10.5px);
+    letter-spacing:.14em; color:#6E666B; text-align:right; }}
+
+/* ---- left: the argument --------------------------------------------- */
+.hero-h {{ font-size:clamp(30px,min(3.4vw,6.4vh),68px); font-weight:800;
+    letter-spacing:-.035em; line-height:1.04; color:{PAPER};
+    animation:heroIn .7s cubic-bezier(.16,.84,.44,1) both; }}
+.hero-h .tail {{ white-space:nowrap; }}
+.hero-h .dot-accent {{ display:inline-block; width:11px; height:11px; border-radius:50%;
+    background:{GRADIENT}; margin-left:9px; vertical-align:middle; }}
+.hero-p {{ font-size:clamp(12px,min(1.05vw,2.0vh),18.5px); line-height:1.55;
+    color:#B4ADB1; max-width:44ch; margin-top:2.2vh; }}
+.impact {{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:3.4vh;
+    border-top:1px solid rgba(255,255,255,.10); }}
+.impact div {{ padding:1.6vh 14px 0 0; border-right:1px solid rgba(255,255,255,.08); }}
+.impact div:last-child {{ border-right:none; padding-right:0; }}
+.impact .k {{ font-family:{MONO}; font-size:clamp(8px,min(.6vw,1.15vh),10.5px);
+    letter-spacing:.07em; color:{ACCENT_A}; font-weight:600; }}
+.impact .v {{ font-size:clamp(10.5px,min(.8vw,1.5vh),14.5px); color:#B4ADB1;
+    margin-top:.7vh; line-height:1.4; }}
+
+/* ---- right: the two sides ------------------------------------------- */
+.eyebrow {{ font-family:{MONO}; font-size:clamp(8.5px,min(.62vw,1.2vh),10.5px);
+    letter-spacing:.14em; color:{ACCENT_A}; font-weight:600; margin-bottom:1.4vh; }}
+.side {{ background:{CARD}; border:1px solid rgba(255,255,255,.09); border-radius:14px;
+    padding:2.0vh 17px; height:100%; position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:transform .18s ease, border-color .18s ease; }}
+.side::before {{ content:""; position:absolute; left:0; right:0; top:0; height:2px;
+    background:var(--accent); opacity:0; transition:opacity .18s ease; }}
+.side:hover {{ transform:translateY(-2px); border-color:rgba(255,255,255,.20); }}
+.side:hover::before {{ opacity:1; }}
+.side .ix {{ font-family:{MONO}; font-size:clamp(8px,min(.58vw,1.1vh),10px);
+    letter-spacing:.12em; color:#8A8289; }}
+.side .ix b {{ color:var(--accent); font-weight:600; }}
+.side h3 {{ font-size:clamp(14px,min(1.18vw,2.25vh),22px); font-weight:800;
+    letter-spacing:-.025em; margin:1.0vh 0 .8vh; line-height:1.14; color:{PAPER}; }}
+.side p {{ font-size:clamp(10.5px,min(.78vw,1.5vh),14.5px); line-height:1.55;
+    color:#B4ADB1; margin:0; }}
+.side ul {{ list-style:none; padding:0; margin:1.6vh 0 0; }}
+.side li {{ display:flex; gap:8px; align-items:flex-start;
+    font-size:clamp(10px,min(.74vw,1.42vh),14px); line-height:1.45; color:#B4ADB1;
+    margin-bottom:.9vh; }}
+.side li span {{ color:var(--accent); font-weight:700; }}
+.side .box {{ margin-top:auto; padding-top:1.6vh;
+    border-top:1px solid rgba(255,255,255,.09);
+    display:flex; align-items:baseline; gap:9px; }}
+.side .box b {{ font-family:{MONO}; font-size:clamp(15px,min(1.35vw,2.6vh),27px);
+    font-weight:700; letter-spacing:-.02em; color:{PAPER}; }}
+.side .box span {{ font-size:clamp(9.5px,min(.7vw,1.34vh),11.5px); color:#8A8289;
+    line-height:1.4; }}
+
+/* ---- foot: the bridge line and the role choice ---------------------- */
+.nl-bridge {{ font-size:clamp(11px,min(.86vw,1.65vh),14px); color:#8A8289;
+    letter-spacing:-.01em; padding-bottom:.6vh; }}
+.nl-bridge b {{ color:{PAPER}; font-weight:700; }}
+.rolecard .rl {{ font-family:{MONO}; font-size:clamp(8px,min(.58vw,1.1vh),10px);
+    letter-spacing:.12em; color:#8A8289; margin-bottom:.7vh; }}
+/* Buttons are real Streamlit widgets, restyled for the dark ground rather
+   than redrawn in HTML - a link would lose the session state that carries the
+   chosen role into the app. */
+[data-testid="stMain"] .stButton > button {{ border-radius:10px; font-weight:600;
+    font-size:clamp(11.5px,min(.84vw,1.6vh),14px); padding:1.15vh 12px;
+    border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06);
+    color:{PAPER}; }}
+[data-testid="stMain"] .stButton > button:hover {{ border-color:{ACCENT_A}; color:{PAPER}; }}
+[data-testid="stMain"] .stButton > button[kind="primary"] {{ background:{GRADIENT};
+    border:none; color:#fff; }}
+
+/* ---- the drop contours behind the page ------------------------------ */
+.hero-art {{ position:absolute; right:-7vw; bottom:-10vh; top:auto;
+    width:min(40vw,540px); height:min(70vh,540px); opacity:.55;
+    pointer-events:none; z-index:0; }}
 .ring {{ transform-origin:260px 258px; }}
 .ring-a {{ animation:breathe 9s ease-in-out infinite; }}
 .ring-b {{ animation:breathe 9s ease-in-out infinite; animation-delay:-4.5s; }}
-.impact {{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:46px; border-top:1px solid rgba(255,255,255,.10); position:relative; z-index:2; }}
-.impact div {{ padding:20px 22px 4px 0; border-right:1px solid rgba(255,255,255,.08); }}
-.impact div:last-child {{ border-right:none; }}
-.impact .k {{ font-family:{MONO}; font-size:11px; letter-spacing:.08em; color:{ACCENT_A}; font-weight:600; }}
-.impact .v {{ font-size:13.5px; color:#B4ADB1; margin-top:7px; line-height:1.45; }}
-.hero-mono {{ font-family:{MONO}; font-size:10.5px; letter-spacing:.14em; color:#6E666B; margin-top:34px; position:relative; z-index:2; }}
-.eyebrow {{ font-family:{MONO}; font-size:11px; letter-spacing:.14em; color:{ACCENT_A}; font-weight:600; }}
-.sec {{ margin-top:82px; }}
-.sec-h {{ font-size:38px; font-weight:800; letter-spacing:-.03em; margin-top:12px; color:{INK}; }}
-.side {{ background:#fff; border:1px solid {LINE}; border-radius:18px; padding:32px 30px; height:100%; position:relative; overflow:hidden; transition:transform .18s ease, box-shadow .18s ease; }}
-.side::before {{ content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--accent); opacity:0; transition:opacity .18s ease; }}
-.side:hover {{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(24,19,22,.07); }}
-.side:hover::before {{ opacity:1; }}
-.side .ix {{ font-family:{MONO}; font-size:11px; letter-spacing:.12em; color:{INK_3}; }}
-.side .ix b {{ color:var(--accent); font-weight:600; }}
-.side h3 {{ font-size:27px; font-weight:800; letter-spacing:-.03em; margin:14px 0 12px; line-height:1.15; }}
-.side p {{ font-size:14px; line-height:1.62; color:{INK_2}; }}
-.side ul {{ list-style:none; padding:0; margin:22px 0 0; }}
-.side li {{ display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.55; color:{INK_2}; margin-bottom:11px; }}
-.side li span {{ color:var(--accent); font-weight:700; }}
-.side .box {{ margin-top:24px; border-top:1px solid {LINE_2}; padding-top:18px; display:flex; align-items:baseline; gap:12px; }}
-.side .box b {{ font-family:{MONO}; font-size:30px; font-weight:700; letter-spacing:-.02em; color:{INK}; }}
-.side .box span {{ font-size:12.5px; color:{INK_3}; line-height:1.4; }}
-.bridge {{ margin:96px 0 0; text-align:center; font-size:clamp(30px,4vw,54px); font-weight:800; letter-spacing:-.035em; line-height:1.1; color:{INK}; }}
-.bridge em {{ font-style:normal; color:{INK_3}; }}
-.enter {{ margin-top:92px; text-align:center; }}
-.enter h2 {{ font-size:38px; font-weight:800; letter-spacing:-.03em; margin-top:10px; }}
-.rolecard {{ text-align:left; }}
-.rolecard .rl {{ font-family:{MONO}; font-size:10.5px; letter-spacing:.12em; color:{INK_3}; }}
-.rolecard h4 {{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:8px 0 6px; }}
-.rolecard p {{ font-size:13.5px; color:{INK_2}; line-height:1.55; margin-bottom:6px; }}
-.foot {{ margin-top:74px; padding-top:22px; border-top:1px solid {LINE}; display:flex; justify-content:space-between; font-family:{MONO}; font-size:10.5px; letter-spacing:.1em; color:{INK_3}; }}
-@keyframes heroIn {{ from {{ opacity:0; transform:translateY(18px); }} to {{ opacity:1; transform:none; }} }}
+@keyframes heroIn {{ from {{ opacity:0; transform:translateY(14px); }} to {{ opacity:1; transform:none; }} }}
 @keyframes logoSettle {{ from {{ opacity:0; transform:scale(.7); }} to {{ opacity:1; transform:scale(1); }} }}
 @keyframes breathe {{ 0%,100% {{ transform:scale(1); opacity:1; }} 50% {{ transform:scale(1.035); opacity:.72; }} }}
-@media (prefers-reduced-motion: reduce) {{ .hero,.mark,.ring {{ animation:none !important; }} }}
-@media (max-width:980px) {{ .hero {{ padding:36px 26px; }} .hero-art {{ display:none; }} .impact {{ grid-template-columns:repeat(2,1fr); }} }}
+@media (prefers-reduced-motion: reduce) {{ .nl-brand,.mark,.ring,.hero-h {{ animation:none !important; }} }}
+
+/* Below a landscape width there is no landscape to fit: the page goes back
+   to being a document rather than clipping itself. */
+@media (max-width:900px) {{
+    [data-testid="stMain"] .block-container {{ height:auto; overflow:auto; }}
+    [data-testid="stMain"] [data-testid="stColumn"] > div,
+    [data-testid="stMain"] [data-testid="stColumn"] > div > [data-testid="stVerticalBlock"] {{
+        justify-content:flex-start; }}
+    .hero-art {{ display:none; }} .impact {{ grid-template-columns:repeat(2,1fr); }} }}
 </style>
 """
 
@@ -160,69 +239,61 @@ def render() -> str | None:
     impacts = "".join(
         f"<div><div class='k'>{k}</div><div class='v'>{v}</div></div>"
         for k, v in IMPACTS)
+
     st.markdown(
-        f"<div class='hero'>{_rings()}"
-        f"<div class='hero-brand'>{_logo(60)}<span class='wordmark'>nectar</span></div>"
-        f"<div class='hero-h'>Cross-pollinating brands, creators<br>"
-        f"and better outcomes.<span class='dot-accent'></span></div>"
-        f"<div class='hero-p'>Nectar matches brands and creators where "
-        f"audience, content, campaign and commercial fit intersect - creating "
-        f"stronger partnerships and better value for both sides.</div>"
-        f"<div class='impact'>{impacts}</div>"
-        f"<div class='hero-mono'>{POSITIONING}</div></div>",
+        f"<div class='nl-wrap'>{_rings()}"
+        f"<div class='nl-head'>"
+        f"<div class='nl-brand'>{_logo(46)}<span class='wordmark'>nectar</span></div>"
+        f"<div class='nl-mono'>{POSITIONING}</div></div></div>",
         unsafe_allow_html=True)
 
-    st.markdown("<div class='sec'><div class='eyebrow'>BUILT FOR BOTH SIDES</div>"
-                "<div class='sec-h'>One engine, pointed in two directions.</div></div>",
-                unsafe_allow_html=True)
-    cols = st.columns(2, gap="large")
-    for col, s in zip(cols, SIDES):
-        with col:
-            points = "".join(f"<li><span>✓</span>{p}</li>" for p in s["points"])
-            st.markdown(
-                f"<div class='side' style='--accent:{s['accent']}'>"
-                f"<div class='ix'><b>{s['index']}</b> / {s['label']}</div>"
-                f"<h3>{s['head']}</h3><p>{s['body']}</p><ul>{points}</ul>"
-                f"<div class='box'><b>{s['impact'][0]}</b>"
-                f"<span>{s['impact'][1]}</span></div></div>",
-                unsafe_allow_html=True)
+    left, right = st.columns([1.04, 1], gap="large")
 
-    st.markdown("<div class='bridge'>The middleman disappears.<br>"
-                "<em>The reasoning doesn't.</em></div>", unsafe_allow_html=True)
-
-    st.markdown("<div class='enter'><div class='eyebrow'>ENTER NECTAR</div>"
-                "<h2>Choose your side.</h2></div>", unsafe_allow_html=True)
-    st.markdown("<div style='height:22px'></div>", unsafe_allow_html=True)
-
-    chosen = None
-    left, mid, right = st.columns([1, 1, 1], gap="large")
-    for col, (role, label, title, body, cta) in zip(
-            (left, mid),
-            [("brand", "FOR BRANDS", "I'm running a campaign",
-              "Brief the campaign, see every creator scored against it, and "
-              "read the reasoning before you commit budget.", "Enter Brand OS"),
-             ("creator", "FOR CREATORS", "I make the content",
-              "Connect your account, get matched to briefs that fit your rates, "
-              "formats and calendar, and see why each one fits.",
-              "Enter Creator OS")]):
-        with col, st.container(border=True):
-            st.markdown(
-                f"<div class='rolecard'><div class='rl'>{label}</div>"
-                f"<h4>{title}</h4><p>{body}</p></div>", unsafe_allow_html=True)
-            if st.button(cta, key=f"enter_{role}", type="primary",
-                         use_container_width=True):
-                chosen = role
-    with right:
+    with left:
         st.markdown(
-            f"<div style='padding:6px 4px;font-size:12.5px;color:{INK_3};"
-            f"line-height:1.65'><b style='color:{INK}'>Not sure?</b><br>"
-            f"Brands search and shortlist. Creators receive briefs and reply. "
-            f"You can switch sides at any time from the sidebar — the same "
-            f"scores are shown to both, which is the point.</div>",
+            f"<div class='nl-wrap nl-hero'>"
+            f"<div class='hero-h'>Cross-pollinating brands, creators and "
+            f"better <span class='tail'>outcomes."
+            f"<span class='dot-accent'></span></span></div>"
+            f"<div class='hero-p'>Nectar matches brands and creators where "
+            f"audience, content, campaign and commercial fit intersect - "
+            f"creating stronger partnerships and better value for both "
+            f"sides.</div>"
+            f"<div class='impact'>{impacts}</div></div>",
             unsafe_allow_html=True)
 
-    st.markdown(
-        f"<div class='foot'><span>NECTAR · MARKETPLACE PROTOTYPE</span>"
-        f"<span>SYNTHETIC DATA · NO REAL CREATOR IS REPRESENTED</span></div>",
-        unsafe_allow_html=True)
+    with right:
+        st.markdown("<div class='nl-wrap'><div class='eyebrow'>BUILT FOR BOTH "
+                    "SIDES</div></div>", unsafe_allow_html=True)
+        a, b = st.columns(2, gap="small")
+        for col, s_ in zip((a, b), SIDES):
+            with col:
+                points = "".join(f"<li><span>✓</span>{p}</li>" for p in s_["points"])
+                st.markdown(
+                    f"<div class='nl-wrap'><div class='side' style='--accent:{s_['accent']}'>"
+                    f"<div class='ix'><b>{s_['index']}</b> / {s_['label']}</div>"
+                    f"<h3>{s_['head']}</h3><p>{s_['body']}</p><ul>{points}</ul>"
+                    f"<div class='box'><b>{s_['impact'][0]}</b>"
+                    f"<span>{s_['impact'][1]}</span></div></div></div>",
+                    unsafe_allow_html=True)
+
+    chosen = None
+    foot_l, foot_r = st.columns([1.04, 1], gap="large")
+    with foot_l:
+        st.markdown(
+            "<div class='nl-wrap nl-role nl-bridge'>The middleman disappears. "
+            "<b>The reasoning doesn't.</b></div>", unsafe_allow_html=True)
+    with foot_r:
+        c1, c2 = st.columns(2, gap="small")
+        for col, (role, label, cta) in zip(
+                (c1, c2),
+                [("brand", "FOR BRANDS", "Enter Brand OS"),
+                 ("creator", "FOR CREATORS", "Enter Creator OS")]):
+            with col:
+                st.markdown(f"<div class='nl-wrap rolecard'><div class='rl'>{label}"
+                            f"</div></div>", unsafe_allow_html=True)
+                if st.button(cta, key=f"enter_{role}",
+                             type="primary" if role == "brand" else "secondary",
+                             use_container_width=True):
+                    chosen = role
     return chosen

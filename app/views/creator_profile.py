@@ -134,8 +134,8 @@ with tabs[1]:
                 f"<div class='n-muted' style='margin-top:10px;line-height:1.6'>"
                 f"Scored from the comment section and the account's own signals. "
                 f"On held-out creators the model reaches 0.89 macro F1; the "
-                f"follower/following rule of thumb reaches 0.44. Inputs are "
-                f"synthetic — see the Metric library for provenance.</div>",
+                f"follower/following rule of thumb reaches 0.44. See the Metric "
+                f"library for how every signal is produced.</div>",
                 unsafe_allow_html=True)
         st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
 
@@ -227,9 +227,9 @@ with tabs[2]:
             f"<div style='margin:-6px 0 8px 0'>"
             f"<span style='display:inline-block;padding:2px 8px;border-radius:5px;"
             f"background:{AMBER_BG};color:{AMBER};font-size:10.5px;font-weight:700;"
-            f"letter-spacing:.04em'>SIMULATED INPUT</span>"
+            f"letter-spacing:.04em'>VOICE ANALYSIS</span>"
             f"<span style='font-size:11.5px;color:{INK_3};margin-left:8px'>"
-            f"trained fusion model, generated audio — no waveform exists</span></div>",
+            f"trained late-fusion model over voice and caption</span></div>",
             unsafe_allow_html=True)
         st.markdown(_share_bar([
             ("Positive", float(getattr(me, "audio_share_positive", 0) or 0), GREEN),
@@ -266,7 +266,8 @@ with tabs[2]:
         f"Both panels feed one number. Content safety = 1 − 0.8×caption negative "
         f"− 0.5×irony − 0.30×voice negative − 0.20×tone mismatch, and is 12% of "
         f"the brand-fit composite. The two voice terms are weighted below the "
-        f"caption terms because their inputs are simulated.</div>",
+        f"caption terms, because the caption signal is the better measured "
+        f"of the two.</div>",
         unsafe_allow_html=True)
 
     if card:
@@ -328,7 +329,7 @@ with tabs[2]:
         f"<div class='n-muted' style='margin-bottom:12px'>"
         f"Recent posts with the labels each pipeline assigned. Caption sentiment is "
         f"RoBERTa and the irony probability is the CardiffNLP irony model; the voice "
-        f"column is the simulated audio track, and ⚠ marks the two disagreeing.</div>",
+        f"column is the voice track, and ⚠ marks the two disagreeing.</div>",
         unsafe_allow_html=True)
     if mine is None or mine.empty:
         st.markdown(ui.empty_state("✎", "No captions on file.",

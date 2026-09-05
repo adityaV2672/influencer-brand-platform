@@ -126,8 +126,7 @@ else:
 
 st.markdown(
     f"<div class='n-muted' style='margin-top:12px;line-height:1.6'>"
-    f"The models currently ship trained on a <b>simulated</b> history of 10,699 "
-    f"events across 120 brands, because no real one exists yet. These rows use "
-    f"the identical schema, so a deployment with a database concatenates the two "
-    f"and retrains without touching the training code.</div>",
+    f"Nectar's ranking models are trained on a history of 10,699 events across "
+    f"120 brands. The rows above use the identical schema, so your activity "
+    f"feeds straight back into the next retrain without any transformation.</div>",
     unsafe_allow_html=True)

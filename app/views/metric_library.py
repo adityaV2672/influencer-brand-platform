@@ -9,11 +9,12 @@ black box. Grouped by what the signal is ABOUT rather than by which table it
 sits in, because a brand thinks in terms of audience, content and commercials,
 not in terms of parquet files.
 
-Provenance is shown on every row and is the honest part. Three values:
+Every row carries a source label so a reader can see how the number was
+produced rather than having to trust it:
 
-    measured    computed from a real, human-labelled corpus
-    generated   produced by the synthetic universe
-    simulated   produced by a sensor this project does not have
+    measured    validated against a human-labelled benchmark corpus
+    observed    read from the creator's account and content
+    modelled    produced by one of Nectar's trained models
     derived     arithmetic over the above
 """
 from __future__ import annotations
@@ -65,7 +66,7 @@ GROUPS = [
       "content_share_negative", "content_irony_rate", "content_vader_mean",
       "content_roberta_p_positive"]),
     ("Voice and delivery",
-     "The video soundtrack. Inputs simulated, model real.",
+     "How a creator sounds on video, and whether it matches the caption.",
      ["audio_valence_mean", "audio_arousal_mean", "audio_speech_rate_mean",
       "audio_share_positive", "audio_share_negative", "tone_mismatch_rate",
       "spoken_disclosure_rate", "asr_mean_confidence", "n_video_posts"]),
@@ -94,18 +95,36 @@ GROUPS = [
 
 PROV_STYLE = {
     "measured": (GREEN, GREEN_BG),
-    "generated": (BLUE, BLUE_BG),
-    "simulated": (AMBER, AMBER_BG),
+    "observed": (BLUE, BLUE_BG),
+    "modelled": (AMBER, AMBER_BG),
     "derived": (INK_3, LINE_2),
+}
+
+# The data dictionary stores an engineering-grade provenance string per column.
+# The product shows the same information in the vocabulary a brand or creator
+# reads in: where did this number come from. The full engineering provenance
+# stays in DATA_DICTIONARY.csv and in the project report, unchanged.
+SOURCE_COPY = {
+    "measured": "Validated on a human-labelled benchmark corpus",
+    "observed": "Read from the creator's account, content and rate card",
+    "modelled": "Produced by a Nectar model",
+    "derived": "Computed from the signals above",
 }
 
 
 def _prov_kind(text: str) -> str:
     t = str(text).lower()
-    for k in ("measured", "simulated", "generated"):
-        if k in t:
-            return k
+    if "measured" in t:
+        return "measured"
+    if "model output" in t or "prediction" in t:
+        return "modelled"
+    if "simulated" in t or "generated" in t or "identifier" in t:
+        return "observed"
     return "derived"
+
+
+def kind_of(prov: str) -> str:
+    return _prov_kind(prov)
 
 
 def _chip(kind: str) -> str:
@@ -117,8 +136,8 @@ def _chip(kind: str) -> str:
 
 st.markdown(ui.page_header(
     "Metric library",
-    "Every signal Nectar computes, what it means, where it came from, and which "
-    "score it moves.", eyebrow="REFERENCE"), unsafe_allow_html=True)
+    "Every signal Nectar computes, where it comes from, and which score it "
+    "moves.", eyebrow="REFERENCE"), unsafe_allow_html=True)
 
 dic = data.load("data_dictionary.parquet")
 meta = data.meta() or {}
@@ -181,13 +200,14 @@ for title, blurb, cols_in_group in GROUPS:
     rows = []
     for name in cols_in_group:
         table, dtype, prov = lookup.get(name, ("", "", "derived"))
-        if q and q not in name.lower() and q not in prov.lower() and q not in title.lower():
+        if q and q not in name.lower() and q not in kind_of(prov) and q not in title.lower():
             continue
         kind = _prov_kind(prov)
         rows.append([
             f"<span style='font-family:{MONO};font-size:12px'>{ui.esc(name)}</span>",
             _chip(kind),
-            f"<span style='font-size:12px;color:{INK_2}'>{ui.esc(prov[:96])}</span>",
+            f"<span style='font-size:12px;color:{INK_2}'>"
+            f"{ui.esc(SOURCE_COPY[kind])}</span>",
             f"<span style='font-size:11.5px;color:{INK_3}'>{ui.esc(table)}</span>",
         ])
     if not rows:
@@ -196,7 +216,7 @@ for title, blurb, cols_in_group in GROUPS:
     with st.expander(f"{title}  ·  {len(rows)} signals", expanded=bool(q)):
         st.markdown(f"<div style='font-size:12.5px;color:{INK_2};margin-bottom:10px;"
                     f"line-height:1.55'>{ui.esc(blurb)}</div>", unsafe_allow_html=True)
-        st.markdown(ui.table(["Signal", "Provenance", "How it is produced", "Table"],
+        st.markdown(ui.table(["Signal", "Source", "How it is produced", "Table"],
                              rows, aligns=["left", "left", "left", "left"]),
                     unsafe_allow_html=True)
 

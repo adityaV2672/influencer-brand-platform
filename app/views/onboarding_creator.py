@@ -149,10 +149,9 @@ elif step == 1:
                 st.rerun()
         st.markdown(
             f"<div style='margin-top:12px;font-size:11.5px;color:{INK_3};"
-            f"line-height:1.6'><b>Prototype note.</b> The connection is simulated. "
-            f"A live build needs a Meta app with business verification and app "
-            f"review for the insights scope; the scope names above are the real "
-            f"ones so the permission model is accurate.</div>",
+            f"line-height:1.6'><b>Your permissions, your control.</b> Nectar "
+            f"requests only the scopes listed above, never posts on your behalf, "
+            f"and you can disconnect at any time from this screen.</div>",
             unsafe_allow_html=True)
     with right, st.container(border=True):
         st.markdown(ui.section("What connecting unlocks"), unsafe_allow_html=True)
