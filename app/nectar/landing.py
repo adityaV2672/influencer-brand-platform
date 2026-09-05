@@ -1,28 +1,26 @@
 """
 The landing page: Nectar's front door.
 
-One screen, landscape, no scroll. The page is a fixed-height flex column
-rather than a document:
+One screen, landscape, no scroll.
 
-    head        logo, wordmark, positioning line
-    cols        the argument (left) and the two sides (right) - this row
-                takes whatever height is left over and centres its content
-    foot        the bridge line and the two role buttons
+The page is a single block of HTML - the stage - plus one row of real
+Streamlit buttons underneath it. The stage carries its own height in
+viewport units, so it reserves exactly the room the button row needs and
+the buttons cannot be pushed below the fold by anything above them. That
+division matters: laying the whole page out through Streamlit's own
+column tree meant fighting a wrapper hierarchy that changes between
+versions, and the cards drifted out of alignment whenever their text
+differed in length.
 
-Because the middle row absorbs the slack and the footer is a rigid flex
-item, the role buttons cannot be pushed below the fold no matter how tall
-the argument gets - the middle clips before the footer moves.
-
-The role cards are the only interactive part, and they are real Streamlit
-buttons rather than styled anchors - a link would lose the session state that
-carries the chosen role into the app.
+The buttons stay real Streamlit widgets rather than styled anchors - a
+link would lose the session state that carries the chosen role into the
+app.
 """
 from __future__ import annotations
 
 import streamlit as st
 
-from .theme import (ACCENT_A, ACCENT_B, GRADIENT, INK, INK_2, INK_3, LINE,
-                    LINE_2, MONO, PAPER, SANS)
+from .theme import ACCENT_A, ACCENT_B, GRADIENT, INK, MONO, PAPER
 from .ui import logo_svg
 
 IMPACTS = [
@@ -37,6 +35,10 @@ POSITIONING = "SCORING · CAMPAIGN FIT · BRAND FIT · VERIFIED CREATOR DATA"
 # The card ground is a flat colour rather than a translucent wash: the drop
 # contours behind the page used to show through the cards and cross the text.
 CARD = "#1F1A1E"
+
+# How much vertical room the button row needs, stage height subtracted. The
+# buttons measure 40px; the rest is the gap above them and a little slack.
+FOOT_PX = 48
 
 SIDES = [
     {"index": "01", "label": "BRANDS", "accent": ACCENT_A,
@@ -70,8 +72,7 @@ def _rings() -> str:
     out = []
     for i in range(11):
         s = 0.42 + i * 0.36
-        t = i / 10
-        colour = ACCENT_A if t < 0.5 else ACCENT_B
+        colour = ACCENT_A if i / 10 < 0.5 else ACCENT_B
         op = 0.42 - 0.028 * i
         group = "a" if i % 2 == 0 else "b"
         out.append(
@@ -97,41 +98,23 @@ CSS = f"""
 <style>
 /* ---- the frame -------------------------------------------------------
    height:100vh with padding only adds up to one screen if the padding is
-   counted inside the height. Without border-box the container measured
-   100vh + 20px, which is precisely how far the role buttons used to hang
+   counted inside the height. Without border-box the frame measured
+   100vh + 20px, which is exactly how far the role buttons used to hang
    below the fold. */
 [data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stToolbar"] {{ display:none !important; }}
 [data-testid="stAppViewContainer"], [data-testid="stMain"], .stApp {{ background:{INK} !important; }}
 [data-testid="stMain"] .block-container {{
     box-sizing:border-box; max-width:1560px; padding:2.2vh 2.8vw 2.0vh;
-    height:100vh; overflow:hidden; display:flex; flex-direction:column; position:relative; }}
+    height:100vh; overflow:hidden; position:relative; }}
 [data-testid="stMain"] .block-container *, [data-testid="stMain"] .block-container *::before,
 [data-testid="stMain"] .block-container *::after {{ box-sizing:border-box; }}
 
-/* Streamlit wraps the page in two anonymous divs before the vertical block.
-   They are made flex columns so the height of the frame reaches the rows. */
-[data-testid="stMain"] .block-container > div,
-[data-testid="stMain"] .block-container > div > div {{
-    flex:1 1 auto; min-height:0; width:100%; display:flex; flex-direction:column; }}
-[data-testid="stMain"] .block-container > div > div > [data-testid="stVerticalBlock"] {{
-    flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:0; }}
-[data-testid="stMain"] .block-container > div > div > [data-testid="stVerticalBlock"]
-    > [data-testid="stElementContainer"] {{ flex:0 0 auto; }}
-
-/* The hero row absorbs the slack; the role row is rigid. Marker classes are
-   used rather than child position so that adding an element to the page
-   cannot silently retarget these rules. */
-[data-testid="stMain"] [data-testid="stHorizontalBlock"]:has(.nl-hero) {{
-    flex:1 1 auto; min-height:0; align-items:stretch; }}
-[data-testid="stMain"] [data-testid="stHorizontalBlock"]:has(.nl-role) {{
-    flex:0 0 auto; align-items:end; padding-top:2.2vh; }}
-[data-testid="stMain"] [data-testid="stHorizontalBlock"] {{ align-items:stretch; }}
-[data-testid="stMain"] [data-testid="stColumn"] > div,
-[data-testid="stMain"] [data-testid="stColumn"] > div > [data-testid="stVerticalBlock"] {{
-    height:100%; display:flex; flex-direction:column; justify-content:center; gap:0; }}
-
-.nl-wrap {{ position:relative; z-index:2; }}
-.nl-head {{ display:flex; align-items:center; justify-content:space-between; }}
+/* The stage is everything except the buttons, and it reserves their room
+   rather than discovering it: 100vh less the frame's own padding, less the
+   height of the button row. */
+.nl-stage {{ height:calc(95.8vh - {FOOT_PX}px); display:flex; flex-direction:column;
+    position:relative; z-index:2; }}
+.nl-head {{ display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; }}
 .nl-brand {{ display:flex; align-items:center; gap:14px;
     animation:heroIn .6s cubic-bezier(.16,.84,.44,1) both; }}
 .mark {{ display:inline-flex; align-items:center; justify-content:center;
@@ -141,7 +124,13 @@ CSS = f"""
 .nl-mono {{ font-family:{MONO}; font-size:clamp(8.5px,min(.62vw,1.2vh),10.5px);
     letter-spacing:.14em; color:#6E666B; text-align:right; }}
 
-/* ---- left: the argument --------------------------------------------- */
+/* The middle row takes whatever height is left and centres each column in
+   it, so the argument sits at the optical centre of the screen rather than
+   at the top with a void beneath it. */
+.nl-cols {{ display:grid; grid-template-columns:1.04fr 1fr; gap:2.8vw;
+    align-items:stretch; flex:1 1 auto; min-height:0; }}
+.nl-col {{ display:flex; flex-direction:column; justify-content:center; min-height:0; }}
+
 .hero-h {{ font-size:clamp(30px,min(3.4vw,6.4vh),68px); font-weight:800;
     letter-spacing:-.035em; line-height:1.04; color:{PAPER};
     animation:heroIn .7s cubic-bezier(.16,.84,.44,1) both; }}
@@ -159,11 +148,13 @@ CSS = f"""
 .impact .v {{ font-size:clamp(10.5px,min(.8vw,1.5vh),14.5px); color:#B4ADB1;
     margin-top:.7vh; line-height:1.4; }}
 
-/* ---- right: the two sides ------------------------------------------- */
 .eyebrow {{ font-family:{MONO}; font-size:clamp(8.5px,min(.62vw,1.2vh),10.5px);
-    letter-spacing:.14em; color:{ACCENT_A}; font-weight:600; margin-bottom:1.4vh; }}
+    letter-spacing:.14em; color:{ACCENT_A}; font-weight:600; margin-bottom:1.4vh;
+    flex:0 0 auto; }}
+.pair {{ display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch;
+    flex:0 0 auto; }}
 .side {{ background:{CARD}; border:1px solid rgba(255,255,255,.09); border-radius:14px;
-    padding:2.0vh 17px; height:100%; position:relative; overflow:hidden;
+    padding:2.0vh 17px; position:relative; overflow:hidden;
     display:flex; flex-direction:column;
     transition:transform .18s ease, border-color .18s ease; }}
 .side::before {{ content:""; position:absolute; left:0; right:0; top:0; height:2px;
@@ -190,27 +181,31 @@ CSS = f"""
 .side .box span {{ font-size:clamp(9.5px,min(.7vw,1.34vh),11.5px); color:#8A8289;
     line-height:1.4; }}
 
-/* ---- foot: the bridge line and the role choice ---------------------- */
+/* The bridge line sits on the stage's last row, on the left, level with the
+   buttons that follow it. */
+.nl-foot {{ display:grid; grid-template-columns:1.04fr 1fr; gap:2.8vw;
+    align-items:end; flex:0 0 auto; padding-top:2.0vh; }}
 .nl-bridge {{ font-size:clamp(11px,min(.86vw,1.65vh),14px); color:#8A8289;
-    letter-spacing:-.01em; padding-bottom:.6vh; }}
+    letter-spacing:-.01em; }}
 .nl-bridge b {{ color:{PAPER}; font-weight:700; }}
-.rolecard .rl {{ font-family:{MONO}; font-size:clamp(8px,min(.58vw,1.1vh),10px);
-    letter-spacing:.12em; color:#8A8289; margin-bottom:.7vh; }}
-/* Buttons are real Streamlit widgets, restyled for the dark ground rather
-   than redrawn in HTML - a link would lose the session state that carries the
-   chosen role into the app. */
+
+/* Buttons are real Streamlit widgets, restyled for the dark ground. They are
+   the only part of the page Streamlit lays out. */
+[data-testid="stMain"] .block-container [data-testid="stVerticalBlock"] {{ gap:0; }}
+[data-testid="stMain"] [data-testid="stHorizontalBlock"] {{ align-items:end; }}
 [data-testid="stMain"] .stButton > button {{ border-radius:10px; font-weight:600;
-    font-size:clamp(11.5px,min(.84vw,1.6vh),14px); padding:1.15vh 12px;
+    font-size:clamp(11.5px,min(.84vw,1.6vh),14px); padding:10px 12px; height:40px;
     border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06);
     color:{PAPER}; }}
 [data-testid="stMain"] .stButton > button:hover {{ border-color:{ACCENT_A}; color:{PAPER}; }}
 [data-testid="stMain"] .stButton > button[kind="primary"] {{ background:{GRADIENT};
     border:none; color:#fff; }}
 
-/* ---- the drop contours behind the page ------------------------------ */
-.hero-art {{ position:absolute; right:-7vw; bottom:-10vh; top:auto;
-    width:min(40vw,540px); height:min(70vh,540px); opacity:.55;
-    pointer-events:none; z-index:0; }}
+/* ---- the drop contours behind the page ------------------------------
+   Fixed to the viewport, not to the block it happens to be written in. */
+.hero-art {{ position:fixed; right:0; bottom:0; top:auto;
+    width:min(46vw,660px); height:min(84vh,660px); opacity:.5;
+    transform:translate(34%,38%); pointer-events:none; z-index:0; }}
 .ring {{ transform-origin:260px 258px; }}
 .ring-a {{ animation:breathe 9s ease-in-out infinite; }}
 .ring-b {{ animation:breathe 9s ease-in-out infinite; animation-delay:-4.5s; }}
@@ -223,75 +218,62 @@ CSS = f"""
    to being a document rather than clipping itself. */
 @media (max-width:900px) {{
     [data-testid="stMain"] .block-container {{ height:auto; overflow:auto; }}
-    [data-testid="stMain"] [data-testid="stColumn"] > div,
-    [data-testid="stMain"] [data-testid="stColumn"] > div > [data-testid="stVerticalBlock"] {{
-        justify-content:flex-start; }}
+    .nl-stage {{ height:auto; }}
+    .nl-cols, .nl-foot {{ grid-template-columns:1fr; gap:3vh; }}
     .hero-art {{ display:none; }} .impact {{ grid-template-columns:repeat(2,1fr); }} }}
 </style>
 """
+
+
+def _stage_html() -> str:
+    impacts = "".join(
+        f"<div><div class='k'>{k}</div><div class='v'>{v}</div></div>"
+        for k, v in IMPACTS)
+    cards = ""
+    for s_ in SIDES:
+        points = "".join(f"<li><span>✓</span>{p}</li>" for p in s_["points"])
+        cards += (f"<div class='side' style='--accent:{s_['accent']}'>"
+                  f"<div class='ix'><b>{s_['index']}</b> / {s_['label']}</div>"
+                  f"<h3>{s_['head']}</h3><p>{s_['body']}</p><ul>{points}</ul>"
+                  f"<div class='box'><b>{s_['impact'][0]}</b>"
+                  f"<span>{s_['impact'][1]}</span></div></div>")
+    return (
+        f"{_rings()}<div class='nl-stage'>"
+        f"<div class='nl-head'>"
+        f"<div class='nl-brand'>{_logo(46)}<span class='wordmark'>nectar</span></div>"
+        f"<div class='nl-mono'>{POSITIONING}</div></div>"
+        f"<div class='nl-cols'>"
+        f"<div class='nl-col'>"
+        f"<div class='hero-h'>Cross-pollinating brands, creators and better "
+        f"<span class='tail'>outcomes.<span class='dot-accent'></span></span></div>"
+        f"<div class='hero-p'>Nectar matches brands and creators where "
+        f"audience, content, campaign and commercial fit intersect - creating "
+        f"stronger partnerships and better value for both sides.</div>"
+        f"<div class='impact'>{impacts}</div></div>"
+        f"<div class='nl-col'>"
+        f"<div class='eyebrow'>BUILT FOR BOTH SIDES</div>"
+        f"<div class='pair'>{cards}</div></div>"
+        f"</div>"
+        f"<div class='nl-foot'>"
+        f"<div class='nl-bridge'>The middleman disappears. "
+        f"<b>The reasoning doesn't.</b></div><div></div></div>"
+        f"</div>")
 
 
 def render() -> str | None:
     """Draw the landing page. Returns 'brand' or 'creator' once chosen."""
     st.markdown("\n".join(l for l in CSS.splitlines() if l.strip()),
                 unsafe_allow_html=True)
-
-    impacts = "".join(
-        f"<div><div class='k'>{k}</div><div class='v'>{v}</div></div>"
-        for k, v in IMPACTS)
-
-    st.markdown(
-        f"<div class='nl-wrap'>{_rings()}"
-        f"<div class='nl-head'>"
-        f"<div class='nl-brand'>{_logo(46)}<span class='wordmark'>nectar</span></div>"
-        f"<div class='nl-mono'>{POSITIONING}</div></div></div>",
-        unsafe_allow_html=True)
-
-    left, right = st.columns([1.04, 1], gap="large")
-
-    with left:
-        st.markdown(
-            f"<div class='nl-wrap nl-hero'>"
-            f"<div class='hero-h'>Cross-pollinating brands, creators and "
-            f"better <span class='tail'>outcomes."
-            f"<span class='dot-accent'></span></span></div>"
-            f"<div class='hero-p'>Nectar matches brands and creators where "
-            f"audience, content, campaign and commercial fit intersect - "
-            f"creating stronger partnerships and better value for both "
-            f"sides.</div>"
-            f"<div class='impact'>{impacts}</div></div>",
-            unsafe_allow_html=True)
-
-    with right:
-        st.markdown("<div class='nl-wrap'><div class='eyebrow'>BUILT FOR BOTH "
-                    "SIDES</div></div>", unsafe_allow_html=True)
-        a, b = st.columns(2, gap="small")
-        for col, s_ in zip((a, b), SIDES):
-            with col:
-                points = "".join(f"<li><span>✓</span>{p}</li>" for p in s_["points"])
-                st.markdown(
-                    f"<div class='nl-wrap'><div class='side' style='--accent:{s_['accent']}'>"
-                    f"<div class='ix'><b>{s_['index']}</b> / {s_['label']}</div>"
-                    f"<h3>{s_['head']}</h3><p>{s_['body']}</p><ul>{points}</ul>"
-                    f"<div class='box'><b>{s_['impact'][0]}</b>"
-                    f"<span>{s_['impact'][1]}</span></div></div></div>",
-                    unsafe_allow_html=True)
+    st.markdown(_stage_html(), unsafe_allow_html=True)
 
     chosen = None
-    foot_l, foot_r = st.columns([1.04, 1], gap="large")
-    with foot_l:
-        st.markdown(
-            "<div class='nl-wrap nl-role nl-bridge'>The middleman disappears. "
-            "<b>The reasoning doesn't.</b></div>", unsafe_allow_html=True)
-    with foot_r:
+    _, right = st.columns([1.04, 1], gap="large")
+    with right:
         c1, c2 = st.columns(2, gap="small")
-        for col, (role, label, cta) in zip(
+        for col, (role, cta) in zip(
                 (c1, c2),
-                [("brand", "FOR BRANDS", "Enter Brand OS"),
-                 ("creator", "FOR CREATORS", "Enter Creator OS")]):
+                [("brand", "Enter Brand OS"), ("creator", "Enter Creator OS")]):
             with col:
-                st.markdown(f"<div class='nl-wrap rolecard'><div class='rl'>{label}"
-                            f"</div></div>", unsafe_allow_html=True)
                 if st.button(cta, key=f"enter_{role}",
                              type="primary" if role == "brand" else "secondary",
                              use_container_width=True):
