@@ -17,14 +17,19 @@ from .theme import (
 )
 
 def logo_svg(size: int = 22, dot: str = INK) -> str:
-    """The nectar mark: a droplet with a punched-out centre.
+    """The nectar mark: an upright droplet with a punched-out centre.
 
     Built as SVG rather than a CSS border-radius trick - the trick renders as
     an ellipse at small sizes because the corner radii get clamped.
+
+    The path is symmetric about x=12 and its apex sits at the top, so the drop
+    stands upright on its own. It used to carry transform:rotate(-18deg),
+    which tipped it sideways everywhere the mark appeared; the rotation is
+    gone and nothing replaces it.
     """
     gid = f"ng{size}"
     return f"""<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none"
-     style="transform:rotate(-18deg);flex:0 0 auto">
+     style="flex:0 0 auto">
   <defs><linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0%" stop-color="{ACCENT_A}"/><stop offset="100%" stop-color="{ACCENT_B}"/>
   </linearGradient></defs>

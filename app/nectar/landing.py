@@ -18,6 +18,7 @@ import streamlit as st
 
 from .theme import (ACCENT_A, ACCENT_B, GRADIENT, INK, INK_2, INK_3, LINE,
                     LINE_2, MONO, PAPER, SANS)
+from .ui import logo_svg
 
 IMPACTS = [
     ("FASTER DISCOVERY", "Brief → ranked shortlist"),
@@ -83,10 +84,16 @@ def _rings() -> str:
 
 
 def _logo(size: int = 60) -> str:
-    inner = int(size * 0.30)
-    return (f"<span class='mark' style='width:{size}px;height:{size}px'>"
-            f"<span class='dot' style='width:{inner}px;height:{inner}px'></span>"
-            f"</span>")
+    """One mark, defined once, in ui.logo_svg.
+
+    This used to be a CSS square with three rounded corners and a 45-degree
+    rotation. That is a tilted drop by construction - the rotation IS what
+    makes the shape read as a teardrop - so it could not be stood upright
+    without ceasing to be a drop at all. The SVG the sidebar already used is
+    upright on its own, so the landing page now uses the same one and there is
+    a single definition of the logo rather than three.
+    """
+    return f"<span class='mark'>{logo_svg(size)}</span>"
 
 
 CSS = f"""
@@ -95,8 +102,7 @@ CSS = f"""
 [data-testid="stMain"] .block-container {{ max-width:1180px; padding-top:1.6rem; padding-bottom:3rem; }}
 .hero {{ position:relative; background:{INK}; border-radius:28px; padding:52px 56px 44px; overflow:hidden; animation:heroIn .7s cubic-bezier(.16,.84,.44,1) both; }}
 .hero-brand {{ display:flex; align-items:center; gap:16px; margin-bottom:44px; position:relative; z-index:2; }}
-.mark {{ display:inline-flex; align-items:center; justify-content:center; border-radius:50% 50% 50% 4px; transform:rotate(45deg); background:{GRADIENT}; animation:logoSettle .8s cubic-bezier(.16,.84,.44,1) both; }}
-.mark .dot {{ border-radius:50%; background:{INK}; transform:rotate(-45deg); }}
+.mark {{ display:inline-flex; align-items:center; justify-content:center; animation:logoSettle .8s cubic-bezier(.16,.84,.44,1) both; }}
 .wordmark {{ font-size:46px; font-weight:800; letter-spacing:-.04em; color:{PAPER}; line-height:1; }}
 .hero-h {{ font-size:clamp(40px,5.4vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.02; color:{PAPER}; max-width:15ch; position:relative; z-index:2; }}
 .hero-h .dot-accent {{ display:inline-block; width:13px; height:13px; border-radius:50%; background:{GRADIENT}; margin-left:10px; vertical-align:middle; }}
@@ -138,7 +144,7 @@ CSS = f"""
 .rolecard p {{ font-size:13.5px; color:{INK_2}; line-height:1.55; margin-bottom:6px; }}
 .foot {{ margin-top:74px; padding-top:22px; border-top:1px solid {LINE}; display:flex; justify-content:space-between; font-family:{MONO}; font-size:10.5px; letter-spacing:.1em; color:{INK_3}; }}
 @keyframes heroIn {{ from {{ opacity:0; transform:translateY(18px); }} to {{ opacity:1; transform:none; }} }}
-@keyframes logoSettle {{ from {{ opacity:0; transform:rotate(45deg) scale(.7); }} to {{ opacity:1; transform:rotate(45deg) scale(1); }} }}
+@keyframes logoSettle {{ from {{ opacity:0; transform:scale(.7); }} to {{ opacity:1; transform:scale(1); }} }}
 @keyframes breathe {{ 0%,100% {{ transform:scale(1); opacity:1; }} 50% {{ transform:scale(1.035); opacity:.72; }} }}
 @media (prefers-reduced-motion: reduce) {{ .hero,.mark,.ring {{ animation:none !important; }} }}
 @media (max-width:980px) {{ .hero {{ padding:36px 26px; }} .hero-art {{ display:none; }} .impact {{ grid-template-columns:repeat(2,1fr); }} }}
@@ -157,11 +163,11 @@ def render() -> str | None:
     st.markdown(
         f"<div class='hero'>{_rings()}"
         f"<div class='hero-brand'>{_logo(60)}<span class='wordmark'>nectar</span></div>"
-        f"<div class='hero-h'>Find the right creators.<br>Know exactly why."
-        f"<span class='dot-accent'></span></div>"
-        f"<div class='hero-p'>Nectar turns influencer marketing into a "
-        f"transparent, self-serve marketplace — from campaign brief to ranked "
-        f"creator shortlist to deal.</div>"
+        f"<div class='hero-h'>Cross-pollinating brands, creators<br>"
+        f"and better outcomes.<span class='dot-accent'></span></div>"
+        f"<div class='hero-p'>Nectar matches brands and creators where "
+        f"audience, content, campaign and commercial fit intersect - creating "
+        f"stronger partnerships and better value for both sides.</div>"
         f"<div class='impact'>{impacts}</div>"
         f"<div class='hero-mono'>{POSITIONING}</div></div>",
         unsafe_allow_html=True)

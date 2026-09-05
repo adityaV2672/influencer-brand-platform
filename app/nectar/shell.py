@@ -105,15 +105,9 @@ SIGNIN_CSS = f"""
 .signin-mark {{
     display: inline-flex; align-items: center; gap: 11px; margin-bottom: 26px;
 }}
-.signin-mark .drop {{
-    width: 30px; height: 30px; border-radius: 50% 50% 50% 3px;
-    transform: rotate(45deg); background: {GRADIENT};
-    display: inline-flex; align-items: center; justify-content: center;
-}}
-.signin-mark .drop::after {{
-    content: ""; width: 11px; height: 11px; border-radius: 50%;
-    background: {INK}; transform: rotate(-45deg);
-}}
+/* .drop removed: the sign-in header renders logo_svg, so this rotated
+   CSS teardrop was a second, tilted definition of the mark that nothing
+   used. One logo, one definition. */
 .signin-mark .word {{ font-size: 30px; font-weight: 700; letter-spacing: -0.035em; }}
 .signin-h {{ font-size: 44px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; }}
 .signin-p {{ font-size: 15.5px; color: #4A4247; margin: 12px auto 0; max-width: 380px; }}
@@ -163,7 +157,8 @@ def render_signin() -> None:
         "<div class='signin-hero'>"
         f"<div class='signin-mark'>{logo_svg(32)}<span class='word'>nectar</span></div>"
         "<div class='signin-h'>Influence, without the middleman.</div>"
-        "<div class='signin-p'>Find the right creators. Understand why. Run the campaign.</div>"
+        "<div class='signin-p'>Nectar matches brands and creators where audience, "
+        "content, campaign and commercial fit intersect.</div>"
         "</div><div style='height:34px'></div>",
         unsafe_allow_html=True,
     )
