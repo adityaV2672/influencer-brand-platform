@@ -4,7 +4,12 @@
 # "Error running app". Local launchers pass --server.port on the command line.
 [server]
 headless = true
-fileWatcherType = "none"
+# "none" left the hosted app serving code it had already pulled: Streamlit
+# Cloud fetches the new commit and says "Updated app!", but with no watcher
+# the running process keeps the modules it imported at boot, so a push only
+# took effect after a manual reboot. "auto" costs a little memory and saves
+# that step.
+fileWatcherType = "auto"
 
 [browser]
 gatherUsageStats = false

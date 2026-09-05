@@ -92,14 +92,17 @@ When it finishes, refresh your GitHub repo page. You should see all the files.
 5. Click **Deploy**.
 
 The first build takes 3–6 minutes while it installs the packages. You'll see a
-log scrolling. When it finishes you get a public URL like:
+log scrolling. When it finishes you get a public URL. Streamlit Cloud appends
+a random suffix to the repository name, so the address is not the one you
+would guess - this deployment's is:
 
 ```
-https://influencer-brand-platform.streamlit.app
+https://influencer-brand-platform-cbeykxfdvrypcursfund6t.streamlit.app
 ```
 
 That link is what goes in your report and your slides. Anyone can open it —
-no login needed.
+no login needed. The exact URL is always listed at https://share.streamlit.io
+under your apps; that listing, not a guess, is the address to use.
 
 ---
 
